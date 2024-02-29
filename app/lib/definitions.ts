@@ -33,3 +33,12 @@ export interface Status {
   recordType: string;
   keepUpdated: boolean;
 }
+
+export interface UserShow {
+  showId: number;
+  watched: boolean[];
+}
+
+export interface User {
+  shows: UserShow[];
+}
