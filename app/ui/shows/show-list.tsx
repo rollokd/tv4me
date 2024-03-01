@@ -1,7 +1,21 @@
-import { User, Show, UserShow } from "@/app/lib/definitions";
+"use client";
+import { SeriesExtended } from "@/app/lib/definitions";
 
-function ShowList({ user, shows }: { user: User; shows: UserShow[] }) {
-  return <div></div>;
+function ShowItem({ show }: { show: SeriesExtended }) {
+  return (
+    <div key={show.id}>
+      <p>{show.name}</p>
+    </div>
+  );
 }
 
-export default ShowList;
+export default function ShowList({ shows }: { shows: SeriesExtended[] }) {
+  return (
+    <div>
+      {shows.length > 0 &&
+        shows.map((show: SeriesExtended) => (
+          <ShowItem key={show.id} show={show}></ShowItem>
+        ))}
+    </div>
+  );
+}
