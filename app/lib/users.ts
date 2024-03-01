@@ -1,6 +1,6 @@
 import dbConnect from "./db";
 import mongoose from "mongoose";
-import { User } from "./definitions";
+import { User, UserShow } from "./definitions";
 
 const userSchema = new mongoose.Schema({
   shows: [
@@ -11,24 +11,37 @@ const userSchema = new mongoose.Schema({
   ],
 });
 
-const UserModel = mongoose.model<User>("User", userSchema);
+const UserModel =
+  mongoose.models.User || mongoose.model<User>("User", userSchema);
 
 const createUser = async () => {
-  await dbConnect();
   const user = await UserModel.create({ shows: [] });
   return user;
 };
 
-const addShow = async (userId: string, showId: number) => {
+const getUser = async (userId: string) => {
   try {
     await dbConnect();
     const user = await UserModel.findById(userId);
-    if (user) {
-      user.shows.push({ showId, watched: [] });
-      await user.save();
-    } else {
+    return user;
+  } catch (err) {
+    console.log(err);
+    return "User not found";
+  }
+};
+
+const addShow = async (userId: string, showId: number, episodes: number) => {
+  try {
+    const user = await UserModel.findById(userId);
+    if (user.shows.find((s: UserShow) => s.showId === showId)) {
+      throw new Error("Show already added");
+    }
+    if (!user) {
       throw new Error("User not found");
     }
+    const watched = new Array(episodes).fill(false);
+    user.shows.push({ showId, watched });
+    await user.save();
   } catch (err) {
     console.error(err);
   }
@@ -40,12 +53,11 @@ const updateWatchedOne = async (
   episode: number
 ) => {
   try {
-    await dbConnect();
     const user = await UserModel.findById(userId);
     if (!user) {
       throw new Error("User not found");
     }
-    const show = user.shows.find((s) => s.showId === showId);
+    const show = user.shows.find((s: UserShow) => s.showId === showId);
     if (!show) {
       throw new Error("Show not found");
     }
@@ -56,4 +68,4 @@ const updateWatchedOne = async (
   }
 };
 
-export { createUser, addShow, updateWatchedOne };
+export { createUser, getUser, addShow, updateWatchedOne };
