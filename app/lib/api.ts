@@ -1,4 +1,4 @@
-import { SeriesExtended, SeriesResponse } from "./definitions";
+import { SeriesExtended, SeriesResponse, Show, Response } from "./definitions";
 import { getUser } from "./users";
 
 export async function getShows() {
@@ -9,7 +9,16 @@ export async function getShows() {
   return data;
 }
 
-export async function getShow(id: number) {
+export async function getShowsList(shows: number[]) {
+  const resp = await Promise.all(
+    shows.map((show) => {
+      return getShow(show);
+    })
+  );
+  return resp;
+}
+
+export async function getShow(id: number): Promise<Response<Show>> {
   const response = await fetch(`https://api4.thetvdb.com/v4/series/${id}`, {
     headers: { Authorization: `Bearer ${process.env.TVDB_TOKEN}` },
   });

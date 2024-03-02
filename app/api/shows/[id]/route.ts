@@ -1,4 +1,4 @@
-import { getUsersShowsAndEpisodes } from "@/app/lib/api";
+import { getShowsList, getUsersShowsAndEpisodes } from "@/app/lib/api";
 import { User } from "@/app/lib/definitions";
 import { getUser } from "@/app/lib/users";
 
@@ -9,9 +9,15 @@ export async function GET(
   console.log("got request", params.id);
   const id = params.id;
   const user: User = await getUser(id);
+  const showIds = user.shows.map((s) => s.showId);
   // console.log(user);
-  const shows = await getUsersShowsAndEpisodes(user.shows.map((s) => s.showId));
+  const [showWEps, series] = await Promise.all([
+    getUsersShowsAndEpisodes(showIds),
+    getShowsList(showIds),
+  ]);
+  // console.log(series);
   console.log("got show response");
-  const data = shows.map((s) => s.data);
-  return Response.json({ user, shows: data });
+  const seriesData = series.map((s) => s.data);
+  const data = showWEps.map((s) => s.data);
+  return Response.json({ user, series: data, seriesData });
 }

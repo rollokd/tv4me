@@ -1,3 +1,8 @@
+export interface Response<T> {
+  data: T;
+  status: string;
+}
+
 export interface Show {
   id: number;
   name: string;

@@ -32,6 +32,7 @@ const getUser = async (userId: string) => {
 
 const addShow = async (userId: string, showId: number, episodes: number) => {
   try {
+    await dbConnect();
     const user = await UserModel.findById(userId);
     if (user.shows.find((s: UserShow) => s.showId === showId)) {
       throw new Error("Show already added");

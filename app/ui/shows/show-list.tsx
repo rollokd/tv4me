@@ -1,19 +1,22 @@
 "use client";
-import { SeriesExtended } from "@/app/lib/definitions";
+import { SeriesExtended, Show } from "@/app/lib/definitions";
 
-function ShowItem({ show }: { show: SeriesExtended }) {
+function ShowItem({ show }: { show: Show }) {
   return (
-    <div key={show.id}>
+    <div className="bg-red-800" key={show.id}>
       <p>{show.name}</p>
+      <p>{show.nextAired}</p>
     </div>
   );
 }
 
-export default function ShowList({ shows }: { shows: SeriesExtended[] }) {
+export default function ShowList({ shows }: { shows: Show[] }) {
+  console.log("show list", shows);
   return (
     <div>
-      {shows.length > 0 &&
-        shows.map((show: SeriesExtended) => (
+      {shows &&
+        shows.length > 0 &&
+        shows.map((show: Show) => (
           <ShowItem key={show.id} show={show}></ShowItem>
         ))}
     </div>
