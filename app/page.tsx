@@ -6,7 +6,7 @@ export default async function Home() {
   const id = "65e0df64e483a7bd7222c535";
   const user = await getUser(id);
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24 h-dvh">
+    <main className="flex min-h-screen flex-col items-center justify-between p-24">
       <div>Hello</div>
       <Link href="/shows">
         <div>

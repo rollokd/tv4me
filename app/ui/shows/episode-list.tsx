@@ -25,7 +25,7 @@ function EpisodeList({
   // }
   // console.log(episodes);
   episodes = episodes?.filter((e) => e.seasonNumber !== 0);
-  console.log(episodes?.length);
+  // console.log(episodes?.length);
   return (
     <div className="flex flex-col w-1/3 bg-red-800 rounded-md gap-2">
       {episodes && watchedList ? (
@@ -52,27 +52,28 @@ function EpisodeList({
                   onClick={async (e) => {
                     e.preventDefault();
                     e.stopPropagation();
+                    watchedList[index] = !watchedList[index];
                     const resp = await updateWatchedEp(
                       user._id,
                       currShow,
                       index
                     );
-                    if (resp == "successful") {
-                      setUser((prev: User) => {
-                        return {
-                          ...prev,
-                          shows: prev.shows.map((s) => {
-                            return s.showId === currShow
-                              ? { ...s, watched: watchedList }
-                              : s;
-                          }),
-                        };
-                      });
-                      console.log(`watched ${episode.name} + no. ${index} `);
-                    }
+                    // if (resp == "successful") {
+                    setUser((prev: User) => {
+                      return {
+                        ...prev,
+                        shows: prev.shows.map((s) => {
+                          return s.showId === currShow
+                            ? { ...s, watched: watchedList }
+                            : s;
+                        }),
+                      };
+                    });
+                    console.log(`watched ${episode.name} + no. ${index} `);
+                    // }
                   }}
                 >
-                  {watchedList[index] ? "Unwatched" : "Watched"}
+                  {watchedList[index] ? "-" : "+"}
                 </button>
               </li>
             ))}

@@ -35,7 +35,7 @@ export default function ShowsTable({ id }: { id: string }) {
   // console.log("episodes", series.find((s) => s.id === currShow)?.episodes);
 
   return (
-    <div className="flex flex-row bg-gray-800 rounded-md gap-12">
+    <div className="flex flex-row bg-gray-800 gap-12 p-3">
       {shows.length ? (
         <ShowList shows={shows} setCurrShow={setCurrShow} />
       ) : (
