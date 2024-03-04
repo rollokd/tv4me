@@ -5,10 +5,10 @@ import { getUsersShowsAndEpisodes } from "../lib/api";
 import dbConnect from "../lib/db";
 
 export default async function Page() {
-  const id = "65e0df64e483a7bd7222c535";
-  // const user = await createUser();
-  // await addShow(user.id, 81189, 10);
-  // await addShow(user.id, 121361, 10);
+  let id = "65e0df64e483a7bd7222c535";
+  // const newUser: User = await createUser();
+  // await addShow(id, 81189, 62);
+  // await addShow(id, 121361, 73);
 
   return (
     <div>

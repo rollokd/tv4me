@@ -62,8 +62,9 @@ const updateWatchedOne = async (
     if (!show) {
       throw new Error("Show not found");
     }
-    show.watched[episode] = true;
+    show.watched[episode] = !show.watched[episode];
     await user.save();
+    return user;
   } catch (err) {
     console.error(err);
   }

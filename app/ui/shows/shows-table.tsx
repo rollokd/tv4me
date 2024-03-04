@@ -13,11 +13,14 @@ export default function ShowsTable({ id }: { id: string }) {
   const [currEpisode, setCurrEpisode] = useState<number>(0);
 
   const episodes = series.find((s) => s.id === currShow)?.episodes;
+  const watchedList = user.shows.find((s) => s.showId === currShow)?.watched;
 
   useEffect(() => {
     const fetchUser = async () => {
       // console.log("fetching user");
-      const response = await fetch(`http://localhost:3000/api/shows/${id}`);
+      const response = await fetch(`http://localhost:3000/api/shows/${id}`, {
+        next: { tags: ["userData"] },
+      });
       const data: { user: User; series: SeriesExtended[]; seriesData: Show[] } =
         await response.json();
       // console.log("fetched data for table:", data);
@@ -29,7 +32,7 @@ export default function ShowsTable({ id }: { id: string }) {
     fetchUser();
   }, [id]);
 
-  console.log("episodes", series.find((s) => s.id === currShow)?.episodes);
+  // console.log("episodes", series.find((s) => s.id === currShow)?.episodes);
 
   return (
     <div className="flex flex-row bg-gray-800 rounded-md gap-12">
@@ -39,15 +42,18 @@ export default function ShowsTable({ id }: { id: string }) {
         <div>No Shows Yet</div>
       )}
       {shows.length ? (
-        <EpisodeList episodes={episodes} setCurrEpisode={setCurrEpisode} />
+        <EpisodeList
+          user={user}
+          setUser={setUser}
+          currShow={currShow}
+          episodes={episodes}
+          setCurrEpisode={setCurrEpisode}
+          watchedList={watchedList}
+        />
       ) : (
         <div>Loading...</div>
       )}
-      {currEpisode ? (
-        <EpisodeItem episode={episodes?.find((e) => e.id === currEpisode)} />
-      ) : (
-        <div>No Episode Selected</div>
-      )}
+      <EpisodeItem episode={episodes?.find((e) => e.id === currEpisode)} />
     </div>
   );
 }
