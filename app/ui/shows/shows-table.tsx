@@ -1,9 +1,11 @@
 "use client";
+import { useEffect, useState } from "react";
+
 import { SeriesExtended, Show, User } from "@/app/lib/definitions";
-import { Suspense, useEffect, useState } from "react";
-import ShowList from "./show-list";
-import EpisodeList from "./episode-list";
+
 import EpisodeItem from "./episode-info";
+import EpisodeList from "./episode-list";
+import ShowList from "./show-list";
 
 export default function ShowsTable({ id }: { id: string }) {
   const [user, setUser] = useState<User>({ _id: "", shows: [] });
@@ -35,7 +37,7 @@ export default function ShowsTable({ id }: { id: string }) {
   // console.log("episodes", series.find((s) => s.id === currShow)?.episodes);
 
   return (
-    <div className="flex flex-row bg-gray-800 gap-12 p-3 h-svh">
+    <div className="flex flex-row bg-gray-800 gap-12 p-3 overflow-y-auto h-full">
       {shows.length ? (
         <ShowList shows={shows} setCurrShow={setCurrShow} />
       ) : (

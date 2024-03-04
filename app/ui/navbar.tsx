@@ -2,7 +2,7 @@ import Link from "next/link";
 
 function NavBar(props: Readonly<{}>) {
   return (
-    <div className="flex flex-row justify-start items-center w-dvh bg-gray-400 gap-10">
+    <div className="flex flex-row justify-start items-center w-dvh bg-gray-400 gap-10 h-[50px]">
       <Link href={"/"} className="text-3xl">
         TV4Me
       </Link>

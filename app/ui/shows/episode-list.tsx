@@ -1,7 +1,7 @@
+import { Dispatch, SetStateAction } from "react";
+
 import { updateWatchedEp } from "@/app/lib/actions";
 import { EpisodeSeries, User } from "@/app/lib/definitions";
-import clsx from "clsx";
-import { Dispatch, SetStateAction } from "react";
 
 function EpisodeList({
   user,
@@ -15,7 +15,7 @@ function EpisodeList({
   setUser: Dispatch<SetStateAction<User>>;
   currShow: number;
   episodes: EpisodeSeries[] | undefined;
-  setCurrEpisode: Function;
+  setCurrEpisode: Dispatch<SetStateAction<number>>;
   watchedList: boolean[] | undefined;
 }) {
   // function handleWatchedClick(event: React.MouseEvent<HTMLButtonElement>) {
@@ -27,7 +27,7 @@ function EpisodeList({
   console.log(episodes);
   // console.log(episodes?.length);
   return (
-    <div className="flex flex-col w-1/3 bg-red-800 rounded-md gap-2 h-full overflow-y-auto scrollbar-hide">
+    <div className="flex flex-col w-1/3 bg-red-800 rounded-md gap-2 overflow-y-auto scrollbar-hide">
       {episodes && watchedList ? (
         <>
           <p>Episodes</p>
