@@ -9,6 +9,7 @@ function NavBar(props: Readonly<{}>) {
       <Link href={"/shows"}>My Shows</Link>
       <Link href={"/watch-list"}>To Watch</Link>
       <Link href={"/trending"}>Trending</Link>
+      <Link href={"/search"}>Search</Link>
     </div>
   );
 }
