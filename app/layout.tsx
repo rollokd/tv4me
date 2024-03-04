@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { inter } from "./ui/fonts";
 import "./globals.css";
+import NavBar from "./ui/navbar";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -15,6 +16,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className + "w-screen h-screen overflow-hidden"}>
+        <NavBar />
         {children}
       </body>
     </html>
