@@ -23,11 +23,11 @@ function EpisodeList({
   //   event.stopPropagation();
   //   console.log(`watched ${episode.name} + no. ${index} `);
   // }
-  // console.log(episodes);
-  episodes = episodes?.filter((e) => e.seasonNumber !== 0);
+  episodes = episodes?.filter((e) => e.seasonNumber !== 0 && e.aired !== null);
+  console.log(episodes);
   // console.log(episodes?.length);
   return (
-    <div className="flex flex-col w-1/3 bg-red-800 rounded-md gap-2">
+    <div className="flex flex-col w-1/3 bg-red-800 rounded-md gap-2 h-full overflow-y-auto scrollbar-hide">
       {episodes && watchedList ? (
         <>
           <p>Episodes</p>

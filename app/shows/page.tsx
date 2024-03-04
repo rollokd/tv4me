@@ -11,8 +11,8 @@ export default async function Page() {
   // await addShow(id, 121361, 73);
 
   return (
-    <div>
+    <>
       <ShowsTable id={id} />
-    </div>
+    </>
   );
 }

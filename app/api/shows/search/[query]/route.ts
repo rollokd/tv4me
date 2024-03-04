@@ -1,7 +1,11 @@
+import { getSearchResults } from "@/app/lib/api";
+
 export async function GET(
   request: Request,
-  context: { params: { query: string } }
+  { params }: { params: { query: string } }
 ) {
-  const query = context.params.query;
-  console.log("got request", query);
+  const query = params.query;
+  console.log("query:", query);
+  const response = await getSearchResults(query);
+  return Response.json({ searchResults: response.data });
 }

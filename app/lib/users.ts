@@ -15,7 +15,8 @@ const UserModel =
   mongoose.models.User || mongoose.model<User>("User", userSchema);
 
 const createUser = async () => {
-  const user = await UserModel.create({ shows: [] });
+  await dbConnect();
+  const user: User = await UserModel.create({ shows: [] });
   return user;
 };
 
@@ -34,7 +35,7 @@ const addShow = async (userId: string, showId: number, episodes: number) => {
   try {
     await dbConnect();
     const user = await UserModel.findById(userId);
-    if (user.shows.find((s: UserShow) => s.showId === showId)) {
+    if (user && user.shows.find((s: UserShow) => s.showId === showId)) {
       throw new Error("Show already added");
     }
     if (!user) {
@@ -54,6 +55,7 @@ const updateWatchedOne = async (
   episode: number
 ) => {
   try {
+    await dbConnect();
     const user = await UserModel.findById(userId);
     if (!user) {
       throw new Error("User not found");

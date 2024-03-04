@@ -82,7 +82,7 @@ export interface SearchResponse {
 export interface UserShow {
   showId: number;
   watched: boolean[];
-  _id: string;
+  // _id: string;
 }
 
 export interface User {

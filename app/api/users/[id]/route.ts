@@ -7,6 +7,6 @@ export async function GET(
 ) {
   const id = params.id;
   const user: User = await getUser(id);
-  console.log(user);
+  // console.log(user);
   return Response.json({ user });
 }
