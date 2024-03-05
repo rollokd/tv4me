@@ -22,6 +22,12 @@ export default function ShowsTable({ id }: { id: string }) {
     ? user.shows.find((s) => s.showId === currShow)?.watched
     : undefined;
 
+  const sortedShows =
+    shows &&
+    shows.sort((a, b) => {
+      return new Date(b.lastAired).getTime() - new Date(a.lastAired).getTime();
+    });
+
   const setCurrShowAndEp = (series: SeriesExtended) => {
     setCurrShow(series.id);
     setCurrEpisode(series.episodes.filter((e) => e.seasonNumber !== 0)[0].id);
@@ -37,7 +43,7 @@ export default function ShowsTable({ id }: { id: string }) {
       //   await response.json();
       // console.log("fetched data for table:", data);
       const json = await getShowsAndEpsFromId(id);
-      console.log("fetched data for table:", json);
+      // console.log("fetched data for table:", json);
       const data = JSON.parse(json);
       if (data === "failed") return console.log("failed to fetch data");
       setUser(data.user);
@@ -54,7 +60,11 @@ export default function ShowsTable({ id }: { id: string }) {
   return (
     <div className="flex flex-row bg-gray-600 gap-3 p-5 overflow-y-auto h-full">
       {shows.length ? (
-        <ShowList shows={shows} currShow={currShow} setCurrShow={setCurrShow} />
+        <ShowList
+          shows={sortedShows}
+          currShow={currShow}
+          setCurrShow={setCurrShow}
+        />
       ) : (
         <div className="flex flex-col w-1/3 overflow-y-auto scrollbar-hide bg-gray-950 rounded-md">
           No Shows Yet

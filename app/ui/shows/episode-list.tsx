@@ -47,7 +47,7 @@ function EpisodeList({
 
   episodes = episodes?.filter((e) => e.seasonNumber !== 0 && e.aired !== null);
   const epsBySeason = episodes
-    ?.reduce((acc: EpisodeSeries[][], item, index) => {
+    ?.reduce((acc: EpisodeSeries[][], item) => {
       if (!acc[item.seasonNumber]) {
         acc[item.seasonNumber] = [];
       }
@@ -55,7 +55,7 @@ function EpisodeList({
       return acc;
     }, [])
     .slice(1);
-  console.log(epsBySeason);
+  // console.log(epsBySeason);
   // console.log(episodes);
 
   const seasonNodes =

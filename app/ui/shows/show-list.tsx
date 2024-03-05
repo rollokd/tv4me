@@ -47,25 +47,44 @@ export default function ShowList({
   currShow: number;
   setCurrShow: Dispatch<SetStateAction<number>>;
 }) {
-  const sortedShows = shows.sort((a, b) => {
-    return new Date(b.lastAired).getTime() - new Date(a.lastAired).getTime();
+  const filtered = shows.reduce(
+    (acc: Show[][], show) => {
+      if (show.nextAired) {
+        acc[0].push(show);
+      } else {
+        acc[1].push(show);
+      }
+      return acc;
+    },
+    [[], []]
+  );
+
+  const showNodes = filtered.map((shows, index) => {
+    return (
+      <div key={index}>
+        <h1 className="text-2xl text-white border-b-2 border-white mb-2 p-2 sticky top-10 bg-gray-950 z-0">
+          {index === 0 ? "Upcoming" : "Ended"}
+        </h1>
+        {shows.map((show) => (
+          <ShowItem
+            key={show.id}
+            show={show}
+            currShow={currShow}
+            setCurrShow={setCurrShow}
+          ></ShowItem>
+        ))}
+      </div>
+    );
   });
 
   return (
     <div className="flex flex-col w-1/3 overflow-y-auto scrollbar-hide bg-gray-950 rounded-md">
-      <h1 className="text-white bg-gray-950 text-2xl sticky top-0 px-3 pt-3 pb-1">
+      <h1 className="text-white bg-gray-950 text-2xl sticky top-0 px-3 pt-3 pb-1 z-10">
         Shows
       </h1>
       <div className="flex flex-col gap-3 px-3 pb-3 pt-2">
-        {sortedShows && sortedShows.length > 0 ? (
-          sortedShows.map((show: Show) => (
-            <ShowItem
-              key={show.id}
-              show={show}
-              currShow={currShow}
-              setCurrShow={setCurrShow}
-            ></ShowItem>
-          ))
+        {showNodes ? (
+          showNodes
         ) : (
           <div className="flex flex-col w-1/3 overflow-y-auto scrollbar-hide bg-gray-950 rounded-md">
             No Shows Yet
