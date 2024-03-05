@@ -56,6 +56,7 @@ export default function ShowsTable({ id }: { id: string }) {
   }, [id]);
 
   // console.log("episodes", series.find((s) => s.id === currShow)?.episodes);
+  console.log("shows", shows);
 
   return (
     <div className="flex flex-row bg-gray-600 gap-3 p-5 overflow-y-auto h-full">
