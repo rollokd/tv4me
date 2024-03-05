@@ -49,6 +49,20 @@ const addShow = async (userId: string, showId: number, episodes: number) => {
   }
 };
 
+const removeShow = async (userId: string, showId: number) => {
+  try {
+    await dbConnect();
+    const user = await UserModel.findById(userId);
+    if (!user) {
+      throw new Error("User not found");
+    }
+    user.shows = user.shows.filter((s: UserShow) => s.showId !== showId);
+    await user.save();
+  } catch (err) {
+    console.error(err);
+  }
+};
+
 const updateWatchedOne = async (
   userId: string,
   showId: number,
@@ -72,4 +86,4 @@ const updateWatchedOne = async (
   }
 };
 
-export { createUser, getUser, addShow, updateWatchedOne };
+export { createUser, getUser, addShow, updateWatchedOne, removeShow };

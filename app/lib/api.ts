@@ -68,7 +68,7 @@ export async function getSearchResults(
   query: string
 ): Promise<Response<SearchResponse[]>> {
   const response = await fetch(
-    `https://api4.thetvdb.com/v4/search?query=${query}&type=series&limit=6`,
+    `https://api4.thetvdb.com/v4/search?query=${query}&type=series&language=eng&limit=8`,
     {
       headers: { Authorization: `Bearer ${process.env.TVDB_TOKEN}` },
     }

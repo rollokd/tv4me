@@ -63,36 +63,42 @@ function EpisodeList({
     epsBySeason?.map((season, index) => {
       return (
         <div key={index}>
-          <h2 className="text-white bg-gray-950 text-2xl sticky top-0 px-3 pt-3 pb-1">
+          <h2 className="text-white bg-gray-950 text-2xl sticky top-0 px-3 py-2 border-b-2 border-white">
             Season {index + 1}
           </h2>
-          <div className="border-2 border-white rounded-md overflow-y-auto scrollbar-hide h-full mt-2">
-            <ol className="text-white flex flex-col gap-2 list-decimal list-inside">
-              {season.map((episode: EpisodeSeries, index: number) => (
-                <li
-                  className={`flex flex-row p-2 justify-between items-center cursor-pointer border-b-2 transition hover:text-sky-400 duration-300 ease-in-out last:border-0 ${
-                    currEpisode === episode.id ? "text-sky-400" : ""
-                  }`}
-                  key={episode.id}
-                  onClick={() => setCurrEpisode(episode.id)}
-                >
-                  {episode.name}
-                  <button
-                    className={
-                      "text-white bg-blue-500 hover:text-blue-700 p-1 rounded-full"
-                    }
-                    onClick={async (e) => {
-                      await handleWatchedClick(e, watchedList, index, episode);
-                    }}
+          <div className="rounded-md overflow-y-auto scrollbar-hide h-full">
+            <ol className="pl-5 text-white flex flex-col list-decimal list-inside">
+              {episodes &&
+                season.map((episode: EpisodeSeries, index: number) => (
+                  <li
+                    className={`flex flex-row p-2 justify-between items-center cursor-pointer border-b-2 transition hover:text-sky-400 duration-300 ease-in-out ${
+                      currEpisode === episode.id ? "text-blue-500" : ""
+                    }`}
+                    key={episode.id}
+                    onClick={() => setCurrEpisode(episode.id)}
                   >
-                    {watchedList[index] ? (
-                      <SolidCheck className=" w-7 h-7" />
-                    ) : (
-                      <PlusCircleIcon className="w-7 h-7" />
-                    )}
-                  </button>
-                </li>
-              ))}
+                    {index + 1 + ". " + episode.name}
+                    <button
+                      className={
+                        "text-white bg-blue-500 hover:text-blue-700 p-1 rounded-full"
+                      }
+                      onClick={async (e) => {
+                        await handleWatchedClick(
+                          e,
+                          watchedList,
+                          index,
+                          episode
+                        );
+                      }}
+                    >
+                      {watchedList[episodes?.indexOf(episode)] ? (
+                        <SolidCheck className=" w-7 h-7" />
+                      ) : (
+                        <PlusCircleIcon className="w-7 h-7" />
+                      )}
+                    </button>
+                  </li>
+                ))}
             </ol>
           </div>
         </div>
@@ -107,33 +113,7 @@ function EpisodeList({
             Episodes
           </h1>
           <div className="border-2 border-white rounded-md overflow-y-auto scrollbar-hide h-full mt-2">
-            <ol className="text-white flex flex-col gap-2 list-decimal list-inside">
-              {episodes.map((episode: EpisodeSeries, index: number) => (
-                <li
-                  className={`flex flex-row p-2 justify-between items-center cursor-pointer border-b-2 transition hover:text-sky-400 duration-300 ease-in-out last:border-0 ${
-                    currEpisode === episode.id ? "text-sky-400" : ""
-                  }`}
-                  key={episode.id}
-                  onClick={() => setCurrEpisode(episode.id)}
-                >
-                  {episode.name}
-                  <button
-                    className={
-                      "text-white bg-blue-500 hover:text-blue-700 p-1 rounded-full"
-                    }
-                    onClick={async (e) => {
-                      await handleWatchedClick(e, watchedList, index, episode);
-                    }}
-                  >
-                    {watchedList[index] ? (
-                      <SolidCheck className=" w-7 h-7" />
-                    ) : (
-                      <PlusCircleIcon className="w-7 h-7" />
-                    )}
-                  </button>
-                </li>
-              ))}
-            </ol>
+            {seasonNodes}
           </div>
         </>
       ) : (

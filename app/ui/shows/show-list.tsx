@@ -3,6 +3,7 @@ import { SeriesExtended, Show } from "@/app/lib/definitions";
 import { Dispatch, SetStateAction } from "react";
 import Image from "next/image";
 import clsx from "clsx";
+import { prettyDate } from "@/app/lib/client-utils";
 
 function ShowItem({
   show,
@@ -31,7 +32,7 @@ function ShowItem({
       ></Image>
       <div className="flex flex-col p-2">
         <p className="text-xl">{show.name}</p>
-        <p className="text-s">Airdate: {show.lastAired}</p>
+        <p className="text-s">Airdate: {prettyDate(show.lastAired)}</p>
       </div>
     </div>
   );
@@ -46,14 +47,18 @@ export default function ShowList({
   currShow: number;
   setCurrShow: Dispatch<SetStateAction<number>>;
 }) {
+  const sortedShows = shows.sort((a, b) => {
+    return new Date(b.lastAired).getTime() - new Date(a.lastAired).getTime();
+  });
+
   return (
     <div className="flex flex-col w-1/3 overflow-y-auto scrollbar-hide bg-gray-950 rounded-md">
       <h1 className="text-white bg-gray-950 text-2xl sticky top-0 px-3 pt-3 pb-1">
         Shows
       </h1>
       <div className="flex flex-col gap-3 px-3 pb-3 pt-2">
-        {shows && shows.length > 0 ? (
-          shows.map((show: Show) => (
+        {sortedShows && sortedShows.length > 0 ? (
+          sortedShows.map((show: Show) => (
             <ShowItem
               key={show.id}
               show={show}
@@ -62,7 +67,9 @@ export default function ShowList({
             ></ShowItem>
           ))
         ) : (
-          <div>No Shows Yet</div>
+          <div className="flex flex-col w-1/3 overflow-y-auto scrollbar-hide bg-gray-950 rounded-md">
+            No Shows Yet
+          </div>
         )}
       </div>
     </div>

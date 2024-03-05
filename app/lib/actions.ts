@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { addShow, getUser, updateWatchedOne } from "./users";
+import { addShow, getUser, updateWatchedOne, removeShow } from "./users";
 import { getEpsNumber, getShowsList, getUsersShowsAndEpisodes } from "./api";
 import { User } from "./definitions";
 
@@ -25,6 +25,17 @@ export async function addUserShow(userId: string, showId: number) {
     const episodeNo = await getEpsNumber(showId);
     console.log("episodeNo", episodeNo);
     await addShow(userId, showId, episodeNo);
+    revalidatePath("/shows");
+    return "successful";
+  } catch (err) {
+    console.log(err);
+    return "failed";
+  }
+}
+
+export async function removeUserShow(userId: string, showId: number) {
+  try {
+    await removeShow(userId, showId);
     revalidatePath("/shows");
     return "successful";
   } catch (err) {

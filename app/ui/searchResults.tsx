@@ -3,9 +3,10 @@
 import { useEffect, useState } from "react";
 import { SearchResponse, User, UserShow } from "../lib/definitions";
 import { CheckCircleIcon, PlusCircleIcon } from "@heroicons/react/24/outline";
-import { addUserShow } from "../lib/actions";
+import { addUserShow, removeUserShow } from "../lib/actions";
 import clsx from "clsx";
 import { set } from "mongoose";
+import Image from "next/image";
 
 export default function SearchResults({
   query,
@@ -42,18 +43,29 @@ export default function SearchResults({
   query && console.log("got data for query:", query);
   // console.log("response:", response);
   return (
-    <div>
-      <h1>Search Results</h1>
-      <p>Results for {query}</p>
+    <div className="grid grid-cols-2 border-2 border-white rounded-md gap-5 m-5 p-5 h-full">
+      {/* <p className="self-center">
+        Results for: <span className="text-red">{query}</span>
+      </p> */}
       {response.length ? (
-        <ol>
+        <>
           {response.map((result) => {
             return (
-              <li className="flex flex-row items-center gap-2" key={result.id}>
+              <div
+                className="flex flex-row box-border items-center gap-2 border-2 border-white rounded-md h-full pr-4"
+                key={result.id}
+              >
+                <Image
+                  className="rounded-md h-full"
+                  width={100}
+                  height={100}
+                  src={result.image_url}
+                  alt={"Image of tv show: " + result.name}
+                />
                 {result.name}
                 <button
                   className={clsx(
-                    "flex flex-row gap-1 text-white font-bold py-2 px-4 rounded-full",
+                    "ml-auto flex flex-row gap-1 text-white font-bold py-2 px-4 rounded-full",
                     shows.includes(Number(result.tvdb_id))
                       ? "bg-green-500"
                       : "bg-blue-500 hover:bg-blue-700"
@@ -78,7 +90,20 @@ export default function SearchResults({
                         };
                       });
                     } else {
-                      console.log("show already added:", result.name);
+                      console.log("removing show:", result.name);
+                      const resp = await removeUserShow(
+                        user._id,
+                        Number(result.tvdb_id)
+                      );
+                      console.log("resp:", resp);
+                      setUser((prev: User) => {
+                        return {
+                          ...prev,
+                          shows: prev.shows.filter(
+                            (s) => s.showId !== Number(result.tvdb_id)
+                          ),
+                        };
+                      });
                     }
                   }}
                 >
@@ -94,12 +119,12 @@ export default function SearchResults({
                     </>
                   )}
                 </button>
-              </li>
+              </div>
             );
           })}
-        </ol>
+        </>
       ) : (
-        <div>Loading...</div>
+        <div className="">Nothing searched yet.</div>
       )}
     </div>
   );

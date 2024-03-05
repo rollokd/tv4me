@@ -11,10 +11,11 @@ export default async function Page({
   let id = "65e0df64e483a7bd7222c535";
 
   return (
-    <div>
-      <h1>Search</h1>
-      <Search placeholder="Search for a show" />
-      <SearchResults query={query} id={id} />
+    <div className="flex flex-col bg-gray-600 p-5 h-full">
+      <div className="flex flex-col bg-gray-950 text-white p-5 rounded-lg h-full">
+        <Search placeholder="Search for a show" />
+        <SearchResults query={query} id={id} />
+      </div>
     </div>
   );
 }

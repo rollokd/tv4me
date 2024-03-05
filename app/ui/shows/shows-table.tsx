@@ -22,6 +22,11 @@ export default function ShowsTable({ id }: { id: string }) {
     ? user.shows.find((s) => s.showId === currShow)?.watched
     : undefined;
 
+  const setCurrShowAndEp = (series: SeriesExtended) => {
+    setCurrShow(series.id);
+    setCurrEpisode(series.episodes.filter((e) => e.seasonNumber !== 0)[0].id);
+  };
+
   useEffect(() => {
     const fetchUser = async () => {
       // console.log("fetching user");
@@ -38,6 +43,7 @@ export default function ShowsTable({ id }: { id: string }) {
       setUser(data.user);
       setSeries(data.series);
       setShows(data.seriesData);
+      setCurrShowAndEp(data.series[0]);
     };
 
     fetchUser();
