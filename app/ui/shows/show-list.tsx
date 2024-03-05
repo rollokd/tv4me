@@ -108,7 +108,7 @@ export default function ShowList({
 
   return (
     <div className="flex flex-col w-1/3 bg-gray-950 rounded-md">
-      <h1 className="text-white bg-gray-950 text-2xl sticky top-0 px-3 pt-3 pb-1 z-10">
+      <h1 className="text-white bg-gray-950 text-2xl sticky top-0 px-3 pt-3 pb-1 z-10 rounded-md">
         Shows
       </h1>
       <div className="flex flex-col gap-3 border-2 border-white rounded-md overflow-y-auto scrollbar-hide mt-2">
