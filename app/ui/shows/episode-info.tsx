@@ -7,15 +7,16 @@ function EpisodeItem({ episode }: { episode: EpisodeSeries | undefined }) {
       {episode ? (
         <>
           {/* TODO: find how to render images behind API authentication */}
-          {/* <Image
+          <Image
             width={300}
             height={300}
-            src={episode?.image}
+            src={"https://artworks.thetvdb.com" + episode?.image}
             alt="Image of episode"
-          ></Image> */}
+          ></Image>
           <h1>{episode?.name}</h1>
           <p>{episode?.overview}</p>
           <p>{episode?.aired}</p>
+          <p>{episode?.image}</p>
         </>
       ) : (
         <>

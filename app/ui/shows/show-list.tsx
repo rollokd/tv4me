@@ -1,6 +1,7 @@
 "use client";
 import { SeriesExtended, Show } from "@/app/lib/definitions";
 import { Dispatch, SetStateAction } from "react";
+import Image from "next/image";
 
 function ShowItem({
   show,
@@ -17,6 +18,13 @@ function ShowItem({
     >
       <p>{show.name}</p>
       <p>{show.lastAired}</p>
+      <p>{show.image}</p>
+      <Image
+        width={300}
+        height={300}
+        src={show.image}
+        alt="Image of Show"
+      ></Image>
     </div>
   );
 }
