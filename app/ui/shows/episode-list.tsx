@@ -2,11 +2,14 @@ import { Dispatch, SetStateAction } from "react";
 
 import { updateWatchedEp } from "@/app/lib/actions";
 import { EpisodeSeries, User } from "@/app/lib/definitions";
+import { CheckCircleIcon, PlusCircleIcon } from "@heroicons/react/24/outline";
+import { CheckCircleIcon as SolidCheck } from "@heroicons/react/24/solid";
 
 function EpisodeList({
   user,
   setUser,
   currShow,
+  currEpisode,
   episodes,
   setCurrEpisode,
   watchedList,
@@ -14,70 +17,124 @@ function EpisodeList({
   user: User;
   setUser: Dispatch<SetStateAction<User>>;
   currShow: number;
+  currEpisode: number;
   episodes: EpisodeSeries[] | undefined;
   setCurrEpisode: Dispatch<SetStateAction<number>>;
   watchedList: boolean[] | undefined;
 }) {
-  // function handleWatchedClick(event: React.MouseEvent<HTMLButtonElement>) {
-  //   event.preventDefault();
-  //   event.stopPropagation();
-  //   console.log(`watched ${episode.name} + no. ${index} `);
-  // }
+  async function handleWatchedClick(
+    e: React.MouseEvent<HTMLButtonElement>,
+    watchedList: boolean[],
+    index: number,
+    episode: EpisodeSeries
+  ) {
+    e.preventDefault();
+    e.stopPropagation();
+    watchedList[index] = !watchedList[index];
+    const resp = await updateWatchedEp(user._id, currShow, index);
+
+    setUser((prev: User) => {
+      return {
+        ...prev,
+        shows: prev.shows.map((s) => {
+          return s.showId === currShow ? { ...s, watched: watchedList } : s;
+        }),
+      };
+    });
+
+    console.log(`watched ${episode.name} + no. ${index} `);
+  }
+
   episodes = episodes?.filter((e) => e.seasonNumber !== 0 && e.aired !== null);
-  console.log(episodes);
-  // console.log(episodes?.length);
+  const epsBySeason = episodes
+    ?.reduce((acc: EpisodeSeries[][], item, index) => {
+      if (!acc[item.seasonNumber]) {
+        acc[item.seasonNumber] = [];
+      }
+      acc[item.seasonNumber].push(item);
+      return acc;
+    }, [])
+    .slice(1);
+  console.log(epsBySeason);
+  // console.log(episodes);
+
+  const seasonNodes =
+    watchedList &&
+    epsBySeason?.map((season, index) => {
+      return (
+        <div key={index}>
+          <h2 className="text-white bg-gray-950 text-2xl sticky top-0 px-3 pt-3 pb-1">
+            Season {index + 1}
+          </h2>
+          <div className="border-2 border-white rounded-md overflow-y-auto scrollbar-hide h-full mt-2">
+            <ol className="text-white flex flex-col gap-2 list-decimal list-inside">
+              {season.map((episode: EpisodeSeries, index: number) => (
+                <li
+                  className={`flex flex-row p-2 justify-between items-center cursor-pointer border-b-2 transition hover:text-sky-400 duration-300 ease-in-out last:border-0 ${
+                    currEpisode === episode.id ? "text-sky-400" : ""
+                  }`}
+                  key={episode.id}
+                  onClick={() => setCurrEpisode(episode.id)}
+                >
+                  {episode.name}
+                  <button
+                    className={
+                      "text-white bg-blue-500 hover:text-blue-700 p-1 rounded-full"
+                    }
+                    onClick={async (e) => {
+                      await handleWatchedClick(e, watchedList, index, episode);
+                    }}
+                  >
+                    {watchedList[index] ? (
+                      <SolidCheck className=" w-7 h-7" />
+                    ) : (
+                      <PlusCircleIcon className="w-7 h-7" />
+                    )}
+                  </button>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </div>
+      );
+    });
+
   return (
-    <div className="flex flex-col w-1/3 bg-red-800 rounded-md gap-2 overflow-y-auto scrollbar-hide">
+    <div className="flex flex-col w-1/3 bg-gray-950 rounded-md">
       {episodes && watchedList ? (
         <>
-          <p>Episodes</p>
-          <ol className="flex flex-col gap-2">
-            {episodes.map((episode: EpisodeSeries, index: number) => (
-              <li
-                className={`flex flex-row justify-between items-center ${
-                  watchedList[index] ? "bg-green-600" : "bg-blue-600"
-                } rounded-md cursor-pointer ${
-                  watchedList[index]
-                    ? "hover:bg-green-400"
-                    : "hover:bg-blue-400"
-                } transition duration-300 ease-in-out`}
-                key={episode.id}
-                onClick={() => setCurrEpisode(episode.id)}
-              >
-                {episode.name}
-                <button
-                  className={
-                    "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full"
-                  }
-                  onClick={async (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    watchedList[index] = !watchedList[index];
-                    const resp = await updateWatchedEp(
-                      user._id,
-                      currShow,
-                      index
-                    );
-                    // if (resp == "successful") {
-                    setUser((prev: User) => {
-                      return {
-                        ...prev,
-                        shows: prev.shows.map((s) => {
-                          return s.showId === currShow
-                            ? { ...s, watched: watchedList }
-                            : s;
-                        }),
-                      };
-                    });
-                    console.log(`watched ${episode.name} + no. ${index} `);
-                    // }
-                  }}
+          <h1 className="rounded-md bg-gray-950 text-white text-2xl sticky top-0 px-3 pt-3 pb-1">
+            Episodes
+          </h1>
+          <div className="border-2 border-white rounded-md overflow-y-auto scrollbar-hide h-full mt-2">
+            <ol className="text-white flex flex-col gap-2 list-decimal list-inside">
+              {episodes.map((episode: EpisodeSeries, index: number) => (
+                <li
+                  className={`flex flex-row p-2 justify-between items-center cursor-pointer border-b-2 transition hover:text-sky-400 duration-300 ease-in-out last:border-0 ${
+                    currEpisode === episode.id ? "text-sky-400" : ""
+                  }`}
+                  key={episode.id}
+                  onClick={() => setCurrEpisode(episode.id)}
                 >
-                  {watchedList[index] ? "-" : "+"}
-                </button>
-              </li>
-            ))}
-          </ol>
+                  {episode.name}
+                  <button
+                    className={
+                      "text-white bg-blue-500 hover:text-blue-700 p-1 rounded-full"
+                    }
+                    onClick={async (e) => {
+                      await handleWatchedClick(e, watchedList, index, episode);
+                    }}
+                  >
+                    {watchedList[index] ? (
+                      <SolidCheck className=" w-7 h-7" />
+                    ) : (
+                      <PlusCircleIcon className="w-7 h-7" />
+                    )}
+                  </button>
+                </li>
+              ))}
+            </ol>
+          </div>
         </>
       ) : (
         <p>No Episodes Yet</p>

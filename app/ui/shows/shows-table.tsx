@@ -15,8 +15,12 @@ export default function ShowsTable({ id }: { id: string }) {
   const [currShow, setCurrShow] = useState<number>(121361); //default to zero
   const [currEpisode, setCurrEpisode] = useState<number>(0);
 
-  const episodes = series.find((s) => s.id === currShow)?.episodes;
-  const watchedList = user.shows.find((s) => s.showId === currShow)?.watched;
+  const episodes = series.length
+    ? series.find((s) => s.id === currShow)?.episodes
+    : undefined;
+  const watchedList = user
+    ? user.shows.find((s) => s.showId === currShow)?.watched
+    : undefined;
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -28,6 +32,7 @@ export default function ShowsTable({ id }: { id: string }) {
       //   await response.json();
       // console.log("fetched data for table:", data);
       const json = await getShowsAndEpsFromId(id);
+      console.log("fetched data for table:", json);
       const data = JSON.parse(json);
       if (data === "failed") return console.log("failed to fetch data");
       setUser(data.user);
@@ -41,23 +46,28 @@ export default function ShowsTable({ id }: { id: string }) {
   // console.log("episodes", series.find((s) => s.id === currShow)?.episodes);
 
   return (
-    <div className="flex flex-row bg-gray-800 gap-12 p-3 overflow-y-auto h-full">
+    <div className="flex flex-row bg-gray-600 gap-3 p-5 overflow-y-auto h-full">
       {shows.length ? (
-        <ShowList shows={shows} setCurrShow={setCurrShow} />
+        <ShowList shows={shows} currShow={currShow} setCurrShow={setCurrShow} />
       ) : (
-        <div>No Shows Yet</div>
+        <div className="flex flex-col w-1/3 overflow-y-auto scrollbar-hide bg-gray-950 rounded-md">
+          No Shows Yet
+        </div>
       )}
       {shows.length ? (
         <EpisodeList
           user={user}
           setUser={setUser}
           currShow={currShow}
+          currEpisode={currEpisode}
           episodes={episodes}
           setCurrEpisode={setCurrEpisode}
           watchedList={watchedList}
         />
       ) : (
-        <div>Loading...</div>
+        <div className="flex flex-col w-1/3 bg-gray-950 rounded-md">
+          Loading...
+        </div>
       )}
       <EpisodeItem episode={episodes?.find((e) => e.id === currEpisode)} />
     </div>
