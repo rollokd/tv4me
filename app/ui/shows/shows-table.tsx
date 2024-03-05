@@ -28,9 +28,13 @@ export default function ShowsTable({ id }: { id: string }) {
       return new Date(b.lastAired).getTime() - new Date(a.lastAired).getTime();
     });
 
-  const setCurrShowAndEp = (series: SeriesExtended) => {
+  const setCurrShowAndEpFromSeries = (series: SeriesExtended) => {
     setCurrShow(series.id);
     setCurrEpisode(series.episodes.filter((e) => e.seasonNumber !== 0)[0].id);
+  };
+  const setCurrShowAndEp = (showId: number, ep: number) => {
+    setCurrShow(showId);
+    setCurrEpisode(ep);
   };
 
   useEffect(() => {
@@ -49,7 +53,7 @@ export default function ShowsTable({ id }: { id: string }) {
       setUser(data.user);
       setSeries(data.series);
       setShows(data.seriesData);
-      setCurrShowAndEp(data.series[0]);
+      setCurrShowAndEpFromSeries(data.series[0]);
     };
 
     fetchUser();
@@ -64,7 +68,8 @@ export default function ShowsTable({ id }: { id: string }) {
         <ShowList
           shows={sortedShows}
           currShow={currShow}
-          setCurrShow={setCurrShow}
+          setCurrShow={setCurrShowAndEp}
+          series={series}
         />
       ) : (
         <div className="flex flex-col w-1/3 overflow-y-auto scrollbar-hide bg-gray-950 rounded-md">

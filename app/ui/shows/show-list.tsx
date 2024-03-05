@@ -10,10 +10,12 @@ function ShowItem({
   show,
   currShow,
   setCurrShow,
+  firstEp,
 }: {
   show: Show;
   currShow: number;
-  setCurrShow: Dispatch<SetStateAction<number>>;
+  setCurrShow: Function;
+  firstEp: number;
 }) {
   return (
     <div
@@ -22,7 +24,7 @@ function ShowItem({
         "flex flex-row items-center border-2 border-white text-white rounded-md cursor-pointer transition duration-500 ease-in-out hover:bg-blue-600 active:bg-blue-600"
       )}
       key={show.id}
-      onClick={() => setCurrShow(show.id)}
+      onClick={() => setCurrShow(show.id, firstEp)}
     >
       <Image
         className="rounded-md"
@@ -43,10 +45,12 @@ export default function ShowList({
   shows,
   currShow,
   setCurrShow,
+  series,
 }: {
   shows: Show[];
   currShow: number;
-  setCurrShow: Dispatch<SetStateAction<number>>;
+  setCurrShow: Function;
+  series: SeriesExtended[];
 }) {
   const getShowStatus = (index: number) => {
     switch (index) {
@@ -57,6 +61,10 @@ export default function ShowList({
       case 2:
         return "Ended";
     }
+  };
+
+  const getFirstEp = (series: SeriesExtended) => {
+    return series.episodes.filter((e) => e.seasonNumber === 1)[0].id;
   };
 
   const filtered = shows.reduce(
@@ -88,6 +96,9 @@ export default function ShowList({
               show={show}
               currShow={currShow}
               setCurrShow={setCurrShow}
+              firstEp={getFirstEp(
+                series.find((s) => s.id === show.id) || series[0]
+              )}
             ></ShowItem>
           ))}
         </div>
