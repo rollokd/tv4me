@@ -6,6 +6,7 @@ import { SeriesExtended, Show, User } from "@/app/lib/definitions";
 import EpisodeItem from "./episode-info";
 import EpisodeList from "./episode-list";
 import ShowList from "./show-list";
+import { getShowsAndEpsFromId } from "@/app/lib/actions";
 
 export default function ShowsTable({ id }: { id: string }) {
   const [user, setUser] = useState<User>({ _id: "", shows: [] });
@@ -20,12 +21,15 @@ export default function ShowsTable({ id }: { id: string }) {
   useEffect(() => {
     const fetchUser = async () => {
       // console.log("fetching user");
-      const response = await fetch(`http://localhost:3000/api/shows/${id}`, {
-        next: { tags: ["userData"] },
-      });
-      const data: { user: User; series: SeriesExtended[]; seriesData: Show[] } =
-        await response.json();
+      // const response = await fetch(`http://localhost:3000/api/shows/${id}`, {
+      //   next: { tags: ["userData"] },
+      // });
+      // const data: { user: User; series: SeriesExtended[]; seriesData: Show[] } =
+      //   await response.json();
       // console.log("fetched data for table:", data);
+      const json = await getShowsAndEpsFromId(id);
+      const data = JSON.parse(json);
+      if (data === "failed") return console.log("failed to fetch data");
       setUser(data.user);
       setSeries(data.series);
       setShows(data.seriesData);
