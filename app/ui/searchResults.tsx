@@ -38,12 +38,13 @@ export default function SearchResults({
       setResponse(searchResults);
     };
     if (query !== "") fetchData();
+    else setResponse([]);
   }, [id, query]);
 
   query && console.log("got data for query:", query);
   // console.log("response:", response);
   return (
-    <div className="grid grid-cols-2 border-2 border-white rounded-md gap-5 m-5 p-5 h-full">
+    <div className="grid grid-cols-2 grid-rows-4 border-2 border-white rounded-md gap-5 m-5 p-5 h-full">
       {/* <p className="self-center">
         Results for: <span className="text-red">{query}</span>
       </p> */}
@@ -52,11 +53,11 @@ export default function SearchResults({
           {response.map((result) => {
             return (
               <div
-                className="flex flex-row box-border items-center gap-2 border-2 border-white rounded-md h-full pr-4"
+                className="flex flex-row box-border items-center gap-2 border-2 border-white rounded-lg pr-4"
                 key={result.id}
               >
                 <Image
-                  className="rounded-md h-full"
+                  className="rounded-l-md"
                   width={100}
                   height={100}
                   src={result.image_url}
@@ -124,7 +125,9 @@ export default function SearchResults({
           })}
         </>
       ) : (
-        <div className="">Nothing searched yet.</div>
+        <div className="col-span-2 justify-self-center self-center">
+          Try searching for something!
+        </div>
       )}
     </div>
   );

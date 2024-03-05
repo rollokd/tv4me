@@ -72,7 +72,7 @@ export default function ShowsTable({ id }: { id: string }) {
           series={series}
         />
       ) : (
-        <div className="flex flex-col w-1/3 overflow-y-auto scrollbar-hide bg-gray-950 rounded-md">
+        <div className="p-5 text-white flex flex-col text-2xl w-1/3 overflow-y-auto scrollbar-hide bg-gray-950 rounded-md">
           No Shows Yet
         </div>
       )}
@@ -87,7 +87,7 @@ export default function ShowsTable({ id }: { id: string }) {
           watchedList={watchedList}
         />
       ) : (
-        <div className="flex flex-col w-1/3 bg-gray-950 rounded-md">
+        <div className="p-5 text-white text-2xl flex flex-col w-1/3 bg-gray-950 rounded-md">
           Loading...
         </div>
       )}
