@@ -30,7 +30,9 @@ function EpisodeList({
   ) {
     e.preventDefault();
     e.stopPropagation();
-    watchedList[index] = !watchedList[index];
+    if (episodes)
+      watchedList[episodes?.indexOf(episode)] =
+        !watchedList[episodes?.indexOf(episode)];
     const resp = await updateWatchedEp(user._id, currShow, index);
 
     setUser((prev: User) => {
@@ -42,7 +44,7 @@ function EpisodeList({
       };
     });
 
-    console.log(`watched ${episode.name} + no. ${index} `);
+    console.log(`watched ${episode.name} + no. ${episodes?.indexOf(episode)} `);
   }
 
   episodes = episodes?.filter((e) => e.seasonNumber !== 0 && e.aired !== null);

@@ -1,5 +1,5 @@
 "use client";
-import { SeriesExtended, Show } from "@/app/lib/definitions";
+import { SeriesExtended, Show, User } from "@/app/lib/definitions";
 import { Dispatch, SetStateAction } from "react";
 import Image from "next/image";
 import clsx from "clsx";
@@ -11,11 +11,13 @@ function ShowItem({
   currShow,
   setCurrShow,
   firstEp,
+  epsLeft,
 }: {
   show: Show;
   currShow: number;
   setCurrShow: Function;
   firstEp: number;
+  epsLeft: number;
 }) {
   return (
     <div
@@ -36,17 +38,20 @@ function ShowItem({
       <div className="flex flex-col p-2">
         <p className="text-xl">{show.name}</p>
         <p className="text-s">Airdate: {prettyDate(show.lastAired)}</p>
+        <p className="text-s">Episodes Left: {epsLeft}</p>
       </div>
     </div>
   );
 }
 
 export default function ShowList({
+  user,
   shows,
   currShow,
   setCurrShow,
   series,
 }: {
+  user: User;
   shows: Show[];
   currShow: number;
   setCurrShow: Function;
@@ -66,6 +71,11 @@ export default function ShowList({
   const getFirstEp = (series: SeriesExtended) => {
     return series.episodes.filter((e) => e.seasonNumber === 1)[0].id;
   };
+
+  function getEpsLeft(currShow: number) {
+    const userShow = user.shows.find((s) => s.showId === currShow);
+    return userShow && userShow.watched.filter((w) => w === false).length;
+  }
 
   const filtered = shows.reduce(
     (acc: Show[][], show) => {
@@ -99,6 +109,7 @@ export default function ShowList({
               firstEp={getFirstEp(
                 series.find((s) => s.id === show.id) || series[0]
               )}
+              epsLeft={getEpsLeft(show.id) || 0}
             ></ShowItem>
           ))}
         </div>

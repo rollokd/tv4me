@@ -66,6 +66,7 @@ export default function ShowsTable({ id }: { id: string }) {
     <div className="flex flex-row bg-gray-600 gap-3 p-5 overflow-y-auto h-full">
       {shows.length ? (
         <ShowList
+          user={user}
           shows={sortedShows}
           currShow={currShow}
           setCurrShow={setCurrShowAndEp}

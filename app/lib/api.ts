@@ -60,8 +60,9 @@ export async function getEpsNumber(id: number): Promise<number> {
     }
   );
   const data = await response.json();
-  return data.data.episodes.filter((ep: EpisodeSeries) => ep.seasonNumber !== 0)
-    .length;
+  return data.data.episodes.filter(
+    (ep: EpisodeSeries) => ep.seasonNumber !== 0 && ep.aired !== null
+  ).length;
 }
 
 export async function getSearchResults(
