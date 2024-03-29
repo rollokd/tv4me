@@ -1,8 +1,7 @@
 import { Dispatch, SetStateAction } from "react";
-
 import { updateWatchedEp } from "@/app/lib/actions";
 import { EpisodeSeries, User } from "@/app/lib/definitions";
-import { CheckCircleIcon, PlusCircleIcon } from "@heroicons/react/24/outline";
+import { PlusCircleIcon } from "@heroicons/react/24/outline";
 import { CheckCircleIcon as SolidCheck } from "@heroicons/react/24/solid";
 
 function EpisodeList({
@@ -43,8 +42,6 @@ function EpisodeList({
         }),
       };
     });
-
-    console.log(`watched ${episode.name} + no. ${episodes?.indexOf(episode)} `);
   }
 
   episodes = episodes?.filter((e) => e.seasonNumber !== 0 && e.aired !== null);
@@ -57,8 +54,6 @@ function EpisodeList({
       return acc;
     }, [])
     .slice(1);
-  // console.log(epsBySeason);
-  // console.log(episodes);
 
   const seasonNodes =
     watchedList &&

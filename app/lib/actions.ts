@@ -46,16 +46,12 @@ export async function removeUserShow(userId: string, showId: number) {
 
 export async function getShowsAndEpsFromId(id: string) {
   try {
-    console.log("got request", id);
     const user: User = await getUser(id);
     const showIds = user.shows.map((s) => s.showId);
-    // console.log(user);
     const [showWEps, series] = await Promise.all([
       getUsersShowsAndEpisodes(showIds),
       getShowsList(showIds),
     ]);
-    // console.log(series);
-    console.log("got show response");
     const seriesData = series.map((s) => s.data);
     const data = showWEps.map((s) => s.data);
     return JSON.stringify({ user, series: data, seriesData });

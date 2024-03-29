@@ -1,11 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { SearchResponse, User, UserShow } from "../lib/definitions";
+import { SearchResponse, User } from "../lib/definitions";
 import { CheckCircleIcon, PlusCircleIcon } from "@heroicons/react/24/outline";
 import { addUserShow, removeUserShow } from "../lib/actions";
 import clsx from "clsx";
-import { set } from "mongoose";
 import Image from "next/image";
 
 export default function SearchResults({
@@ -22,7 +21,6 @@ export default function SearchResults({
 
   useEffect(() => {
     const fetchData = async () => {
-      console.log("fetching data for query:", query);
       const [user, searchResults]: [
         user: User,
         searchResult: SearchResponse[]
@@ -41,13 +39,8 @@ export default function SearchResults({
     else setResponse([]);
   }, [id, query]);
 
-  query && console.log("got data for query:", query);
-  // console.log("response:", response);
   return (
     <div className="grid grid-cols-2 grid-rows-4 border-2 border-white rounded-md gap-5 m-5 p-5 h-full">
-      {/* <p className="self-center">
-        Results for: <span className="text-red">{query}</span>
-      </p> */}
       {response.length ? (
         <>
           {response.map((result) => {
@@ -57,7 +50,7 @@ export default function SearchResults({
                 key={result.id}
               >
                 <Image
-                  className="rounded-l-md"
+                  className="rounded-l-md w-1/2 h-full"
                   width={100}
                   height={100}
                   src={result.image_url}
@@ -75,12 +68,10 @@ export default function SearchResults({
                     e.preventDefault();
                     e.stopPropagation();
                     if (!shows.includes(Number(result.tvdb_id))) {
-                      console.log("adding show:", result.name);
                       const resp = await addUserShow(
                         user._id,
                         Number(result.tvdb_id)
                       );
-                      console.log("resp:", resp);
                       setUser((prev: User) => {
                         return {
                           ...prev,
@@ -91,12 +82,10 @@ export default function SearchResults({
                         };
                       });
                     } else {
-                      console.log("removing show:", result.name);
                       const resp = await removeUserShow(
                         user._id,
                         Number(result.tvdb_id)
                       );
-                      console.log("resp:", resp);
                       setUser((prev: User) => {
                         return {
                           ...prev,

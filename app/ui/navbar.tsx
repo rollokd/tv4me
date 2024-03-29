@@ -10,8 +10,6 @@ function NavBar(props: Readonly<{}>) {
         </Link>
         <Link href={"/shows"}>My Shows</Link>
       </div>
-      {/* <Link href={"/watch-list"}>To Watch</Link>
-      <Link href={"/trending"}>Trending</Link> */}
       <Link
         className="flex flex-row justify-center items-center gap-1"
         href={"/search"}

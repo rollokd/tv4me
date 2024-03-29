@@ -12,7 +12,7 @@ export default function ShowsTable({ id }: { id: string }) {
   const [user, setUser] = useState<User>({ _id: "", shows: [] });
   const [series, setSeries] = useState<SeriesExtended[]>([]);
   const [shows, setShows] = useState<Show[]>([]);
-  const [currShow, setCurrShow] = useState<number>(121361); //default to zero
+  const [currShow, setCurrShow] = useState<number>(0);
   const [currEpisode, setCurrEpisode] = useState<number>(0);
 
   const episodes = series.length
@@ -39,28 +39,18 @@ export default function ShowsTable({ id }: { id: string }) {
 
   useEffect(() => {
     const fetchUser = async () => {
-      // console.log("fetching user");
-      // const response = await fetch(`http://localhost:3000/api/shows/${id}`, {
-      //   next: { tags: ["userData"] },
-      // });
-      // const data: { user: User; series: SeriesExtended[]; seriesData: Show[] } =
-      //   await response.json();
-      // console.log("fetched data for table:", data);
       const json = await getShowsAndEpsFromId(id);
-      // console.log("fetched data for table:", json);
       const data = JSON.parse(json);
       if (data === "failed") return console.log("failed to fetch data");
+      console.log(data);
       setUser(data.user);
       setSeries(data.series);
       setShows(data.seriesData);
-      setCurrShowAndEpFromSeries(data.series[0]);
+      if (data.series.length) setCurrShowAndEpFromSeries(data.series[0]);
     };
 
     fetchUser();
   }, [id]);
-
-  // console.log("episodes", series.find((s) => s.id === currShow)?.episodes);
-  console.log("shows", shows);
 
   return (
     <div className="flex flex-row bg-gray-600 gap-3 p-5 overflow-y-auto h-full">
@@ -74,7 +64,8 @@ export default function ShowsTable({ id }: { id: string }) {
         />
       ) : (
         <div className="p-5 text-white flex flex-col text-2xl w-1/3 overflow-y-auto scrollbar-hide bg-gray-950 rounded-md">
-          No Shows Yet
+          No Shows Yet <br />{" "}
+          <p className="text-lg">Try searching for a new show</p>
         </div>
       )}
       {shows.length ? (
@@ -89,7 +80,7 @@ export default function ShowsTable({ id }: { id: string }) {
         />
       ) : (
         <div className="p-5 text-white text-2xl flex flex-col w-1/3 bg-gray-950 rounded-md">
-          Loading...
+          No Show Selected
         </div>
       )}
       <EpisodeItem episode={episodes?.find((e) => e.id === currEpisode)} />
