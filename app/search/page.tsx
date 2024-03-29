@@ -1,3 +1,4 @@
+import { createUser, findUser } from "../lib/users";
 import Search from "../ui/search";
 import SearchResults from "../ui/searchResults";
 export default async function Page({
@@ -8,13 +9,13 @@ export default async function Page({
   };
 }) {
   const query = searchParams?.query || "";
-  let id = "65e0df64e483a7bd7222c535";
+  const user = (await findUser()) || (await createUser());
 
   return (
     <div className="flex flex-col bg-gray-600 p-5 h-full">
       <div className="flex flex-col bg-gray-950 text-white p-5 rounded-lg h-full">
         <Search placeholder="Search for a show" />
-        <SearchResults query={query} id={id} />
+        <SearchResults query={query} id={user._id.toString()} />
       </div>
     </div>
   );

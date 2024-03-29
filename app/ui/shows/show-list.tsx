@@ -1,10 +1,8 @@
 "use client";
 import { SeriesExtended, Show, User } from "@/app/lib/definitions";
-import { Dispatch, SetStateAction } from "react";
 import Image from "next/image";
 import clsx from "clsx";
 import { prettyDate } from "@/app/lib/client-utils";
-import { get } from "http";
 
 function ShowItem({
   show,
@@ -29,16 +27,18 @@ function ShowItem({
       onClick={() => setCurrShow(show.id, firstEp)}
     >
       <Image
-        className="rounded-md"
-        width={100}
-        height={100}
+        className="w-auto h-full rounded-md"
+        width={75}
+        height={75}
         src={show.image}
         alt={show.name}
       ></Image>
       <div className="flex flex-col p-2">
-        <p className="text-xl">{show.name}</p>
-        <p className="text-s">Airdate: {prettyDate(show.lastAired)}</p>
-        <p className="text-s">Episodes Left: {epsLeft}</p>
+        <p className="md:text-xl">{show.name}</p>
+        <p className="text-xs md:text-sm">
+          Airdate: {prettyDate(show.lastAired)}
+        </p>
+        <p className="text-xs md:text-sm">Episodes Left: {epsLeft}</p>
       </div>
     </div>
   );

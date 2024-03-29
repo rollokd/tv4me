@@ -20,6 +20,16 @@ const createUser = async () => {
   return user;
 };
 
+const findUser = async () => {
+  try {
+    await dbConnect();
+    const user: User | null = await UserModel.findOne();
+    return user;
+  } catch (err) {
+    console.log(err);
+  }
+}
+
 const getUser = async (userId: string) => {
   try {
     await dbConnect();
@@ -86,4 +96,4 @@ const updateWatchedOne = async (
   }
 };
 
-export { createUser, getUser, addShow, updateWatchedOne, removeShow };
+export { findUser, createUser, getUser, addShow, updateWatchedOne, removeShow };
