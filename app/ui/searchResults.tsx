@@ -50,7 +50,7 @@ export default function SearchResults({
                 key={result.id}
               >
                 <Image
-                  className="rounded-l-md w-1/2 h-full"
+                  className="rounded-l-md w-auto h-full"
                   width={100}
                   height={100}
                   src={result.image_url}
