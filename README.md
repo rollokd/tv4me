@@ -6,11 +6,11 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 
 ## Tech Stack
 
-### Next.js 14
+### [Next.js 14](https://nextjs.org/)
 
-### Mongoose / MongoDB
+### [Mongoose / MongoDB](https://mongoosejs.com/)
 
-### Tailwindcss
+### [Tailwindcss](https://tailwindcss.com/)
 
 ## API Documentation
 
