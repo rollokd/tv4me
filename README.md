@@ -1,8 +1,14 @@
-# TV4Me
+# TV4Me, the best place to keep track of all your TV shows and find your new favourites.
 
 Personal project using NextJS to keep track of which TV Shows you are watching and the episodes you have watched.
 
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+
+## Screenshots
+
+<p align="center">
+  <img src="public/TV4Me.png" width='600px'/>
+</p>
 
 ## Tech Stack
 
@@ -22,13 +28,25 @@ Here you can find the page to test and get the structure of all the API calls, [
 
 Use your API key on the `/login` endpoint to get your `Bearer Token` for all future API calls, this token is added as `authentication` to the header of each call.
 
+Add your `Bearer Token` to your `.env` file as `TVDB_TOKEN`.
+
 This is the git repo for the API [`API Git Repo`](https://github.com/thetvdb/v4-api).
 
 ## Running the app
 
-Firstly, make sure you have a recent version of mongoDB running locally on your machine.
+Firstly, clone the repository and then `cd` into the directory.
 
-Secondly, run the development server:
+```bash
+git clone https://github.com/rollokd/tv4me.git
+
+cd tv4me/
+
+npm install
+```
+
+Secondly, make sure you have a recent version of mongoDB running locally on your machine.
+
+Finally, run the development server:
 
 ```bash
 npm run dev
