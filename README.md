@@ -1,8 +1,14 @@
-# TV4Me
+# TV4Me, the best place to keep track of all your TV shows and find your new favourites.
 
 Personal project using NextJS to keep track of which TV Shows you are watching and the episodes you have watched.
 
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+
+## Screenshots
+
+<p align="center">
+  <img src="public/TV4Me.png" width='600px'/>
+</p>
 
 ## Tech Stack
 
@@ -21,6 +27,8 @@ You can get an API key under the free tier by just making an account and applyin
 Here you can find the page to test and get the structure of all the API calls, [`API Test Page`](https://thetvdb.github.io/v4-api/#/).
 
 Use your API key on the `/login` endpoint to get your `Bearer Token` for all future API calls, this token is added as `authentication` to the header of each call.
+
+Add your `Bearer Token` to your `.env` file as `TVDB_TOKEN`.
 
 This is the git repo for the API [`API Git Repo`](https://github.com/thetvdb/v4-api).
 
