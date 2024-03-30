@@ -72,24 +72,3 @@ To learn more about Next.js, take a look at the following resources:
 - [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Contributiors
-
-<table>
-  <tr>
-     <td align="center" ><a href="https://github.com/rollokd"><img src="https://github.com/rollokd.png" style="border-radius:50%;" width="120px;" alt="rollo-img"/><br /><sub><b><a href="https://www.linkedin.com/in/rollo-kennedy-dyson" title="linkedin">Rollo Kennedy-Dyson</a></b></sub></a><br /><a href="https://github.com/rollokd/splitease/commits?author=rollokd" title="Code">💻</a> <a href="#ideas-rollokd" title="Ideas & Planning">🤔</a> <a href="#review-rollokd" title="Reviewed Pull Requests">👀</a> <a href="#design-rollokd" title="Design">🎨</a> <a href="#maintain-rollokd" title="Maintenance">🚧</a></td>
-  </tr>
-</table>
-
-## Attribution
-
-<table>
-  <tr>
-    <td align='center' height='100px'>
-      <a class="thetvdbattribution" href="https://thetvdb.com/subscribe">
-        <img src="public/tvdb_dark.png" height="45">
-        <p>Metadata provided by TheTVDB. Please consider adding missing information or subscribing.</p>
-      </a>
-    </td>
-  </tr>
-</table>
