@@ -87,7 +87,7 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
   <tr>
     <td align='center' height='100px'>
       <a class="thetvdbattribution" href="https://thetvdb.com/subscribe">
-        <img src="public/tvdb.png" height="45">
+        <img src="public/tvdb_dark.png" height="45">
         <p>Metadata provided by TheTVDB. Please consider adding missing information or subscribing.</p>
       </a>
     </td>
