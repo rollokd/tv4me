@@ -15,28 +15,6 @@ export default function ShowsTable({ id }: { id: string }) {
   const [currShow, setCurrShow] = useState<number>(0);
   const [currEpisode, setCurrEpisode] = useState<number>(0);
 
-  const episodes = series.length
-    ? series.find((s) => s.id === currShow)?.episodes
-    : undefined;
-  const watchedList = user
-    ? user.shows.find((s) => s.showId === currShow)?.watched
-    : undefined;
-
-  const sortedShows =
-    shows &&
-    shows.sort((a, b) => {
-      return new Date(b.lastAired).getTime() - new Date(a.lastAired).getTime();
-    });
-
-  const setCurrShowAndEpFromSeries = (series: SeriesExtended) => {
-    setCurrShow(series.id);
-    setCurrEpisode(series.episodes.filter((e) => e.seasonNumber !== 0)[0].id);
-  };
-  const setCurrShowAndEp = (showId: number, ep: number) => {
-    setCurrShow(showId);
-    setCurrEpisode(ep);
-  };
-
   useEffect(() => {
     const fetchUser = async () => {
       const json = await getShowsAndEpsFromId(id);
@@ -52,6 +30,34 @@ export default function ShowsTable({ id }: { id: string }) {
     fetchUser();
   }, [id]);
 
+  console.log(series);
+
+  if (!series) return null;
+
+  const episodes = series.length
+    ? series.find((s) => s.id === currShow)?.episodes
+    : undefined;
+  const watchedList = user
+    ? user.shows.find((s) => s.showId === currShow)?.watched
+    : undefined;
+
+  const sortedShows =
+    shows &&
+    shows.sort((a, b) => {
+      return new Date(b.lastAired).getTime() - new Date(a.lastAired).getTime();
+    });
+
+  const setCurrShowAndEpFromSeries = (series: SeriesExtended) => {
+    if (series && series.id) {
+      setCurrShow(series.id);
+      setCurrEpisode(series.episodes.filter((e) => e.seasonNumber !== 0)[0].id);
+    }
+  };
+  const setCurrShowAndEp = (showId: number, ep: number) => {
+    setCurrShow(showId);
+    setCurrEpisode(ep);
+  };
+
   return (
     <div className="flex flex-row bg-gray-600 gap-3 p-5 overflow-y-auto h-full">
       {shows.length ? (
@@ -64,7 +70,7 @@ export default function ShowsTable({ id }: { id: string }) {
         />
       ) : (
         <div className="p-5 text-white flex flex-col text-2xl w-1/3 overflow-y-auto scrollbar-hide bg-gray-950 rounded-md">
-          No Shows Yet <br />{" "}
+          No Shows Yet <br />
           <p className="text-lg">Try searching for a new show</p>
         </div>
       )}

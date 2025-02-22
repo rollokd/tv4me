@@ -8,7 +8,8 @@ export default async function Page({
     query?: string;
   };
 }) {
-  const query = searchParams?.query || "";
+  const input = await searchParams;
+  const query = input?.query || "";
   const user = (await findUser()) || (await createUser());
 
   return (

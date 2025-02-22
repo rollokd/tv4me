@@ -60,23 +60,20 @@ export interface Episode {
 }
 
 export interface SearchResponse {
-  objectID: string;
-  aliases: string[];
-  country: string;
-  id: string;
-  image_url: string;
-  name: string;
-  first_air_time: string;
+  adult: boolean;
+  backdrop_path: string;
+  genre_ids: any[];
+  id: number;
+  origin_country: any[];
+  original_language: string;
+  original_name: string;
   overview: string;
-  primary_language: string;
-  primary_type: string;
-  status: string;
-  type: string;
-  tvdb_id: string;
-  year: string;
-  slug: string;
-  network: string;
-  thumbnail: string;
+  popularity: number;
+  poster_path: string;
+  first_air_date: string;
+  name: string;
+  vote_average: number;
+  vote_count: number;
 }
 
 export interface UserShow {

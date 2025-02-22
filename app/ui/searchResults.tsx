@@ -23,15 +23,16 @@ export default function SearchResults({
     const fetchData = async () => {
       const [user, searchResults]: [
         user: User,
-        searchResult: SearchResponse[]
+        searchResult: SearchResponse[],
       ] = await Promise.all([
         fetch(`http://localhost:3000/api/users/${id}`)
           .then((r) => r.json())
           .then((r) => r.user),
         fetch(`http://localhost:3000/api/shows/search/${query}`)
           .then((r) => r.json())
-          .then((r) => r.searchResults),
+          .then((r) => r.results),
       ]);
+      console.log(searchResults);
       setUser(user);
       setResponse(searchResults);
     };
@@ -53,51 +54,51 @@ export default function SearchResults({
                   className="rounded-l-md w-auto h-full"
                   width={100}
                   height={100}
-                  src={result.image_url}
+                  src={result.backdrop_path}
                   alt={"Image of tv show: " + result.name}
                 />
                 {result.name}
                 <button
                   className={clsx(
                     "ml-auto flex flex-row gap-1 text-white font-bold py-2 px-4 rounded-full",
-                    shows.includes(Number(result.tvdb_id))
+                    shows.includes(Number(result.id))
                       ? "bg-green-500"
-                      : "bg-blue-500 hover:bg-blue-700"
+                      : "bg-blue-500 hover:bg-blue-700",
                   )}
                   onClick={async (e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    if (!shows.includes(Number(result.tvdb_id))) {
+                    if (!shows.includes(Number(result.id))) {
                       const resp = await addUserShow(
                         user._id,
-                        Number(result.tvdb_id)
+                        Number(result.id),
                       );
                       setUser((prev: User) => {
                         return {
                           ...prev,
                           shows: [
                             ...prev.shows,
-                            { showId: Number(result.tvdb_id), watched: [] },
+                            { showId: Number(result.id), watched: [] },
                           ],
                         };
                       });
                     } else {
                       const resp = await removeUserShow(
                         user._id,
-                        Number(result.tvdb_id)
+                        Number(result.id),
                       );
                       setUser((prev: User) => {
                         return {
                           ...prev,
                           shows: prev.shows.filter(
-                            (s) => s.showId !== Number(result.tvdb_id)
+                            (s) => s.showId !== Number(result.id),
                           ),
                         };
                       });
                     }
                   }}
                 >
-                  {shows.includes(Number(result.tvdb_id)) ? (
+                  {shows.includes(Number(result.id)) ? (
                     <>
                       Added
                       <CheckCircleIcon className="h-6 w-6" />
