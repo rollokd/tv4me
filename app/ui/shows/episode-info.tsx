@@ -16,8 +16,8 @@ function EpisodeItem({ episode }: { episode: Episode | undefined }) {
             <Image
               className="white-border w-full h-auto"
               loader={imageLoader}
-              width={500}
-              height={500}
+              width={300}
+              height={150}
               src={episode.still_path}
               alt="Image of episode"
               priority

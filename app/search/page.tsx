@@ -13,8 +13,8 @@ export default async function Page({
   const user = (await findUser()) || (await createUser());
 
   return (
-    <div className="flex flex-col bg-gray-600 p-5 h-full">
-      <div className="flex flex-col bg-gray-950 text-white p-5 rounded-lg h-full">
+    <div className="flex flex-col bg-gray-600 p-5 grow">
+      <div className="flex flex-col bg-gray-950 text-white p-5 rounded-lg grow">
         <Search placeholder="Search for a show" />
         <SearchResults query={query} id={user._id.toString()} />
       </div>

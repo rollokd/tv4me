@@ -35,37 +35,37 @@ export default function SearchResults({
       ]);
       console.log(searchResults);
       setUser(user);
-      setResponse(searchResults.slice(0, 8));
+      setResponse(searchResults);
     };
     if (query !== "") fetchData();
     else setResponse([]);
   }, [id, query]);
 
   return (
-    <div className="grid grid-cols-2 grid-rows-4 border-2 border-white rounded-md gap-5 m-5 p-5 h-full">
+    <div className="grid grid-cols-2 grid-rows-4 border-2 border-white rounded-md gap-5 m-5 p-5 grow">
       {response.length ? (
         <>
           {response.map((result) => {
             return (
               <div
                 className={clsx(
-                  "flex flex-row box-border items-center border-2 border-white rounded-lg"
+                  "flex flex-row box-border items-center border-2 border-white rounded-lg gap-4"
                 )}
                 key={result.id}
               >
                 <Image
-                  className="rounded-l-md w-auto h-full"
+                  className="rounded-l-md"
                   loader={imageLoader}
-                  width={300}
-                  height={200}
-                  src={result.backdrop_path}
+                  width={100}
+                  height={150}
+                  src={result.poster_path}
                   alt={"Image of tv show: " + result.name}
                 />
-                <div className="flex flex-col gap-2 relative top-1/2 left-8">
+                <div className="flex flex-col gap-4">
                   {result.name}
                   <button
                     className={clsx(
-                      " flex flex-row gap-1 text-white font-bold py-2 px-4 rounded-full",
+                      " flex flex-row gap-1 text-white font-bold py-2 px-4 rounded-full w-fit",
                       shows.includes(Number(result.id))
                         ? "bg-green-500"
                         : "bg-blue-500 hover:bg-blue-700"

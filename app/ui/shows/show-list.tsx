@@ -19,11 +19,7 @@ function ShowItem({
     <div
       className={clsx(
         currShow === show.id && "border-blue-600",
-        "flex flex-row items-center border-2 border-white text-white rounded-md cursor-pointer transition duration-500 ease-in-out hover:bg-blue-600 active:bg-blue-600",
-        `bg-[url(${imageLoader({
-          src: show.backdrop_path,
-          width: 1920,
-        })})] bg-cover bg-center`
+        "flex flex-row items-center border-2 border-white text-white rounded-md cursor-pointer transition duration-500 ease-in-out hover:bg-blue-600 active:bg-blue-600"
       )}
       key={show.id}
       onClick={() =>
@@ -35,14 +31,14 @@ function ShowItem({
         )
       }
     >
-      {/* <Image
-        className="w-auto h-full rounded-md"
+      <Image
+        className="rounded-l-[0.375rem]"
         loader={imageLoader}
-        width={75}
-        height={75}
-        src={show.backdrop_path}
+        width={100}
+        height={150}
+        src={show.seasons[0].poster_path}
         alt={show.name}
-      ></Image> */}
+      ></Image>
       <div className="flex flex-col p-2">
         <p className="md:text-xl">{show.name}</p>
         <p className="text-xs md:text-sm">
@@ -52,7 +48,9 @@ function ShowItem({
             <>Last Airdate: {prettyDate(show.last_air_date)}</>
           )}
         </p>
-        <p className="text-xs md:text-sm">Episodes Left: {epsLeft}</p>
+        <p className="text-xs md:text-sm">
+          Episodes Left: {epsLeft === 0 ? "Finished" : epsLeft}
+        </p>
       </div>
     </div>
   );
