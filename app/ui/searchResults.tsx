@@ -4,8 +4,9 @@ import { useEffect, useState } from "react";
 import { SearchResponse, User } from "../lib/definitions";
 import { CheckCircleIcon, PlusCircleIcon } from "@heroicons/react/24/outline";
 import { addUserShow, removeUserShow } from "../lib/actions";
-import clsx from "clsx";
+import { imageLoader } from "../lib/client-utils";
 import Image from "next/image";
+import clsx from "clsx";
 
 export default function SearchResults({
   query,
@@ -23,18 +24,18 @@ export default function SearchResults({
     const fetchData = async () => {
       const [user, searchResults]: [
         user: User,
-        searchResult: SearchResponse[],
+        searchResult: SearchResponse[]
       ] = await Promise.all([
         fetch(`http://localhost:3000/api/users/${id}`)
           .then((r) => r.json())
           .then((r) => r.user),
         fetch(`http://localhost:3000/api/shows/search/${query}`)
           .then((r) => r.json())
-          .then((r) => r.results),
+          .then((r) => r.searchResults),
       ]);
       console.log(searchResults);
       setUser(user);
-      setResponse(searchResults);
+      setResponse(searchResults.slice(0, 8));
     };
     if (query !== "") fetchData();
     else setResponse([]);
@@ -47,69 +48,74 @@ export default function SearchResults({
           {response.map((result) => {
             return (
               <div
-                className="flex flex-row box-border items-center gap-2 border-2 border-white rounded-lg pr-4"
+                className={clsx(
+                  "flex flex-row box-border items-center border-2 border-white rounded-lg"
+                )}
                 key={result.id}
               >
                 <Image
                   className="rounded-l-md w-auto h-full"
-                  width={100}
-                  height={100}
+                  loader={imageLoader}
+                  width={300}
+                  height={200}
                   src={result.backdrop_path}
                   alt={"Image of tv show: " + result.name}
                 />
-                {result.name}
-                <button
-                  className={clsx(
-                    "ml-auto flex flex-row gap-1 text-white font-bold py-2 px-4 rounded-full",
-                    shows.includes(Number(result.id))
-                      ? "bg-green-500"
-                      : "bg-blue-500 hover:bg-blue-700",
-                  )}
-                  onClick={async (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    if (!shows.includes(Number(result.id))) {
-                      const resp = await addUserShow(
-                        user._id,
-                        Number(result.id),
-                      );
-                      setUser((prev: User) => {
-                        return {
-                          ...prev,
-                          shows: [
-                            ...prev.shows,
-                            { showId: Number(result.id), watched: [] },
-                          ],
-                        };
-                      });
-                    } else {
-                      const resp = await removeUserShow(
-                        user._id,
-                        Number(result.id),
-                      );
-                      setUser((prev: User) => {
-                        return {
-                          ...prev,
-                          shows: prev.shows.filter(
-                            (s) => s.showId !== Number(result.id),
-                          ),
-                        };
-                      });
-                    }
-                  }}
-                >
-                  {shows.includes(Number(result.id)) ? (
-                    <>
-                      Added
-                      <CheckCircleIcon className="h-6 w-6" />
-                    </>
-                  ) : (
-                    <>
-                      Add
-                      <PlusCircleIcon className="h-6 w-6" />
-                    </>
-                  )}
-                </button>
+                <div className="flex flex-col gap-2 relative top-1/2 left-8">
+                  {result.name}
+                  <button
+                    className={clsx(
+                      " flex flex-row gap-1 text-white font-bold py-2 px-4 rounded-full",
+                      shows.includes(Number(result.id))
+                        ? "bg-green-500"
+                        : "bg-blue-500 hover:bg-blue-700"
+                    )}
+                    onClick={async (e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      if (!shows.includes(Number(result.id))) {
+                        const resp = await addUserShow(
+                          user._id,
+                          Number(result.id)
+                        );
+                        setUser((prev: User) => {
+                          return {
+                            ...prev,
+                            shows: [
+                              ...prev.shows,
+                              { showId: Number(result.id), watched: [] },
+                            ],
+                          };
+                        });
+                      } else {
+                        const resp = await removeUserShow(
+                          user._id,
+                          Number(result.id)
+                        );
+                        setUser((prev: User) => {
+                          return {
+                            ...prev,
+                            shows: prev.shows.filter(
+                              (s) => s.showId !== Number(result.id)
+                            ),
+                          };
+                        });
+                      }
+                    }}
+                  >
+                    {shows.includes(Number(result.id)) ? (
+                      <>
+                        Added
+                        <CheckCircleIcon className="h-6 w-6" />
+                      </>
+                    ) : (
+                      <>
+                        Add
+                        <PlusCircleIcon className="h-6 w-6" />
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
             );
           })}

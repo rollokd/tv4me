@@ -1,8 +1,9 @@
 import { Dispatch, SetStateAction } from "react";
 import { updateWatchedEp } from "@/app/lib/actions";
-import { EpisodeSeries, User } from "@/app/lib/definitions";
+import { Episode, EpisodeSeries, User } from "@/app/lib/definitions";
 import { PlusCircleIcon } from "@heroicons/react/24/outline";
 import { CheckCircleIcon as SolidCheck } from "@heroicons/react/24/solid";
+import clsx from "clsx";
 
 function EpisodeList({
   user,
@@ -17,7 +18,7 @@ function EpisodeList({
   setUser: Dispatch<SetStateAction<User>>;
   currShow: number;
   currEpisode: number;
-  episodes: EpisodeSeries[] | undefined;
+  episodes: Episode[] | undefined;
   setCurrEpisode: Dispatch<SetStateAction<number>>;
   watchedList: boolean[] | undefined;
 }) {
@@ -25,7 +26,7 @@ function EpisodeList({
     e: React.MouseEvent<HTMLButtonElement>,
     watchedList: boolean[],
     index: number,
-    episode: EpisodeSeries
+    episode: Episode
   ) {
     e.preventDefault();
     e.stopPropagation();
@@ -44,13 +45,13 @@ function EpisodeList({
     });
   }
 
-  episodes = episodes?.filter((e) => e.seasonNumber !== 0 && e.aired !== null);
+  episodes = episodes?.filter((e) => e.air_date !== null);
   const epsBySeason = episodes
-    ?.reduce((acc: EpisodeSeries[][], item) => {
-      if (!acc[item.seasonNumber]) {
-        acc[item.seasonNumber] = [];
+    ?.reduce((acc: Episode[][], item) => {
+      if (!acc[item.season_number]) {
+        acc[item.season_number] = [];
       }
-      acc[item.seasonNumber].push(item);
+      acc[item.season_number].push(item);
       return acc;
     }, [])
     .slice(1);
@@ -66,11 +67,14 @@ function EpisodeList({
           <div className="rounded-md overflow-y-auto scrollbar-hide h-full">
             <ol className="pl-5 text-white flex flex-col list-decimal list-inside">
               {episodes &&
-                season.map((episode: EpisodeSeries, index: number) => (
+                season.map((episode: Episode, index: number) => (
                   <li
-                    className={`flex flex-row p-2 justify-between items-center cursor-pointer border-b-2 transition hover:text-sky-400 duration-300 ease-in-out ${
-                      currEpisode === episode.id ? "text-blue-500" : ""
-                    }`}
+                    className={clsx(
+                      `flex flex-row p-2 justify-between items-center cursor-pointer border-b-2 transition hover:text-sky-400 duration-300 ease-in-out`,
+                      currEpisode === episode.id && "text-blue-500",
+                      episode.air_date > new Date().toISOString() &&
+                        "text-gray-500"
+                    )}
                     key={episode.id}
                     onClick={() => setCurrEpisode(episode.id)}
                   >

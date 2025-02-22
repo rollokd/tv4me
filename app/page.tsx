@@ -4,8 +4,8 @@ import { getUser } from "./lib/users";
 import { User } from "./lib/definitions";
 
 export default async function Home() {
-  const id = "65e0df64e483a7bd7222c535";
-  const user: User = await getUser(id);
+  // const id = "65e0df64e483a7bd7222c535";
+  // const user: User = await getUser(id);
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
       <div>Hello</div>

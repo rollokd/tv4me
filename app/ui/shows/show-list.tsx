@@ -1,42 +1,56 @@
 "use client";
-import { SeriesExtended, Show, User } from "@/app/lib/definitions";
+import { SeriesExtended, User } from "@/app/lib/definitions";
 import Image from "next/image";
 import clsx from "clsx";
-import { prettyDate } from "@/app/lib/client-utils";
+import { imageLoader, prettyDate } from "@/app/lib/client-utils";
 
 function ShowItem({
   show,
   currShow,
   setCurrShow,
-  firstEp,
   epsLeft,
 }: {
-  show: Show;
+  show: SeriesExtended;
   currShow: number;
   setCurrShow: Function;
-  firstEp: number;
   epsLeft: number;
 }) {
   return (
     <div
       className={clsx(
-        currShow === show.id && "bg-blue-600",
-        "flex flex-row items-center border-2 border-white text-white rounded-md cursor-pointer transition duration-500 ease-in-out hover:bg-blue-600 active:bg-blue-600"
+        currShow === show.id && "border-blue-600",
+        "flex flex-row items-center border-2 border-white text-white rounded-md cursor-pointer transition duration-500 ease-in-out hover:bg-blue-600 active:bg-blue-600",
+        `bg-[url(${imageLoader({
+          src: show.backdrop_path,
+          width: 1920,
+        })})] bg-cover bg-center`
       )}
       key={show.id}
-      onClick={() => setCurrShow(show.id, firstEp)}
+      onClick={() =>
+        setCurrShow(
+          show.id,
+          show.seasons[0] &&
+            show.seasons[0].episodes &&
+            show.seasons[0].episodes[0].id
+        )
+      }
     >
-      <Image
+      {/* <Image
         className="w-auto h-full rounded-md"
+        loader={imageLoader}
         width={75}
         height={75}
-        src={show.image}
+        src={show.backdrop_path}
         alt={show.name}
-      ></Image>
+      ></Image> */}
       <div className="flex flex-col p-2">
         <p className="md:text-xl">{show.name}</p>
         <p className="text-xs md:text-sm">
-          Airdate: {prettyDate(show.lastAired)}
+          {show.next_episode_to_air ? (
+            <>Next Airdate: {prettyDate(show.next_episode_to_air.air_date)}</>
+          ) : (
+            <>Last Airdate: {prettyDate(show.last_air_date)}</>
+          )}
         </p>
         <p className="text-xs md:text-sm">Episodes Left: {epsLeft}</p>
       </div>
@@ -49,27 +63,21 @@ export default function ShowList({
   shows,
   currShow,
   setCurrShow,
-  series,
 }: {
   user: User;
-  shows: Show[];
+  shows: SeriesExtended[];
   currShow: number;
   setCurrShow: Function;
-  series: SeriesExtended[];
 }) {
   const getShowStatus = (index: number) => {
     switch (index) {
       case 0:
         return "Upcoming";
       case 1:
-        return "To Be Announced";
+        return "Returning";
       case 2:
         return "Ended";
     }
-  };
-
-  const getFirstEp = (series: SeriesExtended) => {
-    return series.episodes.filter((e) => e.seasonNumber === 1)[0].id;
   };
 
   function getEpsLeft(currShow: number) {
@@ -78,14 +86,14 @@ export default function ShowList({
   }
 
   const filtered = shows.reduce(
-    (acc: Show[][], show) => {
-      if (show.status.name === "Ended") {
+    (acc: SeriesExtended[][], show) => {
+      if (show.status === "Ended") {
         acc[2].push(show);
       }
-      if (show.nextAired) {
+      if (show.next_episode_to_air) {
         acc[0].push(show);
       }
-      if (show.status.name === "Continuing" && !show.nextAired) {
+      if (show.status === "Returning Series" && !show.next_episode_to_air) {
         acc[1].push(show);
       }
       return acc;
@@ -106,9 +114,6 @@ export default function ShowList({
               show={show}
               currShow={currShow}
               setCurrShow={setCurrShow}
-              firstEp={getFirstEp(
-                series.find((s) => s.id === show.id) || series[0]
-              )}
               epsLeft={getEpsLeft(show.id) || 0}
             ></ShowItem>
           ))}
@@ -122,7 +127,7 @@ export default function ShowList({
       <h1 className="text-white bg-gray-950 text-2xl sticky top-0 px-3 pt-3 pb-1 z-10 rounded-md">
         Shows
       </h1>
-      <div className="flex flex-col gap-3 border-2 border-white rounded-md overflow-y-auto scrollbar-hide mt-2">
+      <div className="flex flex-col gap-3 border-2 border-white rounded-md overflow-y-auto scrollbar-hide mt-2 h-full">
         {showNodes ? (
           showNodes
         ) : (

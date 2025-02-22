@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 
-import { SeriesExtended, Show, User } from "@/app/lib/definitions";
+import { SeriesExtended, User } from "@/app/lib/definitions";
 
 import EpisodeItem from "./episode-info";
 import EpisodeList from "./episode-list";
@@ -11,7 +11,6 @@ import { getShowsAndEpsFromId } from "@/app/lib/actions";
 export default function ShowsTable({ id }: { id: string }) {
   const [user, setUser] = useState<User>({ _id: "", shows: [] });
   const [series, setSeries] = useState<SeriesExtended[]>([]);
-  const [shows, setShows] = useState<Show[]>([]);
   const [currShow, setCurrShow] = useState<number>(0);
   const [currEpisode, setCurrEpisode] = useState<number>(0);
 
@@ -23,7 +22,6 @@ export default function ShowsTable({ id }: { id: string }) {
       console.log(data);
       setUser(data.user);
       setSeries(data.series);
-      setShows(data.seriesData);
       if (data.series.length) setCurrShowAndEpFromSeries(data.series[0]);
     };
 
@@ -32,25 +30,32 @@ export default function ShowsTable({ id }: { id: string }) {
 
   console.log(series);
 
-  if (!series) return null;
-
   const episodes = series.length
-    ? series.find((s) => s.id === currShow)?.episodes
+    ? series
+        .find((s) => s.id === currShow)
+        ?.seasons.flatMap((s) => s.episodes || [])
     : undefined;
   const watchedList = user
     ? user.shows.find((s) => s.showId === currShow)?.watched
     : undefined;
 
   const sortedShows =
-    shows &&
-    shows.sort((a, b) => {
-      return new Date(b.lastAired).getTime() - new Date(a.lastAired).getTime();
+    series &&
+    series.sort((a, b) => {
+      return (
+        new Date(b.last_air_date).getTime() -
+        new Date(a.last_air_date).getTime()
+      );
     });
 
   const setCurrShowAndEpFromSeries = (series: SeriesExtended) => {
     if (series && series.id) {
       setCurrShow(series.id);
-      setCurrEpisode(series.episodes.filter((e) => e.seasonNumber !== 0)[0].id);
+      setCurrEpisode(
+        series.seasons[0] && series.seasons[0].episodes
+          ? series.seasons[0].episodes[0].id
+          : 0
+      );
     }
   };
   const setCurrShowAndEp = (showId: number, ep: number) => {
@@ -60,13 +65,12 @@ export default function ShowsTable({ id }: { id: string }) {
 
   return (
     <div className="flex flex-row bg-gray-600 gap-3 p-5 overflow-y-auto h-full">
-      {shows.length ? (
+      {series.length ? (
         <ShowList
           user={user}
           shows={sortedShows}
           currShow={currShow}
           setCurrShow={setCurrShowAndEp}
-          series={series}
         />
       ) : (
         <div className="p-5 text-white flex flex-col text-2xl w-1/3 overflow-y-auto scrollbar-hide bg-gray-950 rounded-md">
@@ -74,7 +78,7 @@ export default function ShowsTable({ id }: { id: string }) {
           <p className="text-lg">Try searching for a new show</p>
         </div>
       )}
-      {shows.length ? (
+      {series.length ? (
         <EpisodeList
           user={user}
           setUser={setUser}

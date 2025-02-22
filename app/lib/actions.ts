@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { addShow, getUser, updateWatchedOne, removeShow } from "./users";
-import { getEpsNumber, getShowsList, getUsersShowsAndEpisodes } from "./api";
+import { getEpisodes, getShowsList, getUsersShowsAndEpisodes } from "./api";
 import { User } from "./definitions";
 
 export async function updateWatchedEp(
@@ -22,9 +22,9 @@ export async function updateWatchedEp(
 
 export async function addUserShow(userId: string, showId: number) {
   try {
-    const episodeNo = await getEpsNumber(showId);
-    console.log("episodeNo", episodeNo);
-    await addShow(userId, showId, episodeNo);
+    const episodes = await getEpisodes(showId);
+    console.log("episodeNo", episodes);
+    await addShow(userId, showId, episodes);
     revalidatePath("/shows");
     return "successful";
   } catch (err) {
@@ -48,13 +48,8 @@ export async function getShowsAndEpsFromId(id: string) {
   try {
     const user: User = await getUser(id);
     const showIds = user.shows.map((s) => s.showId);
-    const [showWEps, series] = await Promise.all([
-      getUsersShowsAndEpisodes(showIds),
-      getShowsList(showIds),
-    ]);
-    const seriesData = series.map((s) => s.data);
-    const data = showWEps.map((s) => s.data);
-    return JSON.stringify({ user, series: data, seriesData });
+    const showWEps = await getUsersShowsAndEpisodes(showIds);
+    return JSON.stringify({ user, series: showWEps });
   } catch (err) {
     console.log(err);
     return "failed";

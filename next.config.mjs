@@ -4,10 +4,10 @@ const nextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: 'artworks.thetvdb.com',
-        port: '',
-        pathname: '/banners/**',
+        protocol: "https",
+        hostname: "image.tmdb.org",
+        port: "",
+        pathname: "/t/p/original/**",
       },
     ],
   },

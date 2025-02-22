@@ -17,7 +17,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className + "w-dvh h-screen flex flex-col"}>
+      <body
+        className={inter.className + "w-dvh h-screen flex flex-col bg-gray-600"}
+      >
         <NavBar />
         {children}
       </body>
