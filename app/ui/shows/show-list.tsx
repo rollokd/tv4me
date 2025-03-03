@@ -19,7 +19,7 @@ function ShowItem({
     <div
       className={clsx(
         currShow === show.id && "border-blue-600",
-        "flex flex-row items-center border-2 border-white text-white rounded-md cursor-pointer transition duration-500 ease-in-out hover:bg-blue-600 active:bg-blue-600"
+        "flex flex-row items-center border-2 rounded-md cursor-pointer transition duration-500 ease-in-out hover:bg-blue-600 active:bg-blue-600"
       )}
       key={show.id}
       onClick={() =>
@@ -102,7 +102,7 @@ export default function ShowList({
   const showNodes = filtered.map((shows, index) => {
     return (
       <div key={index}>
-        <h1 className="text-2xl text-white border-b-2 border-white mb-2 p-2 sticky top-0 z-0">
+        <h1 className="text-2xl border-b-2 mb-2 p-2 sticky top-0 z-0 bg-default">
           {getShowStatus(index)}
         </h1>
         <div className="flex flex-col p-3 gap-2">
@@ -122,10 +122,10 @@ export default function ShowList({
 
   return (
     <div className="flex flex-col w-1/3 rounded-md">
-      <h1 className="text-white text-2xl sticky top-0 px-3 pt-3 pb-1 z-10 rounded-md">
+      <h1 className="text-2xl sticky top-0 px-3 pt-3 pb-1 z-10 rounded-md">
         Shows
       </h1>
-      <div className="flex flex-col gap-3 border-2 border-white rounded-md overflow-y-auto scrollbar-hide mt-2 h-full">
+      <div className="flex flex-col gap-3 border-2 rounded-md overflow-y-auto scrollbar-hide mt-2 h-full">
         {showNodes ? (
           showNodes
         ) : (

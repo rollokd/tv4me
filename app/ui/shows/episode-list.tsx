@@ -61,11 +61,11 @@ function EpisodeList({
     epsBySeason?.map((season, index) => {
       return (
         <div key={index}>
-          <h2 className="text-white text-2xl sticky top-0 px-3 py-2 border-b-2 border-white">
+          <h2 className="text-2xl sticky top-0 px-3 py-2 border-b-2">
             Season {index + 1}
           </h2>
           <div className="rounded-md overflow-y-auto scrollbar-hide h-full">
-            <ol className="pl-5 text-white flex flex-col list-decimal list-inside">
+            <ol className="pl-5 flex flex-col list-decimal list-inside">
               {episodes &&
                 season.map((episode: Episode, index: number) => (
                   <li
@@ -81,7 +81,7 @@ function EpisodeList({
                     {index + 1 + ". " + episode.name}
                     <button
                       className={
-                        "text-white bg-blue-500 hover:text-blue-700 p-1 rounded-full"
+                        "bg-blue-500 hover:text-blue-700 p-1 rounded-full"
                       }
                       onClick={async (e) => {
                         await handleWatchedClick(
@@ -93,7 +93,7 @@ function EpisodeList({
                       }}
                     >
                       {watchedList[episodes?.indexOf(episode)] ? (
-                        <SolidCheck className=" w-7 h-7" />
+                        <SolidCheck className="w-7 h-7" />
                       ) : (
                         <PlusCircleIcon className="w-7 h-7" />
                       )}
@@ -110,10 +110,10 @@ function EpisodeList({
     <div className="flex flex-col w-1/3 rounded-md">
       {episodes && watchedList ? (
         <>
-          <h1 className="rounded-md text-white text-2xl sticky top-0 px-3 pt-3 pb-1">
+          <h1 className="rounded-md  text-2xl sticky top-0 px-3 pt-3 pb-1">
             Episodes
           </h1>
-          <div className="border-2 border-white rounded-md overflow-y-auto scrollbar-hide h-full mt-2">
+          <div className="border-2 rounded-md overflow-y-auto scrollbar-hide h-full mt-2">
             {seasonNodes}
           </div>
         </>

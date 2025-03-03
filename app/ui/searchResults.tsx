@@ -42,14 +42,14 @@ export default function SearchResults({
   }, [id, query]);
 
   return (
-    <div className="grid grid-cols-2 grid-rows-4 border-2 border-white rounded-md gap-5 m-5 p-5 grow">
+    <div className="grid grid-cols-2 grid-rows-4 border-2 rounded-md gap-5 m-5 p-5 grow">
       {response.length ? (
         <>
           {response.map((result) => {
             return (
               <div
                 className={clsx(
-                  "flex flex-row box-border items-center border-2 border-white rounded-lg gap-4"
+                  "flex flex-row box-border items-center border-2 rounded-lg gap-4"
                 )}
                 key={result.id}
               >
@@ -67,7 +67,7 @@ export default function SearchResults({
                   {result.name}
                   <button
                     className={clsx(
-                      " flex flex-row gap-1 text-white font-bold py-2 px-4 rounded-full w-fit",
+                      "flex flex-row gap-1 font-bold py-2 px-4 rounded-full w-fit",
                       shows.includes(Number(result.id))
                         ? "bg-green-500"
                         : "bg-blue-500 hover:bg-blue-700"
