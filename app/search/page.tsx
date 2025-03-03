@@ -1,16 +1,19 @@
 import { createUser, findUser } from "../lib/users";
 import Search from "../ui/search";
 import SearchResults from "../ui/searchResults";
-export default async function Page({
-  searchParams,
-}: {
-  searchParams?: {
-    query?: string;
-  };
-}) {
-  const input = await searchParams;
-  const query = input?.query || "";
+
+type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
+
+export default async function Page(props: { searchParams: SearchParams }) {
+  const searchParams = await props.searchParams;
+  const query = Array.isArray(searchParams.query)
+    ? searchParams.query.join(", ")
+    : searchParams.query || "";
   const user = (await findUser()) || (await createUser());
+
+  if (!user) {
+    return <div>User not found</div>;
+  }
 
   return (
     <div className="flex flex-col bg-gray-600 p-5 grow">

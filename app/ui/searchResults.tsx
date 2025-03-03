@@ -53,14 +53,16 @@ export default function SearchResults({
                 )}
                 key={result.id}
               >
-                <Image
-                  className="rounded-l-md"
-                  loader={imageLoader}
-                  width={100}
-                  height={150}
-                  src={result.poster_path}
-                  alt={"Image of tv show: " + result.name}
-                />
+                {result.poster_path && (
+                  <Image
+                    className="rounded-l-md"
+                    loader={imageLoader}
+                    width={100}
+                    height={150}
+                    src={result.poster_path}
+                    alt={"Image of tv show: " + result.name}
+                  />
+                )}
                 <div className="flex flex-col gap-4">
                   {result.name}
                   <button
