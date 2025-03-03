@@ -1,10 +1,7 @@
 import {
   SeriesExtended,
-  SeriesResponse,
-  Show,
   Response,
   SearchResponse,
-  EpisodeSeries,
   ConfigurationResponse,
 } from "./definitions";
 

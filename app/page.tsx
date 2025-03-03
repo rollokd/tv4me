@@ -1,4 +1,3 @@
-import dbConnect from "./lib/db";
 import Link from "next/link";
 import { getUser } from "./lib/users";
 import { User } from "./lib/definitions";

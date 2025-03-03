@@ -3,30 +3,6 @@ export interface Response<T> {
   status: string;
 }
 
-export interface Show {
-  id: number;
-  name: string;
-  slug: string;
-  image: string;
-  nameTranslations: string[];
-  overviewTranslations: string[];
-  aliases: Alias[];
-  firstAired: string;
-  lastAired: string;
-  nextAired: string;
-  score: number;
-  status: Status;
-  originalCountry: string;
-  originalLanguage: string;
-  defaultSeasonType: number;
-  isOrderRandomized: boolean;
-  lastUpdated: string;
-  averageRuntime: number;
-  episodes: any;
-  overview: string;
-  year: string;
-}
-
 export interface ConfigurationResponse {
   images: {
     secure_base_url: string;
@@ -120,11 +96,6 @@ export interface UserShow {
 export interface User {
   _id: string;
   shows: UserShow[];
-}
-
-export interface SeriesResponse {
-  data: SeriesExtended;
-  status: string;
 }
 export interface Artwork {
   height: number;
