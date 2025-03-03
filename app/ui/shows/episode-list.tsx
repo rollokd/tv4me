@@ -61,7 +61,7 @@ function EpisodeList({
     epsBySeason?.map((season, index) => {
       return (
         <div key={index}>
-          <h2 className="text-white bg-gray-950 text-2xl sticky top-0 px-3 py-2 border-b-2 border-white">
+          <h2 className="text-white text-2xl sticky top-0 px-3 py-2 border-b-2 border-white">
             Season {index + 1}
           </h2>
           <div className="rounded-md overflow-y-auto scrollbar-hide h-full">
@@ -107,10 +107,10 @@ function EpisodeList({
     });
 
   return (
-    <div className="flex flex-col w-1/3 bg-gray-950 rounded-md">
+    <div className="flex flex-col w-1/3 rounded-md">
       {episodes && watchedList ? (
         <>
-          <h1 className="rounded-md bg-gray-950 text-white text-2xl sticky top-0 px-3 pt-3 pb-1">
+          <h1 className="rounded-md text-white text-2xl sticky top-0 px-3 pt-3 pb-1">
             Episodes
           </h1>
           <div className="border-2 border-white rounded-md overflow-y-auto scrollbar-hide h-full mt-2">

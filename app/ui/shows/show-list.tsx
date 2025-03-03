@@ -102,7 +102,7 @@ export default function ShowList({
   const showNodes = filtered.map((shows, index) => {
     return (
       <div key={index}>
-        <h1 className="text-2xl text-white border-b-2 border-white mb-2 p-2 sticky top-0 bg-gray-950 z-0">
+        <h1 className="text-2xl text-white border-b-2 border-white mb-2 p-2 sticky top-0 z-0">
           {getShowStatus(index)}
         </h1>
         <div className="flex flex-col p-3 gap-2">
@@ -121,15 +121,15 @@ export default function ShowList({
   });
 
   return (
-    <div className="flex flex-col w-1/3 bg-gray-950 rounded-md">
-      <h1 className="text-white bg-gray-950 text-2xl sticky top-0 px-3 pt-3 pb-1 z-10 rounded-md">
+    <div className="flex flex-col w-1/3 rounded-md">
+      <h1 className="text-white text-2xl sticky top-0 px-3 pt-3 pb-1 z-10 rounded-md">
         Shows
       </h1>
       <div className="flex flex-col gap-3 border-2 border-white rounded-md overflow-y-auto scrollbar-hide mt-2 h-full">
         {showNodes ? (
           showNodes
         ) : (
-          <div className="flex flex-col w-1/3 overflow-y-auto scrollbar-hide bg-gray-950 rounded-md">
+          <div className="flex flex-col w-1/3 overflow-y-auto scrollbar-hide rounded-md">
             No Shows Yet
           </div>
         )}

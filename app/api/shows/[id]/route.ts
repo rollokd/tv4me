@@ -2,7 +2,10 @@ import { getShowsList, getUsersShowsAndEpisodes } from "@/app/lib/api";
 import { User } from "@/app/lib/definitions";
 import { getUser } from "@/app/lib/users";
 
-export async function GET(request: Request, props: { params: Promise<{ id: string }> }) {
+export async function GET(
+  request: Request,
+  props: { params: Promise<{ id: string }> }
+) {
   const params = await props.params;
   console.log("got request", params.id);
   const id = params.id;
@@ -15,7 +18,5 @@ export async function GET(request: Request, props: { params: Promise<{ id: strin
   ]);
   // console.log(series);
   console.log("got show response");
-  const seriesData = series.map((s) => s.data);
-  const data = showWEps.map((s) => s.data);
-  return Response.json({ user, series: data, seriesData });
+  return Response.json({ user, showWEps, series });
 }
