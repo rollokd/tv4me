@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ThemeProvider } from "@/components/theme-provider";
+import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
 import { inter } from "./ui/fonts";
@@ -27,6 +28,7 @@ export default function RootLayout({
         >
           <NavBar />
           {children}
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>

@@ -1,5 +1,7 @@
+"use client";
 import Link from "next/link";
-import { buttonVariants } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { toast } from "sonner";
 
 export default async function Home() {
   // const id = "65e0df64e483a7bd7222c535";
@@ -21,11 +23,9 @@ export default async function Home() {
           <h2>Sign Up</h2>
         </Link>
       </div>
-      <Link href="/shows">
-        <div>
-          <h2 className="hover:cursor-pointer">Go to my shows</h2>
-        </div>
-      </Link>
+      <Button onClick={() => toast("Test Toast")}>
+        <h2 className="hover:cursor-pointer">Test Toast</h2>
+      </Button>
     </main>
   );
 }

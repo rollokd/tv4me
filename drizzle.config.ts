@@ -3,9 +3,9 @@ import { defineConfig } from "drizzle-kit";
 
 export default defineConfig({
   out: "./drizzle",
-  schema: "./src/db/schema.ts",
+  schema: "./app/lib/schema",
   dialect: "postgresql",
   dbCredentials: {
-    url: process.env.DATABASE_URL!,
+    url: "postgres://neondb_owner:npg_QP5cjt7RUoAY@ep-soft-sound-abcds2m2-pooler.eu-west-2.aws.neon.tech/neondb?sslmode=require",
   },
 });

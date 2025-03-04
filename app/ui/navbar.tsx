@@ -1,5 +1,6 @@
 import { ModeToggle } from "@/components/theme-toggle";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+import SignOutButton from "@/components/sign-out-button";
 import Link from "next/link";
 
 function NavBar(props: Readonly<{}>) {
@@ -20,6 +21,7 @@ function NavBar(props: Readonly<{}>) {
           Search
         </Link>
         <ModeToggle />
+        <SignOutButton />
       </div>
     </div>
   );
