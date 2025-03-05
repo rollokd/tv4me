@@ -3,7 +3,7 @@ import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import SignOutButton from "@/components/sign-out-button";
 import Link from "next/link";
 
-function NavBar(props: Readonly<{}>) {
+function NavBar() {
   return (
     <div className="flex flex-row justify-between items-center bg-blue-600 gap-10 px-5 py-3">
       <div className="flex flex-row items-center gap-10">

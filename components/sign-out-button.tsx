@@ -4,9 +4,7 @@ import { Button } from "./ui/button";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 
-type Props = {};
-
-const SignOutButton = (props: Props) => {
+const SignOutButton = (props: React.ComponentProps<"button">) => {
   const router = useRouter();
 
   const handleSignOut = async () => {
@@ -18,7 +16,11 @@ const SignOutButton = (props: Props) => {
       },
     });
   };
-  return <Button onClick={handleSignOut}>Sign Out</Button>;
+  return (
+    <Button onClick={handleSignOut} {...props}>
+      Sign Out
+    </Button>
+  );
 };
 
 export default SignOutButton;

@@ -3,14 +3,12 @@ import Link from "next/link";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { toast } from "sonner";
 
-export default async function Home() {
-  // const id = "65e0df64e483a7bd7222c535";
-  // const user: User = await getUser(id);
+export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
       <div>
         <h1>Welcome to TV4Me</h1>
-        <div>It's a work in progress</div>
+        <div>It&apos;s a work in progress</div>
       </div>
       <div className="flex gap-5">
         <Link
