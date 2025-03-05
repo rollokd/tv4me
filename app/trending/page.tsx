@@ -1,4 +1,4 @@
-function Trending(props: Readonly<{}>) {
+function Trending() {
   return <div>Trending</div>;
 }
 

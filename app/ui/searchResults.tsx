@@ -76,10 +76,7 @@ export default function SearchResults({
                       e.preventDefault();
                       e.stopPropagation();
                       if (!shows.includes(Number(result.id))) {
-                        const resp = await addUserShow(
-                          user._id,
-                          Number(result.id)
-                        );
+                        await addUserShow(user._id, Number(result.id));
                         setUser((prev: User) => {
                           return {
                             ...prev,
@@ -90,10 +87,7 @@ export default function SearchResults({
                           };
                         });
                       } else {
-                        const resp = await removeUserShow(
-                          user._id,
-                          Number(result.id)
-                        );
+                        await removeUserShow(user._id, Number(result.id));
                         setUser((prev: User) => {
                           return {
                             ...prev,

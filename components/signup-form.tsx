@@ -47,11 +47,11 @@ export function SignupForm({
           callbackURL: "/trending", // a url to redirect to after the user verifies their email (optional)
         },
         {
-          onRequest: (ctx) => {
+          onRequest: () => {
             //show loading\
             setLoading(true);
           },
-          onSuccess: (ctx) => {
+          onSuccess: () => {
             //redirect to the dashboard or sign in page
             router.push("/trending");
           },

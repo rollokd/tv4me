@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { addShow, getUser, updateWatchedOne, removeShow } from "./users";
-import { getEpisodes, getShowsList, getUsersShowsAndEpisodes } from "./api";
+import { getEpisodes, getUsersShowsAndEpisodes } from "./api";
 import { User } from "./definitions";
 
 export async function updateWatchedEp(

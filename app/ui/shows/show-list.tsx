@@ -12,9 +12,11 @@ function ShowItem({
 }: {
   show: SeriesExtended;
   currShow: number;
-  setCurrShow: Function;
+  setCurrShow: (showId: number, ep: number) => void;
   epsLeft: number;
 }) {
+  const nextEpisodeId = show.seasons[0]?.episodes?.[0]?.id ?? null;
+
   return (
     <div
       className={clsx(
@@ -22,14 +24,7 @@ function ShowItem({
         "flex flex-row items-center border-2 rounded-md cursor-pointer transition duration-500 ease-in-out hover:bg-blue-600 active:bg-blue-600"
       )}
       key={show.id}
-      onClick={() =>
-        setCurrShow(
-          show.id,
-          show.seasons[0] &&
-            show.seasons[0].episodes &&
-            show.seasons[0].episodes[0].id
-        )
-      }
+      onClick={() => setCurrShow(show.id, nextEpisodeId ?? 0)}
     >
       <Image
         className="rounded-l-[0.375rem]"
@@ -65,7 +60,7 @@ export default function ShowList({
   user: User;
   shows: SeriesExtended[];
   currShow: number;
-  setCurrShow: Function;
+  setCurrShow: (showId: number, ep: number) => void;
 }) {
   const getShowStatus = (index: number) => {
     switch (index) {
@@ -75,6 +70,8 @@ export default function ShowList({
         return "Returning";
       case 2:
         return "Ended";
+      default:
+        return "Unknown";
     }
   };
 

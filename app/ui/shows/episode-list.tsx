@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction } from "react";
 import { updateWatchedEp } from "@/app/lib/actions";
-import { Episode, EpisodeSeries, User } from "@/app/lib/definitions";
+import { Episode, User } from "@/app/lib/definitions";
 import { PlusCircleIcon } from "@heroicons/react/24/outline";
 import { CheckCircleIcon as SolidCheck } from "@heroicons/react/24/solid";
 import clsx from "clsx";
@@ -34,6 +34,9 @@ function EpisodeList({
       watchedList[episodes?.indexOf(episode)] =
         !watchedList[episodes?.indexOf(episode)];
     const resp = await updateWatchedEp(user._id, currShow, index);
+    if (resp === "failed") {
+      console.error("Failed to update watched list");
+    }
 
     setUser((prev: User) => {
       return {
