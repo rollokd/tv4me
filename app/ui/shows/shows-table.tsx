@@ -73,7 +73,7 @@ export default function ShowsTable({ id }: { id: string }) {
           setCurrShow={setCurrShowAndEp}
         />
       ) : (
-        <div className="p-5 flex flex-col text-2xl w-1/3 overflow-y-auto scrollbar-hide bg-gray-950 rounded-md">
+        <div className="p-5 flex flex-col text-2xl w-1/3 overflow-y-auto scrollbar-hide rounded-md">
           No Shows Yet <br />
           <p className="text-lg">Try searching for a new show</p>
         </div>
@@ -89,7 +89,7 @@ export default function ShowsTable({ id }: { id: string }) {
           watchedList={watchedList}
         />
       ) : (
-        <div className="p-5 text-2xl flex flex-col w-1/3 bg-gray-950 rounded-md">
+        <div className="p-5 text-2xl flex flex-col w-1/3 rounded-md">
           No Show Selected
         </div>
       )}
