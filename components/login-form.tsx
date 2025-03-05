@@ -1,3 +1,4 @@
+"use client";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,11 +11,46 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { authClient } from "@/lib/auth-client";
+import { toast } from "sonner";
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+
+  const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const email = (e.currentTarget.elements[0] as HTMLInputElement).value;
+    const password = (e.currentTarget.elements[1] as HTMLInputElement).value;
+    if (!email || !password) {
+      alert("Please fill in all fields");
+      return;
+    }
+    try {
+      await authClient.signIn.email(
+        { email, password },
+        {
+          onRequest: () => setLoading(true),
+          onSuccess: () => router.push("/trending"),
+        }
+      );
+    } catch (error) {
+      console.error(error);
+      if (error instanceof Error) {
+        toast(error.message);
+      } else {
+        toast("An unknown error occurred");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
@@ -25,7 +61,7 @@ export function LoginForm({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form>
+          <form onSubmit={submitHandler}>
             <div className="flex flex-col gap-6">
               <div className="grid gap-3">
                 <Label htmlFor="email">Email</Label>
@@ -46,11 +82,16 @@ export function LoginForm({
                     Forgot your password?
                   </a>
                 </div>
-                <Input id="password" type="password" required />
+                <Input
+                  id="password"
+                  type="password"
+                  autoComplete="current-password webauthn"
+                  required
+                />
               </div>
               <div className="flex flex-col gap-3">
-                <Button type="submit" className="w-full">
-                  Login
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading ? "Loading..." : "Login"}
                 </Button>
                 {/* <Button variant="outline" className="w-full">
                   Login with Google
