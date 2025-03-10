@@ -1,5 +1,8 @@
 import mongoose from "mongoose";
 import { User, UserShow } from "./definitions";
+import { db } from "../db";
+import { user } from "./schema/auth-schema";
+import { eq } from "drizzle-orm";
 
 const userSchema = new mongoose.Schema({
   shows: [
@@ -13,27 +16,14 @@ const userSchema = new mongoose.Schema({
 const UserModel =
   mongoose.models.User || mongoose.model<User>("User", userSchema);
 
-const createUser = async () => {
-  const user: User = await UserModel.create({ shows: [] });
-  return user;
-};
-
-const findUser = async () => {
-  try {
-    const user: User | null = await UserModel.findOne();
-    return user;
-  } catch (err) {
-    console.log(err);
-  }
-};
-
 const getUser = async (userId: string) => {
   try {
-    const user = await UserModel.findById(userId);
-    return user;
+    const users = await db.select().from(user).where(eq(user.id, userId));
+    const foundUser = users[0];
+    return foundUser;
   } catch (err) {
     console.log(err);
-    return "User not found";
+    return null;
   }
 };
 
@@ -70,7 +60,7 @@ const removeShow = async (userId: string, showId: number) => {
 const updateWatchedOne = async (
   userId: string,
   showId: number,
-  episode: number
+  episode: number,
 ) => {
   try {
     const user = await UserModel.findById(userId);
@@ -92,4 +82,4 @@ const updateWatchedOne = async (
   }
 };
 
-export { findUser, createUser, getUser, addShow, updateWatchedOne, removeShow };
+export { getUser, addShow, updateWatchedOne, removeShow };

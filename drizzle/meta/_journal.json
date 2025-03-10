@@ -8,6 +8,13 @@
       "when": 1741051879071,
       "tag": "0000_mighty_toro",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1741564324265,
+      "tag": "0001_unique_vance_astro",
+      "breakpoints": true
     }
   ]
 }

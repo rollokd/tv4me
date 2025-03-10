@@ -3,12 +3,11 @@
 import { revalidatePath } from "next/cache";
 import { addShow, getUser, updateWatchedOne, removeShow } from "./users";
 import { getEpisodes, getUsersShowsAndEpisodes } from "./api";
-import { User } from "./definitions";
 
 export async function updateWatchedEp(
   userId: string,
   showId: number,
-  episodeNo: number
+  episodeNo: number,
 ) {
   try {
     await updateWatchedOne(userId, showId, episodeNo);
@@ -46,9 +45,8 @@ export async function removeUserShow(userId: string, showId: number) {
 
 export async function getShowsAndEpsFromId(id: string) {
   try {
-    const user: User = await getUser(id);
-    const showIds = user.shows.map((s) => s.showId);
-    const showWEps = await getUsersShowsAndEpisodes(showIds);
+    const user = await getUser(id);
+    const showWEps = await getUsersShowsAndEpisodes(id);
     return JSON.stringify({ user, series: showWEps });
   } catch (err) {
     console.log(err);
