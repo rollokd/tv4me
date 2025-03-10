@@ -1,5 +1,6 @@
 "use client";
-import { SeriesExtended, User } from "@/app/lib/definitions";
+import { SeriesExtended } from "@/app/lib/definitions";
+import { User } from "better-auth";
 import Image from "next/image";
 import clsx from "clsx";
 import { imageLoader, prettyDate } from "@/app/lib/client-utils";
@@ -21,7 +22,7 @@ function ShowItem({
     <div
       className={clsx(
         currShow === show.id && "border-blue-600",
-        "flex flex-row items-center border-2 rounded-md cursor-pointer transition duration-500 ease-in-out hover:bg-blue-600 active:bg-blue-600"
+        "flex flex-row items-center border-2 rounded-md cursor-pointer transition duration-500 ease-in-out hover:bg-blue-600 active:bg-blue-600",
       )}
       key={show.id}
       onClick={() => setCurrShow(show.id, nextEpisodeId ?? 0)}
@@ -76,8 +77,9 @@ export default function ShowList({
   };
 
   function getEpsLeft(currShow: number) {
-    const userShow = user.shows.find((s) => s.showId === currShow);
-    return userShow && userShow.watched.filter((w) => w === false).length;
+    // const userShow = user.shows.find((s) => s.showId === currShow);
+    // return userShow && userShow.watched.filter((w) => w === false).length;
+    return 0;
   }
 
   const filtered = shows.reduce(
@@ -93,7 +95,7 @@ export default function ShowList({
       }
       return acc;
     },
-    [[], [], []]
+    [[], [], []],
   );
 
   const showNodes = filtered.map((shows, index) => {
