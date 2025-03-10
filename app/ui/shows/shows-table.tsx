@@ -1,41 +1,18 @@
-"use client";
-import { useEffect, useState } from "react";
-
 import { SeriesExtended } from "@/app/lib/definitions";
-
-import EpisodeItem from "./episode-info";
-import EpisodeList from "./episode-list";
 import ShowList from "./show-list";
-import { getShowsAndEpsFromId, getShowsFromId } from "@/app/lib/actions";
-import { User } from "better-auth";
 
-export default function ShowsTable({ id }: { id: string }) {
-  const [user, setUser] = useState<User>();
-  const [series, setSeries] = useState<SeriesExtended[]>([]);
-  const [currShow, setCurrShow] = useState<number>(0);
-  const [currEpisode, setCurrEpisode] = useState<number>(0);
+interface ShowsTableProps {
+  series: SeriesExtended[];
+}
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      const json = await getShowsFromId(id);
-      const data = JSON.parse(json);
-      if (data === "failed") return console.log("failed to fetch data");
-      console.log(data);
-      setUser(data.user);
-      setSeries(data.series);
-      if (data.series.length) setCurrShowAndEpFromSeries(data.series[0]);
-    };
-
-    fetchUser();
-  }, [id]);
-
+export default function ShowsTable({ series }: ShowsTableProps) {
   console.log(series);
 
-  const episodes = series.length
-    ? series
-        .find((s) => s.id === currShow)
-        ?.seasons.flatMap((s) => s.episodes || [])
-    : undefined;
+  // const episodes = series.length
+  //   ? series
+  //       .find((s) => s.id === currShow)
+  //       ?.seasons.flatMap((s) => s.episodes || [])
+  //   : undefined;
   // const watchedList = user
   //   ? user.shows.find((s) => s.showId === currShow)?.watched
   //   : undefined;
@@ -49,30 +26,25 @@ export default function ShowsTable({ id }: { id: string }) {
       );
     });
 
-  const setCurrShowAndEpFromSeries = (series: SeriesExtended) => {
-    if (series && series.id) {
-      setCurrShow(series.id);
-      setCurrEpisode(
-        series.seasons[0] && series.seasons[0].episodes
-          ? series.seasons[0].episodes[0].id
-          : 0,
-      );
-    }
-  };
-  const setCurrShowAndEp = (showId: number, ep: number) => {
-    setCurrShow(showId);
-    setCurrEpisode(ep);
-  };
+  // const setCurrShowAndEpFromSeries = (series: SeriesExtended) => {
+  //   if (series && series.id) {
+  //     setCurrShow(series.id);
+  //     setCurrEpisode(
+  //       series.seasons[0] && series.seasons[0].episodes
+  //         ? series.seasons[0].episodes[0].id
+  //         : 0,
+  //     );
+  //   }
+  // };
+  // const setCurrShowAndEp = (showId: number, ep: number) => {
+  //   setCurrShow(showId);
+  //   setCurrEpisode(ep);
+  // };
 
   return (
     <div className="flex flex-row gap-3 p-5 overflow-y-auto h-full">
       {series.length ? (
-        <ShowList
-          user={user}
-          shows={sortedShows}
-          currShow={currShow}
-          setCurrShow={setCurrShowAndEp}
-        />
+        <ShowList shows={sortedShows} />
       ) : (
         <div className="p-5 flex flex-col text-2xl w-1/3 overflow-y-auto scrollbar-hide rounded-md">
           No Shows Yet <br />
