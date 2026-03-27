@@ -18,7 +18,7 @@ export async function getShows() {
 
 export async function getShowsList(userId: string) {
   const shows = await getUserShows(userId);
-  const showIds = shows.map((show) => show.id);
+  const showIds = shows.map((show) => show.id).slice(0, 15);
   const resp = await Promise.all(
     showIds.map((showId) => {
       return getShow(showId);

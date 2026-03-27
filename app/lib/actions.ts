@@ -59,7 +59,7 @@ export async function getShowsFromId(id: string) {
     const user = await getUser(id);
     const series = await getShowsList(id);
     console.log("series", series);
-    return JSON.stringify({ user, series: series.slice(0, 10) });
+    return JSON.stringify({ user, series });
   } catch (err) {
     console.log(err);
     return "failed";
