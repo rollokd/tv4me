@@ -24,7 +24,8 @@ Create a `.env.local` (see [`envConfig.ts`](envConfig.ts) — Next loads it auto
 SQL migrations live in [`drizzle/`](drizzle/). Apply them to your Neon branch (e.g. with Drizzle Kit, Neon console, or your usual migration runner).
 
 ```bash
-pnpm exec drizzle-kit push   # or migrate via your hosted workflow
+pnpm drizzle-kit generate   # after schema changes
+pnpm drizzle-kit migrate    # apply migrations (or use `push` against dev)
 ```
 
 ## Development

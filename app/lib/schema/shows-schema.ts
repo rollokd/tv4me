@@ -24,8 +24,9 @@ export const shows = pgTable(
     userId: text("user_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
-    tmdbTvId: integer("tmdb_tv_id").notNull(),
-    title: text("title").notNull(),
+    /** TMDB TV id (legacy column name `series_id` from original schema). */
+    tmdbTvId: integer("series_id").notNull(),
+    title: text("series").notNull(),
     status: session_status().default("active"),
     watchthroughCount: integer("watchthrough_count").notNull().default(0),
     imported: boolean("imported").notNull().default(false),
@@ -44,7 +45,7 @@ export const episodeWatches = pgTable(
     userId: text("user_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
-    tmdbTvId: integer("tmdb_tv_id").notNull(),
+    tmdbTvId: integer("series_id").notNull(),
     watchthrough: integer("watchthrough").notNull().default(0),
     seasonNumber: integer("season_number").notNull(),
     episodeNumber: integer("episode_number").notNull(),
