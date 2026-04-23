@@ -1,4 +1,5 @@
 import { getUser } from "@/app/lib/users";
+import { getUserLibraryTmdbIds } from "@/app/lib/shows";
 
 export async function GET(
   request: Request,
@@ -11,6 +12,6 @@ export async function GET(
     return Response.json({ error: "User not found" }, { status: 404 });
   }
 
-  // console.log(user);
-  return Response.json({ user });
+  const libraryShowIds = await getUserLibraryTmdbIds(id);
+  return Response.json({ user, libraryShowIds });
 }

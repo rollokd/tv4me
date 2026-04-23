@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+
 export interface Response<T> {
   data: T;
   status: string;
@@ -10,21 +11,8 @@ export interface ConfigurationResponse {
     backdrop_sizes: string[];
     logo_sizes: string[];
     poster_sizes: string[];
-    profile_sizes: string[];
     still_sizes: string[];
   };
-}
-
-export interface Alias {
-  language: string;
-  name: string;
-}
-
-export interface Status {
-  id: any;
-  name: any;
-  recordType: string;
-  keepUpdated: boolean;
 }
 
 export interface Episode {
@@ -44,6 +32,7 @@ export interface Episode {
   crew: CrewItem[];
   guest_stars: GuestStarsItem[];
 }
+
 interface CrewItem {
   job: string;
   department: string;
@@ -57,6 +46,7 @@ interface CrewItem {
   popularity: number;
   profile_path: string | null;
 }
+
 interface GuestStarsItem {
   character: string;
   credit_id: string;
@@ -74,9 +64,9 @@ interface GuestStarsItem {
 export interface SearchResponse {
   adult: boolean;
   backdrop_path: string;
-  genre_ids: any[];
+  genre_ids: number[];
   id: number;
-  origin_country: any[];
+  origin_country: string[];
   original_language: string;
   original_name: string;
   overview: string;
@@ -88,149 +78,11 @@ export interface SearchResponse {
   vote_count: number;
 }
 
-export interface UserShow {
-  showId: number;
-  watched: boolean[];
-  // _id: string;
-}
-
-export interface User {
-  _id: string;
-  shows: UserShow[];
-}
-export interface Artwork {
-  height: number;
-  id: number;
-  image: string;
-  includesText: boolean;
-  language: string;
-  score: number;
-  thumbnail: string;
-  type: number;
-  width: number;
-}
-
-export interface Companies {
-  studio: Studio[];
-  network: Network[];
-  production: Production[];
-  distributor: Distributor[];
-}
-
-export interface Studio {
-  activeDate: string;
-  aliases: Alias[];
-  country: string;
-  id: number;
-  inactiveDate: string;
-  name: string;
-  nameTranslations: string[];
-  overviewTranslations: string[];
-  primaryCompanyType: number;
-  slug: string;
-  tagOptions: TagOption[];
-}
-
-export interface Alias {
-  language: string;
-  name: string;
-}
-
-export interface TagOption {
-  helpText: string;
-  id: number;
-  name: string;
-  tag: number;
-  tagName: string;
-}
-
-export interface Network {
-  activeDate: string;
-  country: string;
-  id: number;
-  inactiveDate: string;
-  name: string;
-  nameTranslations: string[];
-  overviewTranslations: string[];
-  primaryCompanyType: number;
-  slug: string;
-}
-
-export interface Production {
-  activeDate: string;
-  country: string;
-  id: number;
-  inactiveDate: string;
-  name: string;
-  nameTranslations: string[];
-  overviewTranslations: string[];
-  primaryCompanyType: number;
-  slug: string;
-}
-
-export interface Distributor {
-  activeDate: string;
-  country: string;
-  id: number;
-  inactiveDate: string;
-  name: string;
-  nameTranslations: string[];
-  overviewTranslations: string[];
-  primaryCompanyType: number;
-  slug: string;
-}
-
-export interface EpisodeSeries {
-  aired: string;
-  airsAfterSeason: number;
-  airsBeforeEpisode: number;
-  airsBeforeSeason: number;
-  finaleType: string;
-  id: number;
-  image: string;
-  imageType: number;
-  isMovie: number;
-  lastUpdated: string;
-  linkedMovie: number;
-  name: string;
-  nameTranslations: string[];
-  number: number;
-  overview: string;
-  overviewTranslations: string[];
-  runtime: number;
-  seasonNumber: number;
-  seasons: Season[];
-  seriesId: number;
-  seasonName: string;
-  year: string;
-}
-
-export interface Season {
-  id: number;
-  image: string;
-  imageType: number;
-  lastUpdated: string;
-  name: string;
-  nameTranslations: string[];
-  number: number;
-  overviewTranslations: string[];
-  seriesId: number;
-  type: Type;
-  year: string;
-}
-
-export interface Type {
-  alternateName: string;
-  id: number;
-  name: string;
-  type: string;
-}
-
 export type SeriesExtended = {
   adult: boolean;
   backdrop_path: string;
   created_by: CreatedByItem[];
-  episode_run_time: any[];
+  episode_run_time: number[];
   first_air_date: string;
   genres: GenresItem[];
   homepage: string;
@@ -238,9 +90,9 @@ export type SeriesExtended = {
   in_production: boolean;
   languages: string[];
   last_air_date: string;
-  last_episode_to_air: Last_episode_to_air;
+  last_episode_to_air: Last_episode_to_air | null;
   name: string;
-  next_episode_to_air: Next_episode_to_air;
+  next_episode_to_air: Next_episode_to_air | null;
   networks: NetworksItem[];
   number_of_episodes: number;
   number_of_seasons: number;
@@ -260,6 +112,7 @@ export type SeriesExtended = {
   vote_average: number;
   vote_count: number;
 };
+
 interface CreatedByItem {
   id: number;
   credit_id: string;
@@ -268,10 +121,12 @@ interface CreatedByItem {
   gender: number;
   profile_path: string;
 }
+
 interface GenresItem {
   id: number;
   name: string;
 }
+
 interface Last_episode_to_air {
   id: number;
   name: string;
@@ -287,6 +142,7 @@ interface Last_episode_to_air {
   show_id: number;
   still_path: string;
 }
+
 interface Next_episode_to_air {
   id: number;
   name: string;
@@ -302,22 +158,26 @@ interface Next_episode_to_air {
   show_id: number;
   still_path: string;
 }
+
 interface NetworksItem {
   id: number;
   logo_path: string;
   name: string;
   origin_country: string;
 }
+
 interface ProductionCompaniesItem {
   id: number;
   logo_path: string;
   name: string;
   origin_country: string;
 }
+
 interface ProductionCountriesItem {
   iso_3166_1: string;
   name: string;
 }
+
 interface SeasonsItem {
   air_date: string;
   episode_count?: number;
@@ -329,41 +189,9 @@ interface SeasonsItem {
   episodes?: Episode[];
   vote_average: number;
 }
+
 interface SpokenLanguagesItem {
   english_name: string;
   iso_639_1: string;
   name: string;
 }
-
-// export interface Trailer {
-//   id: number;
-//   language: string;
-//   name: string;
-//   url: string;
-//   runtime: number;
-// }
-
-// export interface Type2 {
-//   alternateName: string;
-//   id: number;
-//   name: string;
-//   type: string;
-// }
-
-// export interface TagOption11 {
-//   helpText: string;
-//   id: number;
-//   name: string;
-//   tag: number;
-//   tagName: string;
-// }
-
-// export interface Translation {
-//   aliases: string[];
-//   isAlias: boolean;
-//   isPrimary: boolean;
-//   language: string;
-//   name: string;
-//   overview: string;
-//   tagline: string;
-// }

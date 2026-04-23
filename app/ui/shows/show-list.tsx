@@ -1,10 +1,11 @@
 "use client";
-import { SeriesExtended } from "@/app/lib/definitions";
 
+import type { SeriesWithWatchedKeys } from "@/app/lib/api";
 import Image from "next/image";
 import clsx from "clsx";
 import { imageLoader, prettyDate } from "@/app/lib/client-utils";
-import { useState } from "react";
+import { useEffect, useMemo } from "react";
+import { Card } from "@/components/ui/card";
 
 function ShowItem({
   show,
@@ -12,21 +13,19 @@ function ShowItem({
   setCurrShow,
   epsLeft,
 }: {
-  show: SeriesExtended;
-  currShow: number;
-  setCurrShow: (showId: number, ep: number) => void;
+  show: SeriesWithWatchedKeys;
+  currShow: number | null;
+  setCurrShow: (showId: number) => void;
   epsLeft: number;
 }) {
-  const nextEpisodeId = show.seasons[0]?.episodes?.[0]?.id ?? null;
-
   return (
-    <div
+    <Card
       className={clsx(
-        currShow === show.id && "border-blue-600",
-        "flex flex-row items-center border-2 rounded-md cursor-pointer transition duration-500 ease-in-out hover:bg-blue-600 active:bg-blue-600",
+        currShow === show.id && "ring-2 ring-primary",
+        "flex flex-row items-center border-2 rounded-md cursor-pointer transition duration-500 ease-in-out hover:bg-accent",
       )}
       key={show.id}
-      onClick={() => setCurrShow(show.id, nextEpisodeId ?? 0)}
+      onClick={() => setCurrShow(show.id)}
     >
       {show.poster_path && (
         <Image
@@ -40,92 +39,107 @@ function ShowItem({
       )}
       <div className="flex flex-col p-2">
         <p className="md:text-xl">{show.name}</p>
-        <p className="text-xs md:text-sm">
+        <p className="text-xs md:text-sm text-muted-foreground">
           {show.next_episode_to_air ? (
-            <>Next Airdate: {prettyDate(show.next_episode_to_air.air_date)}</>
+            <>Next: {prettyDate(show.next_episode_to_air.air_date)}</>
+          ) : show.last_air_date ? (
+            <>Last: {prettyDate(show.last_air_date)}</>
           ) : (
-            <>Last Airdate: {prettyDate(show.last_air_date)}</>
+            <>Last air date unknown</>
           )}
         </p>
-        <p className="text-xs md:text-sm">
-          Episodes Left: {epsLeft === 0 ? "Finished" : epsLeft}
+        <p className="text-xs md:text-sm text-muted-foreground">
+          Episodes left: {epsLeft === 0 ? "Finished" : epsLeft}
         </p>
       </div>
-    </div>
+    </Card>
   );
 }
 
-export default function ShowList({ shows }: { shows: SeriesExtended[] }) {
-  const [currShow, setCurrShow] = useState(0);
-  const getShowStatus = (index: number) => {
-    switch (index) {
-      case 0:
-        return "Upcoming";
-      case 1:
-        return "Returning";
-      case 2:
-        return "Ended";
-      default:
-        return "Unknown";
-    }
-  };
+function getShowStatus(index: number) {
+  switch (index) {
+    case 0:
+      return "Upcoming";
+    case 1:
+      return "Returning";
+    case 2:
+      return "Ended";
+    default:
+      return "Unknown";
+  }
+}
 
-  function getEpsLeft() {
-    // const userShow = user.shows.find((s) => s.showId === currShow);
-    // return userShow && userShow.watched.filter((w) => w === false).length;
-    return 0;
+export default function ShowList({
+  shows,
+  currShow,
+  setCurrShow,
+}: {
+  shows: SeriesWithWatchedKeys[];
+  currShow: number | null;
+  setCurrShow: (id: number) => void;
+}) {
+  useEffect(() => {
+    if (currShow === null && shows.length > 0) {
+      setCurrShow(shows[0].id);
+    }
+  }, [currShow, shows, setCurrShow]);
+
+  function epsLeftFor(show: SeriesWithWatchedKeys) {
+    const watched = new Set(show.watchedEpisodeKeys);
+    const eps = show.seasons?.flatMap((s) => s.episodes ?? []) ?? [];
+    const countable = eps.filter((e) => e.air_date);
+    if (!countable.length) return 0;
+    return countable.filter(
+      (e) => !watched.has(`${e.season_number}:${e.episode_number}`),
+    ).length;
   }
 
-  const filtered = shows.reduce(
-    (acc: SeriesExtended[][], show) => {
-      if (show.status === "Ended") {
-        acc[2].push(show);
-      }
-      if (show.next_episode_to_air) {
-        acc[0].push(show);
-      }
-      if (show.status === "Returning Series" && !show.next_episode_to_air) {
-        acc[1].push(show);
-      }
-      return acc;
-    },
-    [[], [], []],
+  const filtered = useMemo(
+    () =>
+      shows.reduce(
+        (acc: SeriesWithWatchedKeys[][], show) => {
+          if (show.status === "Ended") {
+            acc[2].push(show);
+          }
+          if (show.next_episode_to_air) {
+            acc[0].push(show);
+          }
+          if (show.status === "Returning Series" && !show.next_episode_to_air) {
+            acc[1].push(show);
+          }
+          return acc;
+        },
+        [[], [], []] as SeriesWithWatchedKeys[][],
+      ),
+    [shows],
   );
 
-  const showNodes = filtered.map((shows, index) => {
-    return (
-      <div key={index}>
-        <h1 className="text-2xl border-b-2 mb-2 p-2 sticky top-0 z-0 bg-card">
-          {getShowStatus(index)}
-        </h1>
-        <div className="flex flex-col p-3 gap-2">
-          {shows.map((show) => (
-            <ShowItem
-              key={show.id}
-              show={show}
-              currShow={currShow}
-              setCurrShow={setCurrShow}
-              epsLeft={getEpsLeft() || 0}
-            ></ShowItem>
-          ))}
-        </div>
+  const showNodes = filtered.map((group, index) => (
+    <div key={index}>
+      <h1 className="text-2xl border-b-2 mb-2 p-2 sticky top-0 z-0 bg-card">
+        {getShowStatus(index)}
+      </h1>
+      <div className="flex flex-col p-3 gap-2">
+        {group.map((show) => (
+          <ShowItem
+            key={show.id}
+            show={show}
+            currShow={currShow}
+            setCurrShow={setCurrShow}
+            epsLeft={epsLeftFor(show)}
+          />
+        ))}
       </div>
-    );
-  });
+    </div>
+  ));
 
   return (
-    <div className="flex flex-col w-1/3 rounded-md">
+    <div className="flex flex-col w-1/3 rounded-md min-h-0">
       <h1 className="text-2xl sticky top-0 px-3 pt-3 pb-1 z-10 rounded-md">
         Shows
       </h1>
-      <div className="flex flex-col gap-3 border-2 rounded-md overflow-y-auto scrollbar-hide mt-2 h-full">
-        {showNodes ? (
-          showNodes
-        ) : (
-          <div className="flex flex-col w-1/3 overflow-y-auto scrollbar-hide rounded-md">
-            No Shows Yet
-          </div>
-        )}
+      <div className="flex flex-col gap-3 border-2 rounded-md overflow-y-auto scrollbar-hide mt-2 h-full min-h-0">
+        {showNodes}
       </div>
     </div>
   );

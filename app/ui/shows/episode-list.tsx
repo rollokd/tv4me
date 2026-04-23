@@ -1,127 +1,161 @@
-import { Dispatch, SetStateAction } from "react";
+"use client";
+
 import { updateWatchedEp } from "@/app/lib/actions";
-import { Episode, User } from "@/app/lib/definitions";
+import type { Episode } from "@/app/lib/definitions";
+import type { SeriesWithWatchedKeys } from "@/app/lib/api";
 import { PlusCircleIcon } from "@heroicons/react/24/outline";
 import { CheckCircleIcon as SolidCheck } from "@heroicons/react/24/solid";
 import clsx from "clsx";
+import { useEffect, useMemo, useState } from "react";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 function EpisodeList({
-  user,
-  setUser,
+  userId,
   currShow,
-  currEpisode,
+  selectedSeries,
   episodes,
-  setCurrEpisode,
-  watchedList,
 }: {
-  user: User;
-  setUser: Dispatch<SetStateAction<User>>;
-  currShow: number;
-  currEpisode: number;
+  userId: string;
+  currShow: number | null;
+  selectedSeries: SeriesWithWatchedKeys | undefined;
   episodes: Episode[] | undefined;
-  setCurrEpisode: Dispatch<SetStateAction<number>>;
-  watchedList: boolean[] | undefined;
 }) {
+  const router = useRouter();
+  const [currEpisode, setCurrEpisode] = useState<number | null>(null);
+  const [watchedKeys, setWatchedKeys] = useState<string[]>([]);
+
+  useEffect(() => {
+    setWatchedKeys(selectedSeries?.watchedEpisodeKeys ?? []);
+  }, [selectedSeries]);
+
+  const watchedSet = useMemo(() => new Set(watchedKeys), [watchedKeys]);
+
   async function handleWatchedClick(
     e: React.MouseEvent<HTMLButtonElement>,
-    watchedList: boolean[],
-    index: number,
-    episode: Episode
+    seasonNumber: number,
+    episodeNumber: number,
   ) {
     e.preventDefault();
     e.stopPropagation();
-    if (episodes)
-      watchedList[episodes?.indexOf(episode)] =
-        !watchedList[episodes?.indexOf(episode)];
-    const resp = await updateWatchedEp(user._id, currShow, index);
-    if (resp === "failed") {
-      console.error("Failed to update watched list");
-    }
+    if (!currShow) return;
+    const key = `${seasonNumber}:${episodeNumber}`;
+    const wasWatched = watchedSet.has(key);
+    const snapshot = [...watchedKeys];
+    const next = wasWatched
+      ? watchedKeys.filter((k) => k !== key)
+      : [...watchedKeys, key];
+    setWatchedKeys(next);
 
-    setUser((prev: User) => {
-      return {
-        ...prev,
-        shows: prev.shows.map((s) => {
-          return s.showId === currShow ? { ...s, watched: watchedList } : s;
-        }),
-      };
-    });
+    const resp = await updateWatchedEp(
+      userId,
+      currShow,
+      seasonNumber,
+      episodeNumber,
+      0,
+    );
+    if (resp === "failed") {
+      setWatchedKeys(snapshot);
+      console.error("Failed to update watched list");
+      return;
+    }
+    router.refresh();
   }
 
-  episodes = episodes?.filter((e) => e.air_date !== null);
-  const epsBySeason = episodes
-    ?.reduce((acc: Episode[][], item) => {
-      if (!acc[item.season_number]) {
-        acc[item.season_number] = [];
-      }
-      acc[item.season_number].push(item);
-      return acc;
-    }, [])
-    .slice(1);
+  const filteredEpisodes = useMemo(
+    () => episodes?.filter((e) => e.air_date) ?? [],
+    [episodes],
+  );
 
-  const seasonNodes =
-    watchedList &&
-    epsBySeason?.map((season, index) => {
-      return (
-        <div key={index}>
-          <h2 className="text-2xl sticky top-0 px-3 py-2 border-b-2">
-            Season {index + 1}
-          </h2>
-          <div className="rounded-md overflow-y-auto scrollbar-hide h-full">
-            <ol className="pl-5 flex flex-col list-decimal list-inside">
-              {episodes &&
-                season.map((episode: Episode, index: number) => (
-                  <li
-                    className={clsx(
-                      `flex flex-row p-2 justify-between items-center cursor-pointer border-b-2 transition hover:text-sky-400 duration-300 ease-in-out`,
-                      currEpisode === episode.id && "text-blue-500",
-                      episode.air_date > new Date().toISOString() &&
-                        "text-gray-500"
-                    )}
-                    key={episode.id}
-                    onClick={() => setCurrEpisode(episode.id)}
-                  >
-                    {index + 1 + ". " + episode.name}
-                    <button
-                      className={
-                        "bg-blue-500 hover:text-blue-700 p-1 rounded-full"
-                      }
-                      onClick={async (e) => {
-                        await handleWatchedClick(
-                          e,
-                          watchedList,
-                          index,
-                          episode
-                        );
-                      }}
-                    >
-                      {watchedList[episodes?.indexOf(episode)] ? (
-                        <SolidCheck className="w-7 h-7" />
-                      ) : (
-                        <PlusCircleIcon className="w-7 h-7" />
-                      )}
-                    </button>
-                  </li>
-                ))}
-            </ol>
-          </div>
-        </div>
-      );
-    });
+  const seasonsOrdered = useMemo(() => {
+    const map = new Map<number, Episode[]>();
+    for (const ep of filteredEpisodes) {
+      const list = map.get(ep.season_number) ?? [];
+      list.push(ep);
+      map.set(ep.season_number, list);
+    }
+    return [...map.entries()]
+      .filter(([sn]) => sn > 0)
+      .sort((a, b) => a[0] - b[0]);
+  }, [filteredEpisodes]);
+
+  if (!currShow || !selectedSeries) {
+    return (
+      <Card className="p-5 flex flex-col text-muted-foreground w-1/3 border-2">
+        Select a show to see episodes.
+      </Card>
+    );
+  }
+
+  const seasonNodes = seasonsOrdered.map(([seasonNum, seasonEps]) => (
+    <div key={seasonNum}>
+      <h2 className="text-2xl sticky top-0 px-3 py-2 border-b-2 bg-card z-[1]">
+        Season {seasonNum}
+      </h2>
+      <div className="rounded-md overflow-y-auto scrollbar-hide h-full">
+        <ol className="pl-5 flex flex-col list-decimal list-inside">
+          {seasonEps.map((episode: Episode, epIndex: number) => {
+            const key = `${episode.season_number}:${episode.episode_number}`;
+            const isWatched = watchedSet.has(key);
+            const air = episode.air_date
+              ? new Date(episode.air_date).getTime()
+              : 0;
+            const unaired = air > Date.now();
+            return (
+              <li
+                className={clsx(
+                  "flex flex-row p-2 justify-between items-center cursor-pointer border-b-2 transition hover:text-primary",
+                  currEpisode === episode.id && "text-primary font-medium",
+                  unaired && "text-muted-foreground",
+                )}
+                key={episode.id}
+                onClick={() => setCurrEpisode(episode.id)}
+              >
+                <span>
+                  {epIndex + 1}. {episode.name}
+                </span>
+                <Button
+                  type="button"
+                  size="icon"
+                  variant={isWatched ? "secondary" : "default"}
+                  className="rounded-full shrink-0"
+                  disabled={unaired}
+                  onClick={(e) =>
+                    handleWatchedClick(
+                      e,
+                      episode.season_number,
+                      episode.episode_number,
+                    )
+                  }
+                >
+                  {isWatched ? (
+                    <SolidCheck className="w-7 h-7" />
+                  ) : (
+                    <PlusCircleIcon className="w-7 h-7" />
+                  )}
+                </Button>
+              </li>
+            );
+          })}
+        </ol>
+      </div>
+    </div>
+  ));
 
   return (
-    <div className="flex flex-col w-1/3 rounded-md">
-      {episodes && watchedList ? (
+    <div className="flex flex-col w-1/3 rounded-md min-h-0">
+      {filteredEpisodes.length ? (
         <>
-          <h1 className="rounded-md  text-2xl sticky top-0 px-3 pt-3 pb-1">
+          <h1 className="rounded-md text-2xl sticky top-0 px-3 pt-3 pb-1 z-10 bg-card">
             Episodes
           </h1>
-          <div className="border-2 rounded-md overflow-y-auto scrollbar-hide h-full mt-2">
+          <Card className="border-2 overflow-y-auto scrollbar-hide h-full mt-2 min-h-0">
             {seasonNodes}
-          </div>
+          </Card>
         </>
       ) : (
-        <p>No Episodes Yet</p>
+        <p className="text-muted-foreground">No episodes loaded yet.</p>
       )}
     </div>
   );

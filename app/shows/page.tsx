@@ -1,10 +1,11 @@
 import ShowsTable from "../ui/shows/shows-table";
 import { Suspense } from "react";
-import { getShowsFromId } from "../lib/actions";
+import { getShowsAndEpsFromId } from "../lib/actions";
 import Loading from "./loading";
 import { auth } from "../lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default async function Page() {
   const session = await auth.api.getSession({
@@ -14,16 +15,22 @@ export default async function Page() {
     redirect("/login");
   }
 
-  const response = await getShowsFromId(session.user.id);
-  const data = await JSON.parse(response);
-  if (data === "failed") {
-    return <div>Error fetching shows</div>;
+  const data = await getShowsAndEpsFromId(session.user.id);
+  if (!data.ok) {
+    return (
+      <Alert variant="destructive" className="m-5">
+        <AlertTitle>Error</AlertTitle>
+        <AlertDescription>{data.error}</AlertDescription>
+      </Alert>
+    );
   }
-  console.log(data);
 
   return (
     <Suspense fallback={<Loading />}>
-      <ShowsTable series={data.series} />
+      <ShowsTable
+        series={data.series}
+        userId={session.user.id}
+      />
     </Suspense>
   );
 }
