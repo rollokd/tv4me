@@ -4,7 +4,7 @@ import type { SeriesWithWatchedKeys } from "@/app/lib/library-service";
 import Image from "next/image";
 import clsx from "clsx";
 import { imageLoader, prettyDate } from "@/app/lib/client-utils";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
 import {
   Item,
@@ -20,31 +20,27 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TvIcon, Clock3Icon, SparklesIcon } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import Link from "next/link";
 
 type LibraryFilter = "all" | "upcoming" | "returning" | "ended";
 
 function ShowItem({
   show,
   currShow,
-  setCurrShow,
   epsLeft,
 }: {
   show: SeriesWithWatchedKeys;
   currShow: number | null;
-  setCurrShow: (showId: number) => void;
   epsLeft: number;
 }) {
-  return (
-    <Item
-      className={clsx(
-        "cursor-pointer rounded-2xl border border-border/70 bg-background/70 px-4 py-4 transition hover:border-accent/50 hover:bg-accent/5",
-        currShow === show.id &&
-          "border-accent/60 bg-accent/8 shadow-[0_18px_40px_-28px_color-mix(in_oklab,var(--color-accent)_45%,transparent)]",
-      )}
-      key={show.id}
-      onClick={() => setCurrShow(show.id)}
-      variant="outline"
-    >
+  const itemClassName = clsx(
+    "rounded-2xl border border-border/70 bg-background/70 px-4 py-4 transition hover:border-accent/50 hover:bg-accent/5",
+    currShow === show.id &&
+      "border-accent/60 bg-accent/8 shadow-[0_18px_40px_-28px_color-mix(in_oklab,var(--color-accent)_45%,transparent)]",
+  );
+
+  const content = (
+    <>
       {show.poster_path && (
         <ItemMedia variant="image" className="size-16 rounded-2xl">
           <Image
@@ -106,7 +102,15 @@ function ShowItem({
           </span>
         </ItemFooter>
       </ItemContent>
-    </Item>
+    </>
+  );
+
+  return (
+    <Link href={`/shows/${show.id}`} className="block">
+      <Item className={itemClassName} variant="outline">
+        {content}
+      </Item>
+    </Link>
   );
 }
 
@@ -138,14 +142,12 @@ function airedEpisodeCount(show: SeriesWithWatchedKeys) {
 export default function ShowList({
   shows,
   currShow,
-  setCurrShow,
   activeFilter,
   setActiveFilter,
   counts,
 }: {
   shows: SeriesWithWatchedKeys[];
   currShow: number | null;
-  setCurrShow: (id: number) => void;
   activeFilter: LibraryFilter;
   setActiveFilter: (filter: LibraryFilter) => void;
   counts: {
@@ -155,12 +157,6 @@ export default function ShowList({
     ended: number;
   };
 }) {
-  useEffect(() => {
-    if (currShow === null && shows.length > 0) {
-      setCurrShow(shows[0].id);
-    }
-  }, [currShow, shows, setCurrShow]);
-
   function epsLeftFor(show: SeriesWithWatchedKeys) {
     const watchedCount = show.watchedEpisodeKeys.length;
     const airedCount = airedEpisodeCount(show);
@@ -174,11 +170,10 @@ export default function ShowList({
           key={show.id}
           show={show}
           currShow={currShow}
-          setCurrShow={setCurrShow}
           epsLeft={epsLeftFor(show)}
         />
       )),
-    [currShow, setCurrShow, shows],
+    [currShow, shows],
   );
 
   return (

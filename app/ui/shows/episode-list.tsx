@@ -30,17 +30,25 @@ import {
   ItemTitle,
 } from "@/components/ui/item";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { CalendarDaysIcon, LoaderCircleIcon, TvIcon } from "lucide-react";
+import {
+  ArrowLeftIcon,
+  CalendarDaysIcon,
+  LoaderCircleIcon,
+  TvIcon,
+} from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 function EpisodeList({
   userId,
   currShow,
   selectedSeries,
+  showMobileBackButton = false,
 }: {
   userId: string;
   currShow: number | null;
   selectedSeries: SeriesWithWatchedKeys | undefined;
+  showMobileBackButton?: boolean;
 }) {
   const router = useRouter();
   const [currEpisode, setCurrEpisode] = useState<number | null>(null);
@@ -223,6 +231,20 @@ function EpisodeList({
   return (
     <Card className="min-h-0 border-border/70 bg-card/85 shadow-[0_24px_70px_-50px_color-mix(in_oklab,var(--color-accent)_25%,transparent)]">
       <CardHeader className="gap-5 border-b border-border/70">
+        {showMobileBackButton ? (
+          <div className="sm:hidden">
+            <Button
+              asChild
+              variant="ghost"
+              className="h-9 rounded-full px-0 text-sm text-muted-foreground hover:text-foreground"
+            >
+              <Link href="/shows">
+                <ArrowLeftIcon className="size-4" />
+                Back to library
+              </Link>
+            </Button>
+          </div>
+        ) : null}
         <div className="flex items-start gap-4">
           {selectedSeries.poster_path ? (
             <div className="overflow-hidden rounded-2xl border border-border/70 bg-muted/60">

@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import ShowsPageContent from "../_components/shows-page-content";
+import ShowDetailsPane from "@/app/ui/shows/show-details-pane";
 
 export default async function Page(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
@@ -9,5 +9,5 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
     notFound();
   }
 
-  return <ShowsPageContent initialShowId={showId} />;
+  return <ShowDetailsPane showId={showId} />;
 }
