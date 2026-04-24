@@ -1,16 +1,21 @@
-import type { ShowStatus } from "@/app/lib/shows";
 import { queryOptions } from "@tanstack/react-query";
+import { z } from "zod";
 
-export type LibraryShow = {
-  tmdbTvId: number;
-  title: string;
-  status: ShowStatus;
-};
+export const showStatusSchema = z.enum(["active", "paused", "abandoned"]);
 
-export type UserLibraryPayload = {
-  libraryShowIds: number[];
-  libraryShows: LibraryShow[];
-};
+export const libraryShowSchema = z.object({
+  tmdbTvId: z.number(),
+  title: z.string(),
+  status: showStatusSchema,
+});
+
+export const userLibraryPayloadSchema = z.object({
+  libraryShowIds: z.array(z.number()),
+  libraryShows: z.array(libraryShowSchema),
+});
+
+export type LibraryShow = z.infer<typeof libraryShowSchema>;
+export type UserLibraryPayload = z.infer<typeof userLibraryPayloadSchema>;
 
 export const userLibraryKeys = {
   all: ["users"] as const,
@@ -25,7 +30,8 @@ export async function fetchUserLibrary(userId: string) {
     throw new Error("Failed to load library");
   }
 
-  return response.json() as Promise<UserLibraryPayload>;
+  const payload: unknown = await response.json();
+  return userLibraryPayloadSchema.parse(payload);
 }
 
 export function userLibraryQueryOptions(userId: string, enabled = true) {

@@ -2,15 +2,17 @@
 
 import { addUserShow, setUserShowStatus } from "@/app/lib/actions";
 import { imageLoader } from "@/app/lib/client-utils";
-import type { SearchResponse } from "@/app/lib/definitions";
 import type { ShowStatus } from "@/app/lib/shows";
+import {
+  type ShowSearchResult,
+  showSearchQueryOptions,
+} from "@/app/queries/shows/search";
 import {
   type LibraryShow,
   type UserLibraryPayload,
   userLibraryKeys,
   userLibraryQueryOptions,
 } from "@/app/queries/users/library";
-import { showSearchQueryOptions } from "@/app/queries/shows/search";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -43,11 +45,11 @@ function statusLabel(status: ShowStatus) {
   return "Abandoned";
 }
 
-function showYear(show: SearchResponse) {
+function showYear(show: ShowSearchResult) {
   return show.first_air_date ? show.first_air_date.slice(0, 4) : null;
 }
 
-function showText(show: SearchResponse) {
+function showText(show: ShowSearchResult) {
   return [show.name, show.original_name, show.overview, showYear(show)]
     .filter(Boolean)
     .join(" ");
@@ -131,7 +133,7 @@ export default function ShowCommandDialog({
     });
   }
 
-  function addShow(show: SearchResponse) {
+  function addShow(show: ShowSearchResult) {
     startTransition(async () => {
       const result = await addUserShow(userId, show.id);
 

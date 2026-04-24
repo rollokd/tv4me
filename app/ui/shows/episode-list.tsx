@@ -1,10 +1,12 @@
 "use client";
 
 import { setUserShowStatus, updateWatchedEp } from "@/app/lib/actions";
-import type { Episode } from "@/app/lib/definitions";
 import type { SeriesWithWatchedKeys } from "@/app/lib/library-service";
 import type { ShowStatus } from "@/app/lib/shows";
-import { tmdbShowDetailsQueryOptions } from "@/app/queries/tmdb/show-details";
+import {
+  type TmdbEpisode,
+  tmdbShowDetailsQueryOptions,
+} from "@/app/queries/tmdb/show-details";
 import { PlusCircleIcon } from "@heroicons/react/24/outline";
 import { CheckCircleIcon as SolidCheck } from "@heroicons/react/24/solid";
 import clsx from "clsx";
@@ -137,7 +139,7 @@ function EpisodeList({
   );
 
   const seasonsOrdered = useMemo(() => {
-    const map = new Map<number, Episode[]>();
+    const map = new Map<number, TmdbEpisode[]>();
     for (const ep of filteredEpisodes) {
       const list = map.get(ep.season_number) ?? [];
       list.push(ep);
@@ -343,7 +345,7 @@ function EpisodeList({
                   </AccordionTrigger>
                   <AccordionContent className="pb-0">
                     <ItemGroup className="border-t border-border/70">
-                      {seasonEps.map((episode: Episode, epIndex: number) => {
+                      {seasonEps.map((episode, epIndex) => {
                         const key = `${episode.season_number}:${episode.episode_number}`;
                         const isWatched = watchedSet.has(key);
                         const air = episode.air_date
