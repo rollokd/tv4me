@@ -46,18 +46,6 @@ export default function RootLayout({
             <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
               {children}
             </div>
-            <footer className="border-t px-4 py-2 text-center text-xs text-muted-foreground shrink-0">
-              This product uses the{" "}
-              <a
-                className="underline hover:text-foreground"
-                href="https://www.themoviedb.org/"
-                target="_blank"
-                rel="noreferrer"
-              >
-                TMDB
-              </a>{" "}
-              API but is not endorsed or certified by TMDB.
-            </footer>
             <Toaster />
           </ThemeProvider>
         </TooltipProvider>

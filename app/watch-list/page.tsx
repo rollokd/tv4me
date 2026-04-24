@@ -1,4 +1,4 @@
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function WatchListPage() {
   return (
@@ -12,6 +12,13 @@ export default function WatchListPage() {
             <strong>Search</strong> to manage your library.
           </CardDescription>
         </CardHeader>
+        <CardContent>
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-2">
+              <h3 className="text-lg font-medium">Coming soon...</h3>
+            </div>
+          </div>
+        </CardContent>
       </Card>
     </div>
   );

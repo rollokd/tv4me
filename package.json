@@ -8,12 +8,14 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsgo --noEmit",
-    "import:marathon": "tsx scripts/import-marathon.ts"
+    "import:marathon": "tsx scripts/import-marathon.ts",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio"
   },
   "packageManager": "pnpm@10.33.0",
   "dependencies": {
     "@base-ui/react": "^1.4.1",
-    "@better-auth/passkey": "^1.6.8",
     "@heroicons/react": "^2.2.0",
     "@hookform/resolvers": "^5.2.2",
     "@neondatabase/serverless": "^1.1.0",

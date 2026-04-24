@@ -5,27 +5,28 @@ Personal app for tracking TV shows and episodes, built for [Vercel](https://verc
 ## Tech stack
 
 - **Next.js** (App Router)
-- **Better Auth** (email/password, passkey plugin) with **Drizzle ORM** on **Neon**
+- **Better Auth** (email/password) with **Drizzle ORM** on **Neon**
 - **The Movie Database (TMDB)** for TV metadata and images
 
 ## Environment variables
 
 Create a `.env.local` (see [`envConfig.ts`](envConfig.ts) — Next loads it automatically):
 
-| Variable | Purpose |
-|----------|---------|
-| `DATABASE_URL` | Neon Postgres connection string |
-| `TMDB_READ_TOKEN` | TMDB API read access token ([getting started](https://developer.themoviedb.org/reference/getting-started)) |
-| `BETTER_AUTH_SECRET` | Long random secret for Better Auth |
-| `BETTER_AUTH_URL` | Public origin of the app (e.g. `http://localhost:3000` in dev) |
+| Variable             | Purpose                                                                                                    |
+| -------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `DATABASE_URL`       | Neon Postgres connection string                                                                            |
+| `TMDB_READ_TOKEN`    | TMDB API read access token ([getting started](https://developer.themoviedb.org/reference/getting-started)) |
+| `BETTER_AUTH_SECRET` | Long random secret for Better Auth                                                                         |
+| `BETTER_AUTH_URL`    | Public origin of the app (e.g. `http://localhost:3000` in dev)                                             |
 
 ## Database migrations
 
 SQL migrations live in [`drizzle/`](drizzle/). Apply them to your Neon branch (e.g. with Drizzle Kit, Neon console, or your usual migration runner).
 
 ```bash
-pnpm drizzle-kit generate   # after schema changes
-pnpm drizzle-kit migrate    # apply migrations (or use `push` against dev)
+pnpm db:generate   # alias: pnpm drizzle-kit generate — after schema changes
+pnpm db:migrate    # alias: pnpm drizzle-kit migrate — apply SQL to DATABASE_URL
+pnpm db:studio     # optional Drizzle Studio
 ```
 
 ## Development
@@ -42,12 +43,12 @@ Open [http://localhost:3000](http://localhost:3000).
 If you have a `marathon-tv-exports` folder (from Marathon TV), you can import `shows.csv` and `history-*.csv` into Postgres. **`Series ID` is treated as a TMDB TV id.**
 
 ```bash
-pnpm import:marathon
+pnpm import:marathon -- --user-id <better-auth-user-id>
 # optional:
 pnpm import:marathon -- --export-dir ./marathon-tv-exports --user-id <better-auth-user-id> --dry-run
 ```
 
-Default `--user-id` is set in [`scripts/import-marathon.ts`](scripts/import-marathon.ts); override for another account.
+You must pass `--user-id` or set `MARATHON_IMPORT_USER_ID`. The importer validates `Series ID`, skips malformed history rows, and writes inside a transaction so partial imports are not committed.
 
 ## Attribution
 
