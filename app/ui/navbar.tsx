@@ -50,10 +50,7 @@ function NavBar() {
               <TvIcon className="size-4" />
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-semibold tracking-[-0.02em]">TV4Me</p>
-              <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
-                Personal tracker
-              </p>
+              <p className="text-lg font-semibold tracking-widest font-mono">TV4Me</p>
             </div>
           </Link>
 
