@@ -1,6 +1,6 @@
 "use client";
 
-import type { SeriesWithWatchedKeys } from "@/app/lib/api";
+import type { SeriesWithWatchedKeys } from "@/app/lib/library-service";
 import ShowList from "./show-list";
 import EpisodeList from "./episode-list";
 import { useMemo, useState } from "react";
@@ -28,8 +28,8 @@ export default function ShowsTable({ series, userId }: ShowsTableProps) {
     [series],
   );
 
-  const [currShow, setCurrShow] = useState<number | null>(() =>
-    sortedShows[0]?.id ?? null,
+  const [currShow, setCurrShow] = useState<number | null>(
+    () => sortedShows[0]?.id ?? null,
   );
 
   const selected = useMemo(

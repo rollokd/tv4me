@@ -9,6 +9,8 @@ import "../envConfig";
 import fs from "node:fs";
 import path from "node:path";
 import { parse } from "csv-parse/sync";
+import { sql } from "drizzle-orm";
+import type { BatchItem } from "drizzle-orm/batch";
 import { db } from "../app/db";
 import { episodeWatches, shows } from "../app/lib/schema/shows-schema";
 
@@ -75,6 +77,9 @@ type ParsedEpisode = {
   batched: boolean;
   watchedAt: Date;
 };
+
+const SHOW_CHUNK_SIZE = 100;
+const EPISODE_CHUNK_SIZE = 200;
 
 function parseShowsCsv(filePath: string): ShowRow[] {
   const raw = fs.readFileSync(filePath, "utf8");
@@ -234,34 +239,37 @@ async function main() {
     );
   }
 
-  if (dryRun) {
-    console.log("Dry run — no database writes.");
-    return;
-  }
+  const now = new Date();
+  const queries: BatchItem<"pg">[] = [];
 
-  await db.transaction(async (tx) => {
-    for (const row of showValues) {
-      await tx
+  for (const chunk of chunkArray(showValues, SHOW_CHUNK_SIZE)) {
+    if (!chunk.length) continue;
+    queries.push(
+      db
         .insert(shows)
-        .values({
-          ...row,
-          updatedAt: new Date(),
-        })
+        .values(
+          chunk.map((row) => ({
+            ...row,
+            updatedAt: now,
+          })),
+        )
         .onConflictDoUpdate({
           target: [shows.userId, shows.tmdbTvId],
           set: {
-            title: row.title,
-            status: row.status,
-            watchthroughCount: row.watchthroughCount,
-            imported: row.imported,
-            updatedAt: new Date(),
+            title: sql.raw("excluded.title"),
+            status: sql.raw("excluded.status"),
+            watchthroughCount: sql.raw("excluded.watchthrough_count"),
+            imported: sql.raw("excluded.imported"),
+            updatedAt: now,
           },
-        });
-    }
+        }),
+    );
+  }
 
-    for (const chunk of chunkArray(episodeRows, 200)) {
-      if (!chunk.length) continue;
-      await tx
+  for (const chunk of chunkArray(episodeRows, EPISODE_CHUNK_SIZE)) {
+    if (!chunk.length) continue;
+    queries.push(
+      db
         .insert(episodeWatches)
         .values(chunk)
         .onConflictDoNothing({
@@ -272,11 +280,27 @@ async function main() {
             episodeWatches.seasonNumber,
             episodeWatches.episodeNumber,
           ],
-        });
-    }
-  });
+        }),
+    );
+  }
 
-  console.log("Import finished.");
+  console.log(`Prepared ${queries.length} SQL batch items`);
+
+  if (dryRun) {
+    console.log("Dry run — no database writes.");
+    return;
+  }
+
+  if (queries.length === 0) {
+    console.log("No SQL batch items to execute.");
+    return;
+  }
+
+  await db.batch([queries[0], ...queries.slice(1)] as [
+    BatchItem<"pg">,
+    ...BatchItem<"pg">[],
+  ]);
+  console.log("Import finished successfully.");
 }
 
 function chunkArray<T>(arr: T[], size: number): T[][] {

@@ -1,4 +1,4 @@
-import { getUsersShowsAndEpisodesWithProgress } from "@/app/lib/api";
+import { getUserLibraryWithProgress } from "@/app/lib/library-service";
 import { getUser } from "@/app/lib/users";
 
 export async function GET(
@@ -11,6 +11,6 @@ export async function GET(
   if (!user) {
     return Response.json({ error: "User not found" }, { status: 404 });
   }
-  const showWEps = await getUsersShowsAndEpisodesWithProgress(user.id);
+  const showWEps = await getUserLibraryWithProgress(user.id);
   return Response.json({ user, showWEps });
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import type { SeriesWithWatchedKeys } from "@/app/lib/api";
+import type { SeriesWithWatchedKeys } from "@/app/lib/library-service";
 import Image from "next/image";
 import clsx from "clsx";
 import { imageLoader, prettyDate } from "@/app/lib/client-utils";

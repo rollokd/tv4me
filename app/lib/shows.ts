@@ -3,13 +3,14 @@ import { db } from "../db";
 import { episodeWatches, shows } from "./schema/shows-schema";
 
 export type LibraryShowRow = typeof shows.$inferSelect;
+export type EpisodeWatchRow = typeof episodeWatches.$inferSelect;
 
-export async function getUserShows(userId: string) {
+export async function getUserLibraryRows(userId: string) {
   return db.select().from(shows).where(eq(shows.userId, userId));
 }
 
 export async function getUserLibraryTmdbIds(userId: string): Promise<number[]> {
-  const rows = await getUserShows(userId);
+  const rows = await getUserLibraryRows(userId);
   return rows.map((r) => r.tmdbTvId);
 }
 
@@ -37,7 +38,26 @@ export async function deleteUserShow(userId: string, tmdbTvId: number) {
     .where(and(eq(shows.userId, userId), eq(shows.tmdbTvId, tmdbTvId)));
 }
 
-export async function getWatchedEpisodes(
+export async function getUserWatchedEpisodesByShow(
+  userId: string,
+  watchthrough = 0,
+) {
+  return db
+    .select({
+      tmdbTvId: episodeWatches.tmdbTvId,
+      seasonNumber: episodeWatches.seasonNumber,
+      episodeNumber: episodeWatches.episodeNumber,
+    })
+    .from(episodeWatches)
+    .where(
+      and(
+        eq(episodeWatches.userId, userId),
+        eq(episodeWatches.watchthrough, watchthrough),
+      ),
+    );
+}
+
+export async function getWatchedEpisodesForShow(
   userId: string,
   tmdbTvId: number,
   watchthrough = 0,

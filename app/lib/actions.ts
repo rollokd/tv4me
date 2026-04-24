@@ -4,14 +4,12 @@ import { revalidatePath } from "next/cache";
 import { getUser } from "./users";
 import {
   deleteUserShow,
+  getUserLibraryWithProgress,
+  getUserShowsList,
   insertUserShow,
   toggleEpisodeWatched,
-} from "./shows";
-import {
-  getShow,
-  getShowsList,
-  getUsersShowsAndEpisodesWithProgress,
-} from "./api";
+} from "./library-service";
+import { getShow } from "./api";
 
 export async function updateWatchedEp(
   userId: string,
@@ -70,7 +68,7 @@ export async function getShowsAndEpsFromId(id: string) {
     if (!user) {
       return { ok: false as const, error: "User not found" };
     }
-    const series = await getUsersShowsAndEpisodesWithProgress(id);
+    const series = await getUserLibraryWithProgress(id);
     return { ok: true as const, user, series };
   } catch (err) {
     console.error(err);
@@ -84,7 +82,7 @@ export async function getShowsFromId(id: string) {
     if (!user) {
       return { ok: false as const, error: "User not found" };
     }
-    const series = await getShowsList(id);
+    const series = await getUserShowsList(id);
     return { ok: true as const, user, series };
   } catch (err) {
     console.error(err);

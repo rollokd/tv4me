@@ -2,11 +2,11 @@
 
 import { updateWatchedEp } from "@/app/lib/actions";
 import type { Episode } from "@/app/lib/definitions";
-import type { SeriesWithWatchedKeys } from "@/app/lib/api";
+import type { SeriesWithWatchedKeys } from "@/app/lib/library-service";
 import { PlusCircleIcon } from "@heroicons/react/24/outline";
 import { CheckCircleIcon as SolidCheck } from "@heroicons/react/24/solid";
 import clsx from "clsx";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
@@ -24,11 +24,19 @@ function EpisodeList({
 }) {
   const router = useRouter();
   const [currEpisode, setCurrEpisode] = useState<number | null>(null);
-  const [watchedKeys, setWatchedKeys] = useState<string[]>([]);
+  const [optimisticWatchedByShow, setOptimisticWatchedByShow] = useState<
+    Record<number, string[]>
+  >({});
 
-  useEffect(() => {
-    setWatchedKeys(selectedSeries?.watchedEpisodeKeys ?? []);
-  }, [selectedSeries]);
+  const watchedKeys = useMemo(
+    () =>
+      currShow !== null
+        ? (optimisticWatchedByShow[currShow] ??
+          selectedSeries?.watchedEpisodeKeys ??
+          [])
+        : [],
+    [currShow, optimisticWatchedByShow, selectedSeries?.watchedEpisodeKeys],
+  );
 
   const watchedSet = useMemo(() => new Set(watchedKeys), [watchedKeys]);
 
@@ -46,7 +54,10 @@ function EpisodeList({
     const next = wasWatched
       ? watchedKeys.filter((k) => k !== key)
       : [...watchedKeys, key];
-    setWatchedKeys(next);
+    setOptimisticWatchedByShow((current) => ({
+      ...current,
+      [currShow]: next,
+    }));
 
     const resp = await updateWatchedEp(
       userId,
@@ -56,7 +67,10 @@ function EpisodeList({
       0,
     );
     if (resp === "failed") {
-      setWatchedKeys(snapshot);
+      setOptimisticWatchedByShow((current) => ({
+        ...current,
+        [currShow]: snapshot,
+      }));
       console.error("Failed to update watched list");
       return;
     }

@@ -1,5 +1,5 @@
 import { getUser } from "@/app/lib/users";
-import { getUserLibraryTmdbIds } from "@/app/lib/shows";
+import { getUserLibraryTmdbIds } from "@/app/lib/library-service";
 
 export async function GET(
   request: Request,

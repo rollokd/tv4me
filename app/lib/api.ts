@@ -3,7 +3,6 @@ import {
   SearchResponse,
   ConfigurationResponse,
 } from "./definitions";
-import { getUserShows, getWatchedEpisodes } from "./shows";
 
 const BASE_URL = "https://api.themoviedb.org/3/";
 
@@ -24,53 +23,12 @@ async function tmdbJson<T>(url: string): Promise<T> {
   return response.json() as Promise<T>;
 }
 
-export type SeriesWithWatchedKeys = SeriesExtended & {
-  watchedEpisodeKeys: string[];
-};
-
 export async function getShows() {
   return tmdbJson<unknown>(BASE_URL + "trending/tv/day?page=1");
 }
 
-export async function getShowsList(userId: string) {
-  const library = await getUserShows(userId);
-  const showIds = library.map((row) => row.tmdbTvId);
-  return Promise.all(showIds.map((showId) => getShow(showId)));
-}
-
 export async function getShow(id: number): Promise<SeriesExtended> {
   return tmdbJson<SeriesExtended>(`${BASE_URL}/tv/${id}`);
-}
-
-export async function getUsersShowsAndEpisodesWithProgress(
-  userId: string,
-): Promise<SeriesWithWatchedKeys[]> {
-  const library = await getUserShows(userId);
-  const watchedLists = await Promise.all(
-    library.map((row) =>
-      getWatchedEpisodes(userId, row.tmdbTvId, 0).then((we) => ({
-        tmdbTvId: row.tmdbTvId,
-        keys: we.map((w) => `${w.seasonNumber}:${w.episodeNumber}`),
-      })),
-    ),
-  );
-  const watchedByShow = new Map(
-    watchedLists.map((w) => [w.tmdbTvId, w.keys] as const),
-  );
-
-  const resp = await Promise.all(
-    library.map((row) => getSeriesInfo(row.tmdbTvId)),
-  );
-
-  return resp.map((series) => ({
-    ...series,
-    watchedEpisodeKeys: watchedByShow.get(series.id) ?? [],
-  }));
-}
-
-/** @deprecated Use getUsersShowsAndEpisodesWithProgress */
-export async function getUsersShowsAndEpisodes(userId: string) {
-  return getUsersShowsAndEpisodesWithProgress(userId);
 }
 
 export async function getSeriesInfo(id: number): Promise<SeriesExtended> {
@@ -91,7 +49,9 @@ export async function getEpisodes(id: number): Promise<number> {
   return data.number_of_episodes;
 }
 
-export async function getSearchResults(query: string): Promise<SearchResponse[]> {
+export async function getSearchResults(
+  query: string,
+): Promise<SearchResponse[]> {
   const params = new URLSearchParams({
     query,
     include_adult: "true",
