@@ -7,8 +7,24 @@ import { PlusCircleIcon } from "@heroicons/react/24/outline";
 import { CheckCircleIcon as SolidCheck } from "@heroicons/react/24/solid";
 import clsx from "clsx";
 import { useEffect, useMemo, useState } from "react";
-import { Card } from "@/components/ui/card";
+import Image from "next/image";
+import { imageLoader, prettyDate } from "@/app/lib/client-utils";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemGroup,
+  ItemHeader,
+  ItemMedia,
+  ItemSeparator,
+  ItemTitle,
+} from "@/components/ui/item";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { CalendarDaysIcon, LoaderCircleIcon, TvIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 function EpisodeList({
@@ -149,98 +165,212 @@ function EpisodeList({
 
   if (!currShow || !selectedSeries) {
     return (
-      <Card className="p-5 flex flex-col text-muted-foreground w-1/3 border-2">
-        Select a show to see episodes.
+      <Card className="border-border/70 bg-card/85">
+        <CardContent className="flex min-h-[420px] flex-col items-center justify-center gap-2 p-8 text-center text-muted-foreground">
+          <p className="text-xl font-medium tracking-[-0.03em]">
+            Select a show
+          </p>
+          <p className="max-w-sm text-sm leading-7">
+            Episode details, air dates, and quick progress actions will appear
+            here.
+          </p>
+        </CardContent>
       </Card>
     );
   }
 
   if (loadingEpisodes) {
     return (
-      <Card className="p-5 flex flex-col text-muted-foreground w-1/3 border-2">
-        Loading episodes...
+      <Card className="border-border/70 bg-card/85">
+        <CardContent className="flex min-h-[420px] flex-col items-center justify-center gap-3 p-8 text-center text-muted-foreground">
+          <LoaderCircleIcon className="size-5 animate-spin" />
+          <p className="text-sm uppercase tracking-[0.22em]">
+            Loading episodes
+          </p>
+        </CardContent>
       </Card>
     );
   }
 
   if (episodesError) {
     return (
-      <Card className="p-5 flex flex-col text-destructive w-1/3 border-2">
-        {episodesError}
+      <Card className="border-border/70 bg-card/85">
+        <CardContent className="flex min-h-[420px] flex-col items-center justify-center gap-2 p-8 text-center text-destructive">
+          <p className="text-xl font-medium tracking-[-0.03em]">
+            Couldn&apos;t load episodes
+          </p>
+          <p className="max-w-sm text-sm leading-7">{episodesError}</p>
+        </CardContent>
       </Card>
     );
   }
 
   const seasonNodes = seasonsOrdered.map(([seasonNum, seasonEps]) => (
     <div key={seasonNum}>
-      <h2 className="text-2xl sticky top-0 px-3 py-2 border-b-2 bg-card z-[1]">
-        Season {seasonNum}
-      </h2>
-      <div className="rounded-md overflow-y-auto scrollbar-hide h-full">
-        <ol className="pl-5 flex flex-col list-decimal list-inside">
-          {seasonEps.map((episode: Episode, epIndex: number) => {
-            const key = `${episode.season_number}:${episode.episode_number}`;
-            const isWatched = watchedSet.has(key);
-            const air = episode.air_date
-              ? new Date(episode.air_date).getTime()
-              : 0;
-            const unaired = air > Date.now();
-            return (
-              <li
+      <div className="mb-3 flex items-center justify-between">
+        <h2 className="text-sm font-medium uppercase tracking-[0.2em] text-muted-foreground">
+          Season {seasonNum}
+        </h2>
+        <Badge
+          variant="outline"
+          className="rounded-full px-2.5 py-1 text-[11px]"
+        >
+          {seasonEps.length} episodes
+        </Badge>
+      </div>
+      <ItemGroup className="overflow-hidden rounded-2xl border border-border/70 bg-background/70">
+        {seasonEps.map((episode: Episode, epIndex: number) => {
+          const key = `${episode.season_number}:${episode.episode_number}`;
+          const isWatched = watchedSet.has(key);
+          const air = episode.air_date
+            ? new Date(episode.air_date).getTime()
+            : 0;
+          const unaired = air > Date.now();
+          return (
+            <div key={episode.id}>
+              {epIndex > 0 ? <ItemSeparator /> : null}
+              <Item
                 className={clsx(
-                  "flex flex-row p-2 justify-between items-center cursor-pointer border-b-2 transition hover:text-primary",
-                  currEpisode === episode.id && "text-primary font-medium",
+                  "rounded-none border-0 bg-transparent px-4 py-4",
+                  currEpisode === episode.id && "bg-accent/6",
                   unaired && "text-muted-foreground",
                 )}
-                key={episode.id}
                 onClick={() => setCurrEpisode(episode.id)}
               >
-                <span>
-                  {epIndex + 1}. {episode.name}
-                </span>
-                <Button
-                  type="button"
-                  size="icon"
-                  variant={isWatched ? "secondary" : "default"}
-                  className="rounded-full shrink-0"
-                  disabled={unaired}
-                  onClick={(e) =>
-                    handleWatchedClick(
-                      e,
-                      episode.season_number,
-                      episode.episode_number,
-                    )
-                  }
-                >
-                  {isWatched ? (
-                    <SolidCheck className="w-7 h-7" />
-                  ) : (
-                    <PlusCircleIcon className="w-7 h-7" />
+                <ItemMedia
+                  variant="icon"
+                  className={clsx(
+                    "size-11 rounded-2xl border-border/70 bg-muted/60",
+                    currEpisode === episode.id &&
+                      "border-accent/40 bg-accent/10",
                   )}
-                </Button>
-              </li>
-            );
-          })}
-        </ol>
-      </div>
+                >
+                  <TvIcon className="size-4" />
+                </ItemMedia>
+                <ItemContent className="gap-2">
+                  <ItemHeader className="items-start">
+                    <div className="space-y-2">
+                      <ItemTitle className="text-sm tracking-[-0.01em] md:text-base">
+                        {epIndex + 1}. {episode.name}
+                      </ItemTitle>
+                      <div className="flex flex-wrap gap-2">
+                        <Badge
+                          variant={isWatched ? "secondary" : "outline"}
+                          className="rounded-full px-2.5 py-1 text-[11px]"
+                        >
+                          {isWatched ? "Watched" : "Unwatched"}
+                        </Badge>
+                        {unaired ? (
+                          <Badge
+                            variant="outline"
+                            className="rounded-full px-2.5 py-1 text-[11px]"
+                          >
+                            Unaired
+                          </Badge>
+                        ) : null}
+                      </div>
+                    </div>
+                    <ItemActions>
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant={isWatched ? "secondary" : "default"}
+                        className="size-10 rounded-full shrink-0"
+                        disabled={unaired}
+                        onClick={(e) =>
+                          handleWatchedClick(
+                            e,
+                            episode.season_number,
+                            episode.episode_number,
+                          )
+                        }
+                      >
+                        {isWatched ? (
+                          <SolidCheck className="size-5" />
+                        ) : (
+                          <PlusCircleIcon className="size-5" />
+                        )}
+                      </Button>
+                    </ItemActions>
+                  </ItemHeader>
+                  <ItemDescription className="line-clamp-2 text-sm leading-6">
+                    {episode.overview || "No episode summary available."}
+                  </ItemDescription>
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <CalendarDaysIcon className="size-3.5" />
+                    <span>
+                      {episode.air_date
+                        ? prettyDate(episode.air_date)
+                        : "Air date unknown"}
+                    </span>
+                  </div>
+                </ItemContent>
+              </Item>
+            </div>
+          );
+        })}
+      </ItemGroup>
     </div>
   ));
 
   return (
-    <div className="flex flex-col w-1/3 rounded-md min-h-0">
-      {filteredEpisodes.length ? (
-        <>
-          <h1 className="rounded-md text-2xl sticky top-0 px-3 pt-3 pb-1 z-10 bg-card">
-            Episodes
-          </h1>
-          <Card className="border-2 overflow-y-auto scrollbar-hide h-full mt-2 min-h-0">
-            {seasonNodes}
-          </Card>
-        </>
-      ) : (
-        <p className="text-muted-foreground">No episodes loaded yet.</p>
-      )}
-    </div>
+    <Card className="min-h-0 border-border/70 bg-card/85 shadow-[0_24px_70px_-50px_color-mix(in_oklab,var(--color-accent)_25%,transparent)]">
+      <CardHeader className="gap-5 border-b border-border/70">
+        <div className="flex items-start gap-4">
+          {selectedSeries.poster_path ? (
+            <div className="overflow-hidden rounded-2xl border border-border/70 bg-muted/60">
+              <Image
+                loader={imageLoader}
+                width={96}
+                height={144}
+                src={selectedSeries.poster_path}
+                alt={selectedSeries.name}
+                className="h-28 w-20 object-cover"
+              />
+            </div>
+          ) : (
+            <div className="flex h-28 w-20 items-center justify-center rounded-2xl border border-border/70 bg-muted/60">
+              <TvIcon className="size-5 text-muted-foreground" />
+            </div>
+          )}
+          <div className="space-y-3">
+            <div className="space-y-1">
+              <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
+                Selected show
+              </p>
+              <CardTitle className="text-2xl tracking-[-0.03em]">
+                {selectedSeries.name}
+              </CardTitle>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Badge variant="secondary" className="rounded-full px-3 py-1">
+                {selectedSeries.status}
+              </Badge>
+              <Badge variant="outline" className="rounded-full px-3 py-1">
+                {filteredEpisodes.length} aired episodes
+              </Badge>
+              <Badge variant="outline" className="rounded-full px-3 py-1">
+                {watchedKeys.length} watched
+              </Badge>
+            </div>
+            <p className="max-w-2xl text-sm leading-7 text-muted-foreground">
+              {selectedSeries.overview || "No show summary available."}
+            </p>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="min-h-0 pt-6">
+        {filteredEpisodes.length ? (
+          <ScrollArea className="h-[min(72vh,820px)] pr-3">
+            <div className="space-y-8">{seasonNodes}</div>
+          </ScrollArea>
+        ) : (
+          <div className="flex min-h-[240px] items-center justify-center text-sm text-muted-foreground">
+            No episodes loaded yet.
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }
 

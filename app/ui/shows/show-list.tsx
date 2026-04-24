@@ -5,7 +5,21 @@ import Image from "next/image";
 import clsx from "clsx";
 import { imageLoader, prettyDate } from "@/app/lib/client-utils";
 import { useEffect, useMemo } from "react";
-import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import {
+  Item,
+  ItemContent,
+  ItemDescription,
+  ItemFooter,
+  ItemGroup,
+  ItemHeader,
+  ItemMedia,
+  ItemSeparator,
+  ItemTitle,
+} from "@/components/ui/item";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { TvIcon, Clock3Icon, SparklesIcon } from "lucide-react";
 
 function ShowItem({
   show,
@@ -19,27 +33,59 @@ function ShowItem({
   epsLeft: number;
 }) {
   return (
-    <Card
+    <Item
       className={clsx(
-        currShow === show.id && "ring-2 ring-primary",
-        "flex flex-row items-center border-2 rounded-md cursor-pointer transition duration-500 ease-in-out hover:bg-accent",
+        "cursor-pointer rounded-2xl border border-border/70 bg-background/70 px-4 py-4 transition hover:border-accent/50 hover:bg-accent/5",
+        currShow === show.id &&
+          "border-accent/60 bg-accent/8 shadow-[0_18px_40px_-28px_color-mix(in_oklab,var(--color-accent)_45%,transparent)]",
       )}
       key={show.id}
       onClick={() => setCurrShow(show.id)}
+      variant="outline"
     >
       {show.poster_path && (
-        <Image
-          className="rounded-l-[0.375rem]"
-          loader={imageLoader}
-          width={100}
-          height={150}
-          src={show.poster_path}
-          alt={show.name}
-        />
+        <ItemMedia variant="image" className="size-16 rounded-2xl">
+          <Image
+            className="rounded-2xl"
+            loader={imageLoader}
+            width={120}
+            height={180}
+            src={show.poster_path}
+            alt={show.name}
+          />
+        </ItemMedia>
       )}
-      <div className="flex flex-col p-2">
-        <p className="md:text-xl">{show.name}</p>
-        <p className="text-xs md:text-sm text-muted-foreground">
+      {!show.poster_path ? (
+        <ItemMedia
+          variant="icon"
+          className="size-16 rounded-2xl border-border/70 bg-muted/60"
+        >
+          <TvIcon className="size-5" />
+        </ItemMedia>
+      ) : null}
+      <ItemContent className="gap-3">
+        <ItemHeader className="items-start">
+          <div className="space-y-2">
+            <ItemTitle className="text-base tracking-[-0.02em] md:text-lg">
+              {show.name}
+            </ItemTitle>
+            <div className="flex flex-wrap gap-2">
+              <Badge variant="secondary" className="rounded-full px-2.5 py-1">
+                {show.status || "Unknown"}
+              </Badge>
+              {show.next_episode_to_air ? (
+                <Badge
+                  variant="outline"
+                  className="rounded-full border-accent/30 px-2.5 py-1"
+                >
+                  <SparklesIcon className="size-3.5" />
+                  Upcoming
+                </Badge>
+              ) : null}
+            </div>
+          </div>
+        </ItemHeader>
+        <ItemDescription className="line-clamp-1 text-sm">
           {show.next_episode_to_air ? (
             <>Next: {prettyDate(show.next_episode_to_air.air_date)}</>
           ) : show.last_air_date ? (
@@ -47,12 +93,18 @@ function ShowItem({
           ) : (
             <>Last air date unknown</>
           )}
-        </p>
-        <p className="text-xs md:text-sm text-muted-foreground">
-          Episodes left: {epsLeft === 0 ? "Finished" : epsLeft}
-        </p>
-      </div>
-    </Card>
+        </ItemDescription>
+        <ItemFooter className="justify-between text-xs text-muted-foreground">
+          <div className="flex items-center gap-2">
+            <Clock3Icon className="size-3.5" />
+            <span>{epsLeft === 0 ? "Caught up" : `${epsLeft} left`}</span>
+          </div>
+          <span className="text-[11px] uppercase tracking-[0.22em]">
+            {currShow === show.id ? "Selected" : "Open"}
+          </span>
+        </ItemFooter>
+      </ItemContent>
+    </Item>
   );
 }
 
@@ -137,10 +189,10 @@ export default function ShowList({
 
   const showNodes = filtered.map((group, index) => (
     <div key={index}>
-      <h1 className="text-2xl border-b-2 mb-2 p-2 sticky top-0 z-0 bg-card">
+      <h2 className="px-1 pb-2 text-xs uppercase tracking-[0.22em] text-muted-foreground">
         {getShowStatus(index)}
-      </h1>
-      <div className="flex flex-col p-3 gap-2">
+      </h2>
+      <ItemGroup className="gap-3">
         {group.map((show) => (
           <ShowItem
             key={show.id}
@@ -150,18 +202,27 @@ export default function ShowList({
             epsLeft={epsLeftFor(show)}
           />
         ))}
-      </div>
+      </ItemGroup>
     </div>
   ));
 
   return (
-    <div className="flex flex-col w-1/3 rounded-md min-h-0">
-      <h1 className="text-2xl sticky top-0 px-3 pt-3 pb-1 z-10 rounded-md">
-        Shows
-      </h1>
-      <div className="flex flex-col gap-3 border-2 rounded-md overflow-y-auto scrollbar-hide mt-2 h-full min-h-0">
-        {showNodes}
-      </div>
-    </div>
+    <Card className="min-h-0 border-border/70 bg-card/85 shadow-[0_24px_70px_-50px_color-mix(in_oklab,var(--color-accent)_25%,transparent)]">
+      <CardHeader className="pb-4">
+        <CardTitle className="text-xl tracking-[-0.03em]">Library</CardTitle>
+      </CardHeader>
+      <CardContent className="min-h-0">
+        <ScrollArea className="h-[min(72vh,820px)] pr-3">
+          <div className="space-y-6">
+            {showNodes.flatMap((node, index) => [
+              index > 0 ? (
+                <ItemSeparator key={`sep-${index}`} className="my-0" />
+              ) : null,
+              node,
+            ])}
+          </div>
+        </ScrollArea>
+      </CardContent>
+    </Card>
   );
 }
