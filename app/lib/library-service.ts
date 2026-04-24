@@ -6,11 +6,13 @@ import {
   getUserLibraryTmdbIds,
   getUserWatchedEpisodesByShow,
   insertUserShow,
+  type ShowStatus,
   toggleEpisodeWatched,
   updateUserShowStatus,
 } from "./shows";
 
 export type SeriesWithWatchedKeys = SeriesExtended & {
+  libraryStatus: ShowStatus;
   watchedEpisodeKeys: string[];
 };
 const LIBRARY_TMDB_CONCURRENCY = 4;
@@ -61,10 +63,15 @@ export async function getUserLibraryWithProgress(
     (row) => getShow(row.tmdbTvId),
   );
 
-  return hydrated.map((series) => ({
-    ...series,
-    watchedEpisodeKeys: watchedByShow.get(series.id) ?? [],
-  }));
+  return hydrated.map((series, index) => {
+    const row = libraryRows[index]!;
+
+    return {
+      ...series,
+      libraryStatus: row.status ?? "active",
+      watchedEpisodeKeys: watchedByShow.get(series.id) ?? [],
+    };
+  });
 }
 
 export async function getUserShowsList(userId: string) {

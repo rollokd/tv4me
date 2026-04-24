@@ -1,12 +1,13 @@
 "use client";
 
-import { updateWatchedEp } from "@/app/lib/actions";
+import { setUserShowStatus, updateWatchedEp } from "@/app/lib/actions";
 import type { Episode } from "@/app/lib/definitions";
 import type { SeriesWithWatchedKeys } from "@/app/lib/library-service";
+import type { ShowStatus } from "@/app/lib/shows";
 import { PlusCircleIcon } from "@heroicons/react/24/outline";
 import { CheckCircleIcon as SolidCheck } from "@heroicons/react/24/solid";
 import clsx from "clsx";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import Image from "next/image";
 import { imageLoader, prettyDate } from "@/app/lib/client-utils";
 import {
@@ -32,8 +33,11 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   ArrowLeftIcon,
+  BanIcon,
   CalendarDaysIcon,
+  CirclePauseIcon,
   LoaderCircleIcon,
+  RotateCcwIcon,
   TvIcon,
 } from "lucide-react";
 import Link from "next/link";
@@ -51,6 +55,7 @@ function EpisodeList({
   showMobileBackButton?: boolean;
 }) {
   const router = useRouter();
+  const [isStatusPending, startStatusTransition] = useTransition();
   const [currEpisode, setCurrEpisode] = useState<number | null>(null);
   const [optimisticWatchedByShow, setOptimisticWatchedByShow] = useState<
     Record<number, string[]>
@@ -158,6 +163,19 @@ function EpisodeList({
       return;
     }
     router.refresh();
+  }
+
+  function handleStatusClick(status: ShowStatus) {
+    if (!currShow) {
+      return;
+    }
+
+    startStatusTransition(async () => {
+      const response = await setUserShowStatus(userId, currShow, status);
+      if (response === "successful") {
+        router.refresh();
+      }
+    });
   }
 
   const filteredEpisodes = useMemo(
@@ -273,6 +291,9 @@ function EpisodeList({
             </div>
             <div className="flex flex-wrap gap-2">
               <Badge variant="secondary" className="rounded-full px-3 py-1">
+                {selectedSeries.libraryStatus}
+              </Badge>
+              <Badge variant="outline" className="rounded-full px-3 py-1">
                 {selectedSeries.status}
               </Badge>
               <Badge variant="outline" className="rounded-full px-3 py-1">
@@ -281,6 +302,47 @@ function EpisodeList({
               <Badge variant="outline" className="rounded-full px-3 py-1">
                 {watchedKeys.length} watched
               </Badge>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {selectedSeries.libraryStatus !== "active" ? (
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  className="h-8 rounded-md"
+                  disabled={isStatusPending}
+                  onClick={() => handleStatusClick("active")}
+                >
+                  <RotateCcwIcon className="size-3.5" />
+                  Resume
+                </Button>
+              ) : null}
+              {selectedSeries.libraryStatus !== "paused" ? (
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  className="h-8 rounded-md"
+                  disabled={isStatusPending}
+                  onClick={() => handleStatusClick("paused")}
+                >
+                  <CirclePauseIcon className="size-3.5" />
+                  Pause
+                </Button>
+              ) : null}
+              {selectedSeries.libraryStatus !== "abandoned" ? (
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  className="h-8 rounded-md"
+                  disabled={isStatusPending}
+                  onClick={() => handleStatusClick("abandoned")}
+                >
+                  <BanIcon className="size-3.5" />
+                  Abandon
+                </Button>
+              ) : null}
             </div>
             <p className="max-w-2xl text-sm leading-7 text-muted-foreground">
               {selectedSeries.overview || "No show summary available."}

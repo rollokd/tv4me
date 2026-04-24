@@ -1,6 +1,7 @@
 "use client";
 
 import type { SeriesWithWatchedKeys } from "@/app/lib/library-service";
+import type { ShowStatus } from "@/app/lib/shows";
 import Image from "next/image";
 import clsx from "clsx";
 import { imageLoader, prettyDate } from "@/app/lib/client-utils";
@@ -20,9 +21,15 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TvIcon, Clock3Icon, SparklesIcon } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import Link from "next/link";
 
-type LibraryFilter = "all" | "upcoming" | "returning" | "ended";
+type AiringSection = "upcoming" | "returning" | "ended";
 
 function ShowItem({
   show,
@@ -114,6 +121,16 @@ function ShowItem({
   );
 }
 
+function airingSection(show: SeriesWithWatchedKeys): AiringSection {
+  if (show.status === "Ended") {
+    return "ended";
+  }
+  if (show.next_episode_to_air) {
+    return "upcoming";
+  }
+  return "returning";
+}
+
 function airedEpisodeCount(show: SeriesWithWatchedKeys) {
   if (show.status === "Ended") {
     return (
@@ -148,13 +165,13 @@ export default function ShowList({
 }: {
   shows: SeriesWithWatchedKeys[];
   currShow: number | null;
-  activeFilter: LibraryFilter;
-  setActiveFilter: (filter: LibraryFilter) => void;
+  activeFilter: ShowStatus;
+  setActiveFilter: (filter: ShowStatus) => void;
   counts: {
     total: number;
-    upcoming: number;
-    returning: number;
-    ended: number;
+    active: number;
+    paused: number;
+    abandoned: number;
   };
 }) {
   function epsLeftFor(show: SeriesWithWatchedKeys) {
@@ -163,18 +180,22 @@ export default function ShowList({
     return Math.max(0, airedCount - watchedCount);
   }
 
-  const showNodes = useMemo(
+  const groupedShows = useMemo(
     () =>
-      shows.map((show) => (
-        <ShowItem
-          key={show.id}
-          show={show}
-          currShow={currShow}
-          epsLeft={epsLeftFor(show)}
-        />
-      )),
-    [currShow, shows],
+      shows.reduce(
+        (groups, show) => {
+          groups[airingSection(show)].push(show);
+          return groups;
+        },
+        {
+          upcoming: [] as SeriesWithWatchedKeys[],
+          returning: [] as SeriesWithWatchedKeys[],
+          ended: [] as SeriesWithWatchedKeys[],
+        },
+      ),
+    [shows],
   );
+  const hasShows = shows.length > 0;
 
   return (
     <Card className="min-h-0 border-border/70 bg-card/85 shadow-[0_24px_70px_-50px_color-mix(in_oklab,var(--color-accent)_25%,transparent)]">
@@ -182,25 +203,20 @@ export default function ShowList({
         <CardTitle className="text-xl tracking-[-0.03em]">Library</CardTitle>
         <Tabs
           value={activeFilter}
-          onValueChange={(value) => setActiveFilter(value as LibraryFilter)}
+          onValueChange={(value) => setActiveFilter(value as ShowStatus)}
         >
           <TabsList className="h-auto w-full flex-wrap rounded-2xl bg-background/70">
             {(
               [
-                { value: "all", label: "All", count: counts.total },
+                { value: "active", label: "Active", count: counts.active },
+                { value: "paused", label: "Paused", count: counts.paused },
                 {
-                  value: "upcoming",
-                  label: "Upcoming",
-                  count: counts.upcoming,
+                  value: "abandoned",
+                  label: "Abandoned",
+                  count: counts.abandoned,
                 },
-                {
-                  value: "returning",
-                  label: "Returning",
-                  count: counts.returning,
-                },
-                { value: "ended", label: "Ended", count: counts.ended },
               ] satisfies {
-                value: LibraryFilter;
+                value: ShowStatus;
                 label: string;
                 count: number;
               }[]
@@ -224,8 +240,63 @@ export default function ShowList({
       </CardHeader>
       <CardContent className="min-h-0">
         <ScrollArea className="h-[min(72vh,820px)] pr-3">
-          {showNodes.length ? (
-            <ItemGroup className="gap-3">{showNodes}</ItemGroup>
+          {hasShows ? (
+            <Accordion
+              type="multiple"
+              defaultValue={["upcoming", "returning", "ended"]}
+              className="space-y-3"
+            >
+              {(
+                [
+                  {
+                    value: "upcoming",
+                    label: "Upcoming",
+                    shows: groupedShows.upcoming,
+                  },
+                  {
+                    value: "returning",
+                    label: "Returning",
+                    shows: groupedShows.returning,
+                  },
+                  { value: "ended", label: "Ended", shows: groupedShows.ended },
+                ] satisfies {
+                  value: AiringSection;
+                  label: string;
+                  shows: SeriesWithWatchedKeys[];
+                }[]
+              )
+                .filter((section) => section.shows.length > 0)
+                .map((section) => (
+                  <AccordionItem
+                    key={section.value}
+                    value={section.value}
+                    className="overflow-hidden rounded-lg border border-border/70 bg-background/55 px-0"
+                  >
+                    <AccordionTrigger className="px-3 py-3 text-left hover:no-underline">
+                      <div className="flex w-full items-center justify-between gap-3 pr-2">
+                        <span className="text-xs font-medium uppercase text-muted-foreground">
+                          {section.label}
+                        </span>
+                        <Badge variant="secondary" className="rounded-md">
+                          {section.shows.length}
+                        </Badge>
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent className="pb-3">
+                      <ItemGroup className="gap-3 px-3">
+                        {section.shows.map((show) => (
+                          <ShowItem
+                            key={show.id}
+                            show={show}
+                            currShow={currShow}
+                            epsLeft={epsLeftFor(show)}
+                          />
+                        ))}
+                      </ItemGroup>
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+            </Accordion>
           ) : (
             <div className="flex min-h-[280px] items-center justify-center rounded-2xl border border-dashed border-border/70 bg-background/45 px-6 text-center text-sm text-muted-foreground">
               No shows match this filter.

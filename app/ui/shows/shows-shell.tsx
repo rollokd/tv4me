@@ -1,8 +1,7 @@
 "use client";
 
 import type { SeriesWithWatchedKeys } from "@/app/lib/library-service";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
+import type { ShowStatus } from "@/app/lib/shows";
 import { cn } from "@/lib/utils";
 import {
   createContext,
@@ -14,26 +13,12 @@ import {
 import { useSelectedLayoutSegment } from "next/navigation";
 import ShowList from "./show-list";
 
-type LibraryFilter = "all" | "upcoming" | "returning" | "ended";
-
 type ShowsShellContextValue = {
   userId: string;
   series: SeriesWithWatchedKeys[];
 };
 
 const ShowsShellContext = createContext<ShowsShellContextValue | null>(null);
-
-function showFilter(
-  show: SeriesWithWatchedKeys,
-): Exclude<LibraryFilter, "all"> {
-  if (show.status === "Ended") {
-    return "ended";
-  }
-  if (show.next_episode_to_air) {
-    return "upcoming";
-  }
-  return "returning";
-}
 
 export function useShowsShell() {
   const context = useContext(ShowsShellContext);
@@ -64,7 +49,7 @@ export default function ShowsShell({
     return Number.isInteger(showId) && showId > 0 ? showId : null;
   }, [segment]);
   const isDetailRoute = selectedShowId !== null;
-  const [activeFilter, setActiveFilter] = useState<LibraryFilter>("all");
+  const [activeFilter, setActiveFilter] = useState<ShowStatus>("active");
 
   const sortedShows = useMemo(
     () =>
@@ -81,29 +66,24 @@ export default function ShowsShell({
       sortedShows.reduce(
         (acc, show) => {
           acc.total += 1;
-          acc[showFilter(show)] += 1;
+          acc[show.libraryStatus] += 1;
           return acc;
         },
-        { total: 0, upcoming: 0, returning: 0, ended: 0 },
+        { total: 0, active: 0, paused: 0, abandoned: 0 },
       ),
     [sortedShows],
   );
 
-  const filteredShows = useMemo(() => {
-    if (activeFilter === "all") {
-      return sortedShows;
-    }
-
-    return sortedShows.filter((show) => showFilter(show) === activeFilter);
-  }, [activeFilter, sortedShows]);
+  const filteredShows = useMemo(
+    () => sortedShows.filter((show) => show.libraryStatus === activeFilter),
+    [activeFilter, sortedShows],
+  );
 
   return (
     <ShowsShellContext.Provider value={{ userId, series }}>
       <div className="min-h-full overflow-auto bg-[radial-gradient(circle_at_top_right,color-mix(in_oklab,var(--color-accent)_16%,transparent)_0%,transparent_28%),linear-gradient(180deg,color-mix(in_oklab,var(--color-accent)_5%,var(--color-background))_0%,var(--color-background)_52%)]">
         <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 p-2 md:p-4">
-
           <div className="grid min-h-[70vh] gap-6 md:grid-cols-[360px_1fr]">
-     
             <div className={cn(isDetailRoute && "hidden md:block")}>
               <ShowList
                 shows={filteredShows}
