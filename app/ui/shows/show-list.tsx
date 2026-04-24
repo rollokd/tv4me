@@ -69,6 +69,31 @@ function getShowStatus(index: number) {
   }
 }
 
+function airedEpisodeCount(show: SeriesWithWatchedKeys) {
+  if (show.status === "Ended") {
+    return (
+      show.seasons
+        ?.filter((season) => season.season_number > 0)
+        .reduce((sum, season) => sum + (season.episode_count ?? 0), 0) ?? 0
+    );
+  }
+
+  if (show.last_episode_to_air) {
+    return (
+      (show.seasons
+        ?.filter(
+          (season) =>
+            season.season_number > 0 &&
+            season.season_number < show.last_episode_to_air!.season_number,
+        )
+        .reduce((sum, season) => sum + (season.episode_count ?? 0), 0) ?? 0) +
+      show.last_episode_to_air.episode_number
+    );
+  }
+
+  return 0;
+}
+
 export default function ShowList({
   shows,
   currShow,
@@ -85,13 +110,9 @@ export default function ShowList({
   }, [currShow, shows, setCurrShow]);
 
   function epsLeftFor(show: SeriesWithWatchedKeys) {
-    const watched = new Set(show.watchedEpisodeKeys);
-    const eps = show.seasons?.flatMap((s) => s.episodes ?? []) ?? [];
-    const countable = eps.filter((e) => e.air_date);
-    if (!countable.length) return 0;
-    return countable.filter(
-      (e) => !watched.has(`${e.season_number}:${e.episode_number}`),
-    ).length;
+    const watchedCount = show.watchedEpisodeKeys.length;
+    const airedCount = airedEpisodeCount(show);
+    return Math.max(0, airedCount - watchedCount);
   }
 
   const filtered = useMemo(

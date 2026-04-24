@@ -12,9 +12,30 @@ import {
 export type SeriesWithWatchedKeys = SeriesExtended & {
   watchedEpisodeKeys: string[];
 };
+const LIBRARY_TMDB_CONCURRENCY = 4;
 
 export function watchedKey(seasonNumber: number, episodeNumber: number) {
   return `${seasonNumber}:${episodeNumber}`;
+}
+
+async function mapWithConcurrency<T, R>(
+  items: T[],
+  concurrency: number,
+  mapper: (item: T) => Promise<R>,
+): Promise<R[]> {
+  const results: R[] = new Array(items.length);
+  let index = 0;
+
+  async function worker() {
+    while (index < items.length) {
+      const currentIndex = index++;
+      results[currentIndex] = await mapper(items[currentIndex]!);
+    }
+  }
+
+  const workerCount = Math.min(concurrency, items.length);
+  await Promise.all(Array.from({ length: workerCount }, () => worker()));
+  return results;
 }
 
 export async function getUserLibraryWithProgress(
@@ -33,8 +54,10 @@ export async function getUserLibraryWithProgress(
     watchedByShow.set(row.tmdbTvId, keys);
   }
 
-  const hydrated = await Promise.all(
-    libraryRows.map((row) => getSeriesInfo(row.tmdbTvId)),
+  const hydrated = await mapWithConcurrency(
+    libraryRows,
+    LIBRARY_TMDB_CONCURRENCY,
+    (row) => getShow(row.tmdbTvId),
   );
 
   return hydrated.map((series) => ({
@@ -45,8 +68,12 @@ export async function getUserLibraryWithProgress(
 
 export async function getUserShowsList(userId: string) {
   const libraryRows = await getUserLibraryRows(userId);
-  return Promise.all(libraryRows.map((row) => getShow(row.tmdbTvId)));
+  return mapWithConcurrency(libraryRows, LIBRARY_TMDB_CONCURRENCY, (row) =>
+    getShow(row.tmdbTvId),
+  );
 }
+
+export { getSeriesInfo };
 
 export {
   deleteUserShow,

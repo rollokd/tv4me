@@ -37,11 +37,6 @@ export default function ShowsTable({ series, userId }: ShowsTableProps) {
     [sortedShows, currShow],
   );
 
-  const episodes = useMemo(() => {
-    if (!selected?.seasons) return undefined;
-    return selected.seasons.flatMap((s) => s.episodes ?? []);
-  }, [selected]);
-
   return (
     <div className="flex flex-row gap-3 p-5 overflow-y-auto h-full">
       {sortedShows.length ? (
@@ -63,7 +58,6 @@ export default function ShowsTable({ series, userId }: ShowsTableProps) {
           userId={userId}
           currShow={currShow}
           selectedSeries={selected}
-          episodes={episodes}
         />
       ) : (
         <Card className="p-5 text-2xl flex flex-col w-1/3 rounded-md border-2">

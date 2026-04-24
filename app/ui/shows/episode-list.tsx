@@ -6,7 +6,7 @@ import type { SeriesWithWatchedKeys } from "@/app/lib/library-service";
 import { PlusCircleIcon } from "@heroicons/react/24/outline";
 import { CheckCircleIcon as SolidCheck } from "@heroicons/react/24/solid";
 import clsx from "clsx";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
@@ -15,18 +15,19 @@ function EpisodeList({
   userId,
   currShow,
   selectedSeries,
-  episodes,
 }: {
   userId: string;
   currShow: number | null;
   selectedSeries: SeriesWithWatchedKeys | undefined;
-  episodes: Episode[] | undefined;
 }) {
   const router = useRouter();
   const [currEpisode, setCurrEpisode] = useState<number | null>(null);
   const [optimisticWatchedByShow, setOptimisticWatchedByShow] = useState<
     Record<number, string[]>
   >({});
+  const [episodes, setEpisodes] = useState<Episode[] | undefined>(undefined);
+  const [loadingEpisodes, setLoadingEpisodes] = useState(false);
+  const [episodesError, setEpisodesError] = useState<string | null>(null);
 
   const watchedKeys = useMemo(
     () =>
@@ -39,6 +40,58 @@ function EpisodeList({
   );
 
   const watchedSet = useMemo(() => new Set(watchedKeys), [watchedKeys]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadEpisodes(showId: number) {
+      setLoadingEpisodes(true);
+      setEpisodesError(null);
+      setEpisodes(undefined);
+
+      try {
+        const response = await fetch(`/api/tmdb/shows/${showId}`);
+        if (!response.ok) {
+          const payload = (await response.json().catch(() => null)) as {
+            error?: string;
+          } | null;
+          throw new Error(payload?.error ?? "Failed to load episodes");
+        }
+
+        const payload = (await response.json()) as {
+          series: { seasons?: { episodes?: Episode[] }[] };
+        };
+        const nextEpisodes =
+          payload.series.seasons?.flatMap((season) => season.episodes ?? []) ??
+          [];
+
+        if (!cancelled) {
+          setEpisodes(nextEpisodes);
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setEpisodes([]);
+          setEpisodesError(
+            error instanceof Error ? error.message : "Failed to load episodes",
+          );
+        }
+      } finally {
+        if (!cancelled) {
+          setLoadingEpisodes(false);
+        }
+      }
+    }
+
+    if (currShow === null) {
+      return;
+    }
+
+    void loadEpisodes(currShow);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [currShow]);
 
   async function handleWatchedClick(
     e: React.MouseEvent<HTMLButtonElement>,
@@ -98,6 +151,22 @@ function EpisodeList({
     return (
       <Card className="p-5 flex flex-col text-muted-foreground w-1/3 border-2">
         Select a show to see episodes.
+      </Card>
+    );
+  }
+
+  if (loadingEpisodes) {
+    return (
+      <Card className="p-5 flex flex-col text-muted-foreground w-1/3 border-2">
+        Loading episodes...
+      </Card>
+    );
+  }
+
+  if (episodesError) {
+    return (
+      <Card className="p-5 flex flex-col text-destructive w-1/3 border-2">
+        {episodesError}
       </Card>
     );
   }
