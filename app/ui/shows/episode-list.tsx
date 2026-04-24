@@ -4,10 +4,11 @@ import { setUserShowStatus, updateWatchedEp } from "@/app/lib/actions";
 import type { Episode } from "@/app/lib/definitions";
 import type { SeriesWithWatchedKeys } from "@/app/lib/library-service";
 import type { ShowStatus } from "@/app/lib/shows";
+import { tmdbShowDetailsQueryOptions } from "@/app/queries/tmdb/show-details";
 import { PlusCircleIcon } from "@heroicons/react/24/outline";
 import { CheckCircleIcon as SolidCheck } from "@heroicons/react/24/solid";
 import clsx from "clsx";
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import Image from "next/image";
 import { imageLoader, prettyDate } from "@/app/lib/client-utils";
 import {
@@ -42,6 +43,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 
 function EpisodeList({
   userId,
@@ -60,9 +62,9 @@ function EpisodeList({
   const [optimisticWatchedByShow, setOptimisticWatchedByShow] = useState<
     Record<number, string[]>
   >({});
-  const [episodes, setEpisodes] = useState<Episode[] | undefined>(undefined);
-  const [loadingEpisodes, setLoadingEpisodes] = useState(false);
-  const [episodesError, setEpisodesError] = useState<string | null>(null);
+  const episodeQuery = useQuery(
+    tmdbShowDetailsQueryOptions(currShow ?? 0, currShow !== null),
+  );
 
   const watchedKeys = useMemo(
     () =>
@@ -75,58 +77,6 @@ function EpisodeList({
   );
 
   const watchedSet = useMemo(() => new Set(watchedKeys), [watchedKeys]);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    async function loadEpisodes(showId: number) {
-      setLoadingEpisodes(true);
-      setEpisodesError(null);
-      setEpisodes(undefined);
-
-      try {
-        const response = await fetch(`/api/tmdb/shows/${showId}`);
-        if (!response.ok) {
-          const payload = (await response.json().catch(() => null)) as {
-            error?: string;
-          } | null;
-          throw new Error(payload?.error ?? "Failed to load episodes");
-        }
-
-        const payload = (await response.json()) as {
-          series: { seasons?: { episodes?: Episode[] }[] };
-        };
-        const nextEpisodes =
-          payload.series.seasons?.flatMap((season) => season.episodes ?? []) ??
-          [];
-
-        if (!cancelled) {
-          setEpisodes(nextEpisodes);
-        }
-      } catch (error) {
-        if (!cancelled) {
-          setEpisodes([]);
-          setEpisodesError(
-            error instanceof Error ? error.message : "Failed to load episodes",
-          );
-        }
-      } finally {
-        if (!cancelled) {
-          setLoadingEpisodes(false);
-        }
-      }
-    }
-
-    if (currShow === null) {
-      return;
-    }
-
-    void loadEpisodes(currShow);
-
-    return () => {
-      cancelled = true;
-    };
-  }, [currShow]);
 
   async function handleWatchedClick(
     e: React.MouseEvent<HTMLButtonElement>,
@@ -179,8 +129,11 @@ function EpisodeList({
   }
 
   const filteredEpisodes = useMemo(
-    () => episodes?.filter((e) => e.air_date) ?? [],
-    [episodes],
+    () =>
+      episodeQuery.data?.series.seasons
+        ?.flatMap((season) => season.episodes ?? [])
+        .filter((episode) => episode.air_date) ?? [],
+    [episodeQuery.data],
   );
 
   const seasonsOrdered = useMemo(() => {
@@ -220,7 +173,7 @@ function EpisodeList({
     );
   }
 
-  if (loadingEpisodes) {
+  if (episodeQuery.isLoading || episodeQuery.isFetching) {
     return (
       <Card className="border-border/70 bg-card/85">
         <CardContent className="flex min-h-[420px] flex-col items-center justify-center gap-3 p-8 text-center text-muted-foreground">
@@ -233,14 +186,18 @@ function EpisodeList({
     );
   }
 
-  if (episodesError) {
+  if (episodeQuery.error) {
     return (
       <Card className="border-border/70 bg-card/85">
         <CardContent className="flex min-h-[420px] flex-col items-center justify-center gap-2 p-8 text-center text-destructive">
           <p className="text-xl font-medium tracking-[-0.03em]">
             Couldn&apos;t load episodes
           </p>
-          <p className="max-w-sm text-sm leading-7">{episodesError}</p>
+          <p className="max-w-sm text-sm leading-7">
+            {episodeQuery.error instanceof Error
+              ? episodeQuery.error.message
+              : "Failed to load episodes"}
+          </p>
         </CardContent>
       </Card>
     );

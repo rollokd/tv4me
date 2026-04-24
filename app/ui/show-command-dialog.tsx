@@ -4,6 +4,13 @@ import { addUserShow, setUserShowStatus } from "@/app/lib/actions";
 import { imageLoader } from "@/app/lib/client-utils";
 import type { SearchResponse } from "@/app/lib/definitions";
 import type { ShowStatus } from "@/app/lib/shows";
+import {
+  type LibraryShow,
+  type UserLibraryPayload,
+  userLibraryKeys,
+  userLibraryQueryOptions,
+} from "@/app/queries/users/library";
+import { showSearchQueryOptions } from "@/app/queries/shows/search";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,18 +33,9 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState, useTransition } from "react";
-
-type LibraryShow = {
-  tmdbTvId: number;
-  title: string;
-  status: ShowStatus;
-};
-
-type UserPayload = {
-  libraryShowIds: number[];
-  libraryShows: LibraryShow[];
-};
+import { useMemo, useState, useTransition } from "react";
+import { useDebounce } from "use-debounce";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 function statusLabel(status: ShowStatus) {
   if (status === "active") return "Active";
@@ -65,11 +63,20 @@ export default function ShowCommandDialog({
   onOpenChange: (open: boolean) => void;
 }) {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [query, setQuery] = useState("");
-  const [library, setLibrary] = useState<LibraryShow[]>([]);
-  const [results, setResults] = useState<SearchResponse[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [debouncedQuery] = useDebounce(query.trim(), 250);
   const [isPending, startTransition] = useTransition();
+  const userLibraryQuery = useQuery(userLibraryQueryOptions(userId, open));
+  const searchReady = debouncedQuery.length > 1;
+  const showSearchQuery = useQuery(
+    showSearchQueryOptions(debouncedQuery, open && searchReady),
+  );
+  const library = useMemo(
+    () => userLibraryQuery.data?.libraryShows ?? [],
+    [userLibraryQuery.data?.libraryShows],
+  );
+  const visibleResults = searchReady ? (showSearchQuery.data ?? []) : [];
 
   const libraryById = useMemo(
     () => new Map(library.map((show) => [show.tmdbTvId, show])),
@@ -87,68 +94,26 @@ export default function ShowCommandDialog({
       .filter((show) => show.title.toLowerCase().includes(normalized))
       .slice(0, 8);
   }, [library, query]);
-  const searchReady = query.trim().length > 1;
-  const visibleResults = searchReady ? results : [];
-
-  useEffect(() => {
-    if (!open) {
-      return;
-    }
-
-    fetch(`/api/users/${userId}`)
-      .then((response) => {
-        if (!response.ok) throw new Error("Failed to load library");
-        return response.json() as Promise<UserPayload>;
-      })
-      .then((payload) => {
-        setLibrary(payload.libraryShows ?? []);
-      })
-      .catch(() => {
-        setLibrary([]);
-      });
-  }, [open, userId]);
-
-  useEffect(() => {
-    const trimmed = query.trim();
-
-    if (!open || trimmed.length < 2) {
-      return;
-    }
-
-    const controller = new AbortController();
-    const timeout = window.setTimeout(() => {
-      setLoading(true);
-      fetch(`/api/shows/search/${encodeURIComponent(trimmed)}`, {
-        signal: controller.signal,
-      })
-        .then((response) => {
-          if (!response.ok) throw new Error("Search failed");
-          return response.json() as Promise<{
-            searchResults: SearchResponse[];
-          }>;
-        })
-        .then((payload) => {
-          setResults(payload.searchResults ?? []);
-        })
-        .catch((error) => {
-          if (!(error instanceof DOMException && error.name === "AbortError")) {
-            setResults([]);
-          }
-        })
-        .finally(() => {
-          setLoading(false);
-        });
-    }, 250);
-
-    return () => {
-      controller.abort();
-      window.clearTimeout(timeout);
-    };
-  }, [open, query]);
-
   function closeAndGo(showId: number) {
     onOpenChange(false);
     router.push(`/shows/${showId}`);
+  }
+
+  function updateLibraryCache(
+    updater: (current: LibraryShow[]) => LibraryShow[],
+  ) {
+    queryClient.setQueryData<UserLibraryPayload>(
+      userLibraryKeys.library(userId),
+      (current) => {
+        const currentShows = current?.libraryShows ?? [];
+        const nextShows = updater(currentShows);
+
+        return {
+          libraryShowIds: nextShows.map((show) => show.tmdbTvId),
+          libraryShows: nextShows,
+        };
+      },
+    );
   }
 
   function updateLibraryStatus(showId: number, status: ShowStatus) {
@@ -156,7 +121,7 @@ export default function ShowCommandDialog({
       const result = await setUserShowStatus(userId, showId, status);
 
       if (result === "successful") {
-        setLibrary((current) =>
+        updateLibraryCache((current) =>
           current.map((show) =>
             show.tmdbTvId === showId ? { ...show, status } : show,
           ),
@@ -171,7 +136,7 @@ export default function ShowCommandDialog({
       const result = await addUserShow(userId, show.id);
 
       if (result === "successful") {
-        setLibrary((current) => [
+        updateLibraryCache((current) => [
           ...current,
           {
             tmdbTvId: show.id,
@@ -199,7 +164,7 @@ export default function ShowCommandDialog({
       />
       <CommandList className="max-h-[70vh]">
         <CommandEmpty>
-          {loading ? "Searching..." : "No shows found."}
+          {showSearchQuery.isFetching ? "Searching..." : "No shows found."}
         </CommandEmpty>
 
         {filteredLibrary.length ? (

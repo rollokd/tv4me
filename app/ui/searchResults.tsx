@@ -1,20 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import type { SearchResponse } from "../lib/definitions";
 import { CheckCircleIcon, PlusCircleIcon } from "@heroicons/react/24/outline";
 import { addUserShow, removeUserShow } from "../lib/actions";
 import { imageLoader } from "../lib/client-utils";
 import Image from "next/image";
-import clsx from "clsx";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-
-type SessionUser = {
-  id: string;
-  name: string;
-  email: string;
-};
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  type UserLibraryPayload,
+  userLibraryKeys,
+  userLibraryQueryOptions,
+} from "@/app/queries/users/library";
+import { showSearchQueryOptions } from "@/app/queries/shows/search";
 
 export default function SearchResults({
   query,
@@ -23,33 +21,29 @@ export default function SearchResults({
   query: string;
   id: string;
 }) {
-  const [user, setUser] = useState<SessionUser | null>(null);
-  const [libraryShowIds, setLibraryShowIds] = useState<number[]>([]);
-  const [response, setResponse] = useState<SearchResponse[]>([]);
+  const queryClient = useQueryClient();
+  const normalizedQuery = query.trim();
+  const userLibraryQuery = useQuery(userLibraryQueryOptions(id));
+  const showSearchQuery = useQuery(
+    showSearchQueryOptions(normalizedQuery, normalizedQuery !== ""),
+  );
+  const libraryShowIds = userLibraryQuery.data?.libraryShowIds ?? [];
+  const response = normalizedQuery ? (showSearchQuery.data ?? []) : [];
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const base =
-        typeof window !== "undefined" ? window.location.origin : "";
-      const [userPayload, searchResults]: [
-        { user: SessionUser; libraryShowIds: number[] },
-        SearchResponse[],
-      ] = await Promise.all([
-        fetch(`${base}/api/users/${id}`).then((r) => {
-          if (!r.ok) throw new Error("user fetch failed");
-          return r.json();
-        }),
-        fetch(`${base}/api/shows/search/${encodeURIComponent(query)}`)
-          .then((r) => r.json())
-          .then((r) => r.searchResults as SearchResponse[]),
-      ]);
-      setUser(userPayload.user);
-      setLibraryShowIds(userPayload.libraryShowIds ?? []);
-      setResponse(searchResults ?? []);
-    };
-    if (query !== "") fetchData().catch(() => setResponse([]));
-    else setResponse([]);
-  }, [id, query]);
+  function updateLibraryCache(
+    updater: (current: UserLibraryPayload) => UserLibraryPayload,
+  ) {
+    queryClient.setQueryData<UserLibraryPayload>(
+      userLibraryKeys.library(id),
+      (current) =>
+        updater(
+          current ?? {
+            libraryShowIds: [],
+            libraryShows: [],
+          },
+        ),
+    );
+  }
 
   return (
     <div className="grid grid-cols-2 grid-rows-4 border-2 rounded-md gap-5 m-5 p-5 grow">
@@ -80,23 +74,37 @@ export default function SearchResults({
                       : "default"
                   }
                   className="w-fit gap-1 rounded-full font-bold"
-                  disabled={!user}
+                  disabled={userLibraryQuery.isLoading}
                   onClick={async (e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    if (!user) return;
                     const rid = Number(result.id);
                     if (!libraryShowIds.includes(rid)) {
-                      const res = await addUserShow(user.id, rid);
+                      const res = await addUserShow(id, rid);
                       if (res === "successful") {
-                        setLibraryShowIds((prev) => [...prev, rid]);
+                        updateLibraryCache((current) => ({
+                          libraryShowIds: [...current.libraryShowIds, rid],
+                          libraryShows: [
+                            ...current.libraryShows,
+                            {
+                              tmdbTvId: rid,
+                              title: result.name,
+                              status: "active",
+                            },
+                          ],
+                        }));
                       }
                     } else {
-                      const res = await removeUserShow(user.id, rid);
+                      const res = await removeUserShow(id, rid);
                       if (res === "successful") {
-                        setLibraryShowIds((prev) =>
-                          prev.filter((x) => x !== rid),
-                        );
+                        updateLibraryCache((current) => ({
+                          libraryShowIds: current.libraryShowIds.filter(
+                            (x) => x !== rid,
+                          ),
+                          libraryShows: current.libraryShows.filter(
+                            (show) => show.tmdbTvId !== rid,
+                          ),
+                        }));
                       }
                     }
                   }}
