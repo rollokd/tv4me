@@ -18,7 +18,7 @@ export default async function AppLayout({
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
-      <NavBar />
+      <NavBar userId={session.user.id} />
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
         {children}
       </div>

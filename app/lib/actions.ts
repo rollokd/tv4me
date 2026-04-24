@@ -8,7 +8,9 @@ import {
   getUserShowsList,
   insertUserShow,
   toggleEpisodeWatched,
+  updateUserShowStatus,
 } from "./library-service";
+import type { ShowStatus } from "./shows";
 import { getShow } from "./api";
 
 export async function updateWatchedEp(
@@ -54,6 +56,23 @@ export async function removeUserShow(userId: string, showId: number) {
   try {
     await deleteUserShow(userId, showId);
     revalidatePath("/shows");
+    revalidatePath("/search");
+    return "successful" as const;
+  } catch (err) {
+    console.error(err);
+    return "failed" as const;
+  }
+}
+
+export async function setUserShowStatus(
+  userId: string,
+  showId: number,
+  status: ShowStatus,
+) {
+  try {
+    await updateUserShowStatus(userId, showId, status);
+    revalidatePath("/shows");
+    revalidatePath(`/shows/${showId}`);
     revalidatePath("/search");
     return "successful" as const;
   } catch (err) {

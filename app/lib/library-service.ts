@@ -7,6 +7,7 @@ import {
   getUserWatchedEpisodesByShow,
   insertUserShow,
   toggleEpisodeWatched,
+  updateUserShowStatus,
 } from "./shows";
 
 export type SeriesWithWatchedKeys = SeriesExtended & {
@@ -82,4 +83,5 @@ export {
   getUserWatchedEpisodesByShow,
   insertUserShow,
   toggleEpisodeWatched,
+  updateUserShowStatus,
 };

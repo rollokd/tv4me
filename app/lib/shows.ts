@@ -4,6 +4,7 @@ import { episodeWatches, shows } from "./schema/shows-schema";
 
 export type LibraryShowRow = typeof shows.$inferSelect;
 export type EpisodeWatchRow = typeof episodeWatches.$inferSelect;
+export type ShowStatus = NonNullable<LibraryShowRow["status"]>;
 
 export async function getUserLibraryRows(userId: string) {
   return db.select().from(shows).where(eq(shows.userId, userId));
@@ -35,6 +36,17 @@ export async function insertUserShow(
 export async function deleteUserShow(userId: string, tmdbTvId: number) {
   await db
     .delete(shows)
+    .where(and(eq(shows.userId, userId), eq(shows.tmdbTvId, tmdbTvId)));
+}
+
+export async function updateUserShowStatus(
+  userId: string,
+  tmdbTvId: number,
+  status: ShowStatus,
+) {
+  await db
+    .update(shows)
+    .set({ status, updatedAt: new Date() })
     .where(and(eq(shows.userId, userId), eq(shows.tmdbTvId, tmdbTvId)));
 }
 
