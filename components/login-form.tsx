@@ -36,8 +36,8 @@ export function LoginForm({
         { email, password },
         {
           onRequest: () => setLoading(true),
-          onSuccess: () => router.push("/trending"),
-        }
+          onSuccess: () => router.push("/shows"),
+        },
       );
     } catch (error) {
       console.error(error);

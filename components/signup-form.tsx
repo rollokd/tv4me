@@ -44,7 +44,7 @@ export function SignupForm({
           email, // user email address
           password, // user password -> min 8 characters by default
           name, // user display name
-          callbackURL: "/trending", // a url to redirect to after the user verifies their email (optional)
+          callbackURL: "/shows", // a url to redirect to after the user verifies their email (optional)
         },
         {
           onRequest: () => {
@@ -53,13 +53,13 @@ export function SignupForm({
           },
           onSuccess: () => {
             //redirect to the dashboard or sign in page
-            router.push("/trending");
+            router.push("/shows");
           },
           onError: (ctx) => {
             // display the error message
             toast(ctx.error.message);
           },
-        }
+        },
       );
     } catch (error) {
       console.error(error);

@@ -1,6 +1,6 @@
-import ShowsTable from "../../ui/shows/shows-table";
-import { getShowsAndEpsFromId } from "../../lib/actions";
-import { auth } from "../../lib/auth";
+import ShowsTable from "@/app/ui/shows/shows-table";
+import { getShowsAndEpsFromId } from "@/app/lib/actions";
+import { auth } from "@/app/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";

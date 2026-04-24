@@ -1,6 +1,6 @@
-import Search from "../ui/search";
-import SearchResults from "../ui/searchResults";
-import { auth } from "../lib/auth";
+import Search from "@/app/ui/search";
+import SearchResults from "@/app/ui/searchResults";
+import { auth } from "@/app/lib/auth";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 
