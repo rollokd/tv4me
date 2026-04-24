@@ -101,54 +101,6 @@ export default function ShowsShell({
     <ShowsShellContext.Provider value={{ userId, series }}>
       <div className="min-h-full overflow-auto bg-[radial-gradient(circle_at_top_right,color-mix(in_oklab,var(--color-accent)_16%,transparent)_0%,transparent_28%),linear-gradient(180deg,color-mix(in_oklab,var(--color-accent)_5%,var(--color-background))_0%,var(--color-background)_52%)]">
         <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 p-2 md:p-4">
-          <Card
-            className={cn(
-              "p-2 border-border/70 bg-card/85 shadow-[0_30px_80px_-55px_color-mix(in_oklab,var(--color-accent)_35%,transparent)] backdrop-blur",
-              isDetailRoute && "hidden md:block",
-            )}
-          >
-            <CardContent className="grid gap-3 p-2 md:grid-cols-4">
-              {[
-                {
-                  label: "Total",
-                  value: counts.total,
-                  variant: "secondary" as const,
-                },
-                {
-                  label: "Upcoming",
-                  value: counts.upcoming,
-                  variant: "outline" as const,
-                },
-                {
-                  label: "Returning",
-                  value: counts.returning,
-                  variant: "outline" as const,
-                },
-                {
-                  label: "Ended",
-                  value: counts.ended,
-                  variant: "outline" as const,
-                },
-              ].map((stat) => (
-                <div
-                  key={stat.label}
-                  className="rounded-2xl border border-border/70 bg-background/65 p-2"
-                >
-                  <div className="flex items-center justify-between gap-3">
-                    <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
-                      {stat.label}
-                    </p>
-                    <Badge
-                      variant={stat.variant}
-                      className="rounded-full px-2.5 py-1"
-                    >
-                      {stat.value}
-                    </Badge>
-                  </div>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
 
           <div className="grid min-h-[70vh] gap-6 md:grid-cols-[360px_1fr]">
      

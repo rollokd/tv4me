@@ -184,7 +184,7 @@ export default function ShowList({
           value={activeFilter}
           onValueChange={(value) => setActiveFilter(value as LibraryFilter)}
         >
-          <TabsList className="h-auto w-full flex-wrap rounded-2xl bg-background/70 p-1.5">
+          <TabsList className="h-auto w-full flex-wrap rounded-2xl bg-background/70">
             {(
               [
                 { value: "all", label: "All", count: counts.total },
@@ -208,12 +208,12 @@ export default function ShowList({
               <TabsTrigger
                 key={value}
                 value={value}
-                className="rounded-xl px-3 py-2 text-xs uppercase tracking-[0.18em]"
+                className="text-xs uppercase flex items-center gap-1"
               >
                 {label}
                 <Badge
                   variant="secondary"
-                  className="ml-1 rounded-full px-2 py-0.5 text-[10px]"
+                  className="rounded-full px-2 py-0.5 text-xs"
                 >
                   {count}
                 </Badge>
