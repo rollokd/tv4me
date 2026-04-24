@@ -28,5 +28,13 @@ export const auth = betterAuth({
   },
   // Add user serialization and other configurations as necessary
   secret: process.env.BETTER_AUTH_SECRET,
-  baseURL: process.env.BETTER_AUTH_URL,
+  baseURL: {
+    allowedHosts: [
+			"localhost:3000",
+			"localhost:5173",
+			"tv4me.app",
+			"*.vercel.app",
+		],
+		protocol: process.env.NODE_ENV === "development" ? "http" : "https",
+  }
 });
