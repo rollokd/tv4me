@@ -232,7 +232,7 @@ function EpisodeList({
     <Card className="min-h-0 border-border/70 bg-card/85 shadow-[0_24px_70px_-50px_color-mix(in_oklab,var(--color-accent)_25%,transparent)]">
       <CardHeader className="gap-5 border-b border-border/70">
         {showMobileBackButton ? (
-          <div className="sm:hidden">
+          <div className="md:hidden">
             <Button
               asChild
               variant="ghost"
@@ -247,7 +247,7 @@ function EpisodeList({
         ) : null}
         <div className="flex items-start gap-4">
           {selectedSeries.poster_path ? (
-            <div className="overflow-hidden rounded-2xl border border-border/70 bg-muted/60">
+            <div className="overflow-hidden min-w-20 rounded-2xl border border-border/70 bg-muted/60">
               <Image
                 loader={imageLoader}
                 width={96}

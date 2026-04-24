@@ -99,15 +99,15 @@ export default function ShowsShell({
 
   return (
     <ShowsShellContext.Provider value={{ userId, series }}>
-      <div className="min-h-full overflow-auto bg-[radial-gradient(circle_at_top_right,_color-mix(in_oklab,var(--color-accent)_16%,transparent)_0%,transparent_28%),linear-gradient(180deg,color-mix(in_oklab,var(--color-accent)_5%,var(--color-background))_0%,var(--color-background)_52%)]">
-        <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 md:px-6 md:py-8">
+      <div className="min-h-full overflow-auto bg-[radial-gradient(circle_at_top_right,color-mix(in_oklab,var(--color-accent)_16%,transparent)_0%,transparent_28%),linear-gradient(180deg,color-mix(in_oklab,var(--color-accent)_5%,var(--color-background))_0%,var(--color-background)_52%)]">
+        <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 p-2 md:p-4">
           <Card
             className={cn(
-              "border-border/70 bg-card/85 shadow-[0_30px_80px_-55px_color-mix(in_oklab,var(--color-accent)_35%,transparent)] backdrop-blur",
-              isDetailRoute && "hidden sm:block",
+              "p-2 border-border/70 bg-card/85 shadow-[0_30px_80px_-55px_color-mix(in_oklab,var(--color-accent)_35%,transparent)] backdrop-blur",
+              isDetailRoute && "hidden md:block",
             )}
           >
-            <CardContent className="grid gap-3 p-4 md:grid-cols-4">
+            <CardContent className="grid gap-3 p-2 md:grid-cols-4">
               {[
                 {
                   label: "Total",
@@ -132,7 +132,7 @@ export default function ShowsShell({
               ].map((stat) => (
                 <div
                   key={stat.label}
-                  className="rounded-2xl border border-border/70 bg-background/65 px-4 py-4"
+                  className="rounded-2xl border border-border/70 bg-background/65 p-2"
                 >
                   <div className="flex items-center justify-between gap-3">
                     <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
@@ -150,8 +150,9 @@ export default function ShowsShell({
             </CardContent>
           </Card>
 
-          <div className="grid min-h-[70vh] gap-6 xl:grid-cols-[minmax(340px,420px)_minmax(0,1fr)]">
-            <div className={cn(isDetailRoute && "hidden sm:block")}>
+          <div className="grid min-h-[70vh] gap-6 md:grid-cols-[360px_1fr]">
+     
+            <div className={cn(isDetailRoute && "hidden md:block")}>
               <ShowList
                 shows={filteredShows}
                 currShow={selectedShowId}

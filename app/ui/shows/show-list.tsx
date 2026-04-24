@@ -42,7 +42,7 @@ function ShowItem({
   const content = (
     <>
       {show.poster_path && (
-        <ItemMedia variant="image" className="size-16 rounded-2xl">
+        <ItemMedia variant="image" className="h-18 w-12 rounded">
           <Image
             className="rounded-2xl"
             loader={imageLoader}
