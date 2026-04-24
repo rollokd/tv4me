@@ -14,12 +14,14 @@ import {
   ItemGroup,
   ItemHeader,
   ItemMedia,
-  ItemSeparator,
   ItemTitle,
 } from "@/components/ui/item";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TvIcon, Clock3Icon, SparklesIcon } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+type LibraryFilter = "all" | "upcoming" | "returning" | "ended";
 
 function ShowItem({
   show,
@@ -108,19 +110,6 @@ function ShowItem({
   );
 }
 
-function getShowStatus(index: number) {
-  switch (index) {
-    case 0:
-      return "Upcoming";
-    case 1:
-      return "Returning";
-    case 2:
-      return "Ended";
-    default:
-      return "Unknown";
-  }
-}
-
 function airedEpisodeCount(show: SeriesWithWatchedKeys) {
   if (show.status === "Ended") {
     return (
@@ -150,10 +139,21 @@ export default function ShowList({
   shows,
   currShow,
   setCurrShow,
+  activeFilter,
+  setActiveFilter,
+  counts,
 }: {
   shows: SeriesWithWatchedKeys[];
   currShow: number | null;
   setCurrShow: (id: number) => void;
+  activeFilter: LibraryFilter;
+  setActiveFilter: (filter: LibraryFilter) => void;
+  counts: {
+    total: number;
+    upcoming: number;
+    returning: number;
+    ended: number;
+  };
 }) {
   useEffect(() => {
     if (currShow === null && shows.length > 0) {
@@ -167,60 +167,75 @@ export default function ShowList({
     return Math.max(0, airedCount - watchedCount);
   }
 
-  const filtered = useMemo(
+  const showNodes = useMemo(
     () =>
-      shows.reduce(
-        (acc: SeriesWithWatchedKeys[][], show) => {
-          if (show.status === "Ended") {
-            acc[2].push(show);
-          }
-          if (show.next_episode_to_air) {
-            acc[0].push(show);
-          }
-          if (show.status === "Returning Series" && !show.next_episode_to_air) {
-            acc[1].push(show);
-          }
-          return acc;
-        },
-        [[], [], []] as SeriesWithWatchedKeys[][],
-      ),
-    [shows],
+      shows.map((show) => (
+        <ShowItem
+          key={show.id}
+          show={show}
+          currShow={currShow}
+          setCurrShow={setCurrShow}
+          epsLeft={epsLeftFor(show)}
+        />
+      )),
+    [currShow, setCurrShow, shows],
   );
-
-  const showNodes = filtered.map((group, index) => (
-    <div key={index}>
-      <h2 className="px-1 pb-2 text-xs uppercase tracking-[0.22em] text-muted-foreground">
-        {getShowStatus(index)}
-      </h2>
-      <ItemGroup className="gap-3">
-        {group.map((show) => (
-          <ShowItem
-            key={show.id}
-            show={show}
-            currShow={currShow}
-            setCurrShow={setCurrShow}
-            epsLeft={epsLeftFor(show)}
-          />
-        ))}
-      </ItemGroup>
-    </div>
-  ));
 
   return (
     <Card className="min-h-0 border-border/70 bg-card/85 shadow-[0_24px_70px_-50px_color-mix(in_oklab,var(--color-accent)_25%,transparent)]">
-      <CardHeader className="pb-4">
+      <CardHeader className="gap-4 pb-4">
         <CardTitle className="text-xl tracking-[-0.03em]">Library</CardTitle>
+        <Tabs
+          value={activeFilter}
+          onValueChange={(value) => setActiveFilter(value as LibraryFilter)}
+        >
+          <TabsList className="h-auto w-full flex-wrap rounded-2xl bg-background/70 p-1.5">
+            {(
+              [
+                { value: "all", label: "All", count: counts.total },
+                {
+                  value: "upcoming",
+                  label: "Upcoming",
+                  count: counts.upcoming,
+                },
+                {
+                  value: "returning",
+                  label: "Returning",
+                  count: counts.returning,
+                },
+                { value: "ended", label: "Ended", count: counts.ended },
+              ] satisfies {
+                value: LibraryFilter;
+                label: string;
+                count: number;
+              }[]
+            ).map(({ value, label, count }) => (
+              <TabsTrigger
+                key={value}
+                value={value}
+                className="rounded-xl px-3 py-2 text-xs uppercase tracking-[0.18em]"
+              >
+                {label}
+                <Badge
+                  variant="secondary"
+                  className="ml-1 rounded-full px-2 py-0.5 text-[10px]"
+                >
+                  {count}
+                </Badge>
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
       </CardHeader>
       <CardContent className="min-h-0">
         <ScrollArea className="h-[min(72vh,820px)] pr-3">
-          <div className="space-y-6">
-            {showNodes.flatMap((node, index) => [
-              index > 0 ? (
-                <ItemSeparator key={`sep-${index}`} className="my-0" />
-              ) : null,
-              node,
-            ])}
-          </div>
+          {showNodes.length ? (
+            <ItemGroup className="gap-3">{showNodes}</ItemGroup>
+          ) : (
+            <div className="flex min-h-[280px] items-center justify-center rounded-2xl border border-dashed border-border/70 bg-background/45 px-6 text-center text-sm text-muted-foreground">
+              No shows match this filter.
+            </div>
+          )}
         </ScrollArea>
       </CardContent>
     </Card>

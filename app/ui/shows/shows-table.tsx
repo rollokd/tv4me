@@ -3,17 +3,35 @@
 import type { SeriesWithWatchedKeys } from "@/app/lib/library-service";
 import ShowList from "./show-list";
 import EpisodeList from "./episode-list";
-import { useMemo, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useEffect, useMemo, useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
+
+type LibraryFilter = "all" | "upcoming" | "returning" | "ended";
 
 interface ShowsTableProps {
   series: SeriesWithWatchedKeys[];
   userId: string;
+  initialShowId: number | null;
 }
 
-export default function ShowsTable({ series, userId }: ShowsTableProps) {
+function showFilter(
+  show: SeriesWithWatchedKeys,
+): Exclude<LibraryFilter, "all"> {
+  if (show.status === "Ended") {
+    return "ended";
+  }
+  if (show.next_episode_to_air) {
+    return "upcoming";
+  }
+  return "returning";
+}
+
+export default function ShowsTable({
+  series,
+  userId,
+  initialShowId,
+}: ShowsTableProps) {
   const sortedShows = useMemo(
     () =>
       series
@@ -30,102 +48,109 @@ export default function ShowsTable({ series, userId }: ShowsTableProps) {
     [series],
   );
 
+  const [activeFilter, setActiveFilter] = useState<LibraryFilter>("all");
   const [currShow, setCurrShow] = useState<number | null>(
-    () => sortedShows[0]?.id ?? null,
+    () =>
+      sortedShows.find((show) => show.id === initialShowId)?.id ??
+      sortedShows[0]?.id ??
+      null,
   );
+
+  const counts = useMemo(
+    () =>
+      sortedShows.reduce(
+        (acc, show) => {
+          acc.total += 1;
+          acc[showFilter(show)] += 1;
+          return acc;
+        },
+        { total: 0, upcoming: 0, returning: 0, ended: 0 },
+      ),
+    [sortedShows],
+  );
+
+  const filteredShows = useMemo(() => {
+    if (activeFilter === "all") {
+      return sortedShows;
+    }
+    return sortedShows.filter((show) => showFilter(show) === activeFilter);
+  }, [activeFilter, sortedShows]);
 
   const selected = useMemo(
-    () => sortedShows.find((s) => s.id === currShow),
-    [sortedShows, currShow],
+    () =>
+      filteredShows.find((show) => show.id === currShow) ??
+      filteredShows[0] ??
+      null,
+    [currShow, filteredShows],
   );
 
-  const stats = useMemo(() => {
-    return sortedShows.reduce(
-      (acc, show) => {
-        acc.total += 1;
-        if (show.status === "Ended") {
-          acc.ended += 1;
-        } else if (show.next_episode_to_air) {
-          acc.upcoming += 1;
-        } else {
-          acc.active += 1;
-        }
-        return acc;
-      },
-      { total: 0, active: 0, upcoming: 0, ended: 0 },
-    );
-  }, [sortedShows]);
+  useEffect(() => {
+    if (!selected || typeof window === "undefined") {
+      return;
+    }
+
+    const targetPath = `/shows/${selected.id}`;
+    if (window.location.pathname !== targetPath) {
+      window.history.replaceState(window.history.state, "", targetPath);
+    }
+  }, [selected]);
 
   return (
     <div className="min-h-full overflow-auto bg-[radial-gradient(circle_at_top_right,_color-mix(in_oklab,var(--color-accent)_16%,transparent)_0%,transparent_28%),linear-gradient(180deg,color-mix(in_oklab,var(--color-accent)_5%,var(--color-background))_0%,var(--color-background)_52%)]">
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 md:px-6 md:py-8">
         <Card className="border-border/70 bg-card/85 shadow-[0_30px_80px_-55px_color-mix(in_oklab,var(--color-accent)_35%,transparent)] backdrop-blur">
-          <CardHeader className="gap-5 md:flex-row md:items-end md:justify-between">
-            <div className="space-y-2">
-              <p className="text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
-                My Shows
-              </p>
-              <CardTitle className="text-3xl tracking-[-0.04em] md:text-4xl">
-                Your library, without the clutter.
-              </CardTitle>
-              <p className="max-w-2xl text-sm leading-7 text-muted-foreground">
-                Browse what you&apos;re watching now, pick a show, and update
-                episode progress with a single click.
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <Badge variant="secondary" className="rounded-full px-3 py-1">
-                {stats.total} total
-              </Badge>
-              <Badge variant="outline" className="rounded-full px-3 py-1">
-                {stats.active} active
-              </Badge>
-              <Badge variant="outline" className="rounded-full px-3 py-1">
-                {stats.upcoming} upcoming
-              </Badge>
-              <Badge variant="outline" className="rounded-full px-3 py-1">
-                {stats.ended} ended
-              </Badge>
-            </div>
-          </CardHeader>
-          {selected ? (
-            <>
-              <Separator />
-              <CardContent className="flex flex-col gap-3 pt-5 md:flex-row md:items-center md:justify-between">
-                <div className="space-y-1">
-                  <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">
-                    Focus
+          <CardContent className="grid gap-3 p-4 md:grid-cols-4">
+            {[
+              {
+                label: "Total",
+                value: counts.total,
+                variant: "secondary" as const,
+              },
+              {
+                label: "Upcoming",
+                value: counts.upcoming,
+                variant: "outline" as const,
+              },
+              {
+                label: "Returning",
+                value: counts.returning,
+                variant: "outline" as const,
+              },
+              {
+                label: "Ended",
+                value: counts.ended,
+                variant: "outline" as const,
+              },
+            ].map((stat) => (
+              <div
+                key={stat.label}
+                className="rounded-2xl border border-border/70 bg-background/65 px-4 py-4"
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
+                    {stat.label}
                   </p>
-                  <h2 className="text-xl font-medium tracking-[-0.03em]">
-                    {selected.name}
-                  </h2>
+                  <Badge
+                    variant={stat.variant}
+                    className="rounded-full px-2.5 py-1"
+                  >
+                    {stat.value}
+                  </Badge>
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  {selected.status ? (
-                    <Badge
-                      variant="secondary"
-                      className="rounded-full px-3 py-1"
-                    >
-                      {selected.status}
-                    </Badge>
-                  ) : null}
-                  {selected.next_episode_to_air?.air_date ? (
-                    <Badge variant="outline" className="rounded-full px-3 py-1">
-                      Next {selected.next_episode_to_air.air_date}
-                    </Badge>
-                  ) : null}
-                </div>
-              </CardContent>
-            </>
-          ) : null}
+              </div>
+            ))}
+          </CardContent>
         </Card>
 
         <div className="grid min-h-[70vh] gap-6 xl:grid-cols-[minmax(340px,420px)_minmax(0,1fr)]">
           {sortedShows.length ? (
             <ShowList
-              shows={sortedShows}
-              currShow={currShow}
+              shows={filteredShows}
+              currShow={selected?.id ?? null}
               setCurrShow={setCurrShow}
+              activeFilter={activeFilter}
+              setActiveFilter={setActiveFilter}
+              counts={counts}
             />
           ) : (
             <Card className="border-border/70 bg-card/85">
@@ -144,7 +169,7 @@ export default function ShowsTable({ series, userId }: ShowsTableProps) {
           {sortedShows.length ? (
             <EpisodeList
               userId={userId}
-              currShow={currShow}
+              currShow={selected?.id ?? null}
               selectedSeries={selected}
             />
           ) : (
