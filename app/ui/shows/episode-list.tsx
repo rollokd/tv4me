@@ -7,8 +7,6 @@ import {
   type TmdbEpisode,
   tmdbShowDetailsQueryOptions,
 } from "@/app/queries/tmdb/show-details";
-import { PlusCircleIcon } from "@heroicons/react/24/outline";
-import { CheckCircleIcon as SolidCheck } from "@heroicons/react/24/solid";
 import clsx from "clsx";
 import { useMemo, useState, useTransition } from "react";
 import Image from "next/image";
@@ -22,6 +20,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CircleCheckIcon } from "@/components/ui/circle-check";
+import { CircleDashedIcon } from "@/components/ui/circle-dashed";
 import {
   Item,
   ItemActions,
@@ -33,13 +33,13 @@ import {
   ItemSeparator,
   ItemTitle,
 } from "@/components/ui/item";
+import { LoaderCircleIcon as AnimatedLoaderCircleIcon } from "@/components/ui/loader-circle";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   ArrowLeftIcon,
   BanIcon,
   CalendarDaysIcon,
   CirclePauseIcon,
-  LoaderCircleIcon,
   RotateCcwIcon,
   TvIcon,
 } from "lucide-react";
@@ -61,6 +61,9 @@ function EpisodeList({
   const router = useRouter();
   const [isStatusPending, startStatusTransition] = useTransition();
   const [currEpisode, setCurrEpisode] = useState<number | null>(null);
+  const [pendingWatchedKey, setPendingWatchedKey] = useState<string | null>(
+    null,
+  );
   const [optimisticWatchedByShow, setOptimisticWatchedByShow] = useState<
     Record<number, string[]>
   >({});
@@ -89,32 +92,45 @@ function EpisodeList({
     e.stopPropagation();
     if (!currShow) return;
     const key = `${seasonNumber}:${episodeNumber}`;
+    if (pendingWatchedKey === key) return;
+
     const wasWatched = watchedSet.has(key);
     const snapshot = [...watchedKeys];
     const next = wasWatched
       ? watchedKeys.filter((k) => k !== key)
       : [...watchedKeys, key];
+    setPendingWatchedKey(key);
     setOptimisticWatchedByShow((current) => ({
       ...current,
       [currShow]: next,
     }));
 
-    const resp = await updateWatchedEp(
-      userId,
-      currShow,
-      seasonNumber,
-      episodeNumber,
-      0,
-    );
-    if (resp === "failed") {
+    try {
+      const resp = await updateWatchedEp(
+        userId,
+        currShow,
+        seasonNumber,
+        episodeNumber,
+        0,
+      );
+      if (resp === "failed") {
+        setOptimisticWatchedByShow((current) => ({
+          ...current,
+          [currShow]: snapshot,
+        }));
+        console.error("Failed to update watched list");
+        return;
+      }
+      router.refresh();
+    } catch (error) {
       setOptimisticWatchedByShow((current) => ({
         ...current,
         [currShow]: snapshot,
       }));
-      console.error("Failed to update watched list");
-      return;
+      console.error("Failed to update watched list", error);
+    } finally {
+      setPendingWatchedKey(null);
     }
-    router.refresh();
   }
 
   function handleStatusClick(status: ShowStatus) {
@@ -179,7 +195,7 @@ function EpisodeList({
     return (
       <Card className="border-border/70 bg-card/85">
         <CardContent className="flex min-h-[420px] flex-col items-center justify-center gap-3 p-8 text-center text-muted-foreground">
-          <LoaderCircleIcon className="size-5 animate-spin" />
+          <AnimatedLoaderCircleIcon className="animate-spin" size={24} />
           <p className="text-sm uppercase tracking-[0.22em]">
             Loading episodes
           </p>
@@ -206,7 +222,7 @@ function EpisodeList({
   }
 
   return (
-    <Card className="min-h-0 border-border/70 bg-card/85 shadow-[0_24px_70px_-50px_color-mix(in_oklab,var(--color-accent)_25%,transparent)]">
+    <Card className="min-h-0 gap-0 border-border/70 bg-card/85 shadow-[0_24px_70px_-50px_color-mix(in_oklab,var(--color-accent)_25%,transparent)]">
       <CardHeader className="gap-5 border-b border-border/70">
         {showMobileBackButton ? (
           <div className="md:hidden">
@@ -348,6 +364,7 @@ function EpisodeList({
                       {seasonEps.map((episode, epIndex) => {
                         const key = `${episode.season_number}:${episode.episode_number}`;
                         const isWatched = watchedSet.has(key);
+                        const isPending = pendingWatchedKey === key;
                         const air = episode.air_date
                           ? new Date(episode.air_date).getTime()
                           : 0;
@@ -401,12 +418,21 @@ function EpisodeList({
                                   <ItemActions>
                                     <Button
                                       type="button"
-                                      size="icon"
+                                      size="icon-lg"
                                       variant={
                                         isWatched ? "secondary" : "default"
                                       }
-                                      className="size-10 rounded-full shrink-0"
-                                      disabled={unaired}
+                                      className={clsx(
+                                        "shrink-0 rounded-full touch-manipulation",
+                                        "[&_svg]:size-6!",
+                                        "shadow-sm transition-transform active:scale-95",
+                                      )}
+                                      disabled={unaired || isPending}
+                                      aria-label={
+                                        isWatched
+                                          ? `Mark episode ${episode.episode_number} as unwatched`
+                                          : `Mark episode ${episode.episode_number} as watched`
+                                      }
                                       onClick={(e) =>
                                         handleWatchedClick(
                                           e,
@@ -415,10 +441,15 @@ function EpisodeList({
                                         )
                                       }
                                     >
-                                      {isWatched ? (
-                                        <SolidCheck className="size-5" />
+                                      {isPending ? (
+                                        <AnimatedLoaderCircleIcon
+                                          className="animate-spin"
+                                          size={32}
+                                        />
+                                      ) : isWatched ? (
+                                        <CircleCheckIcon size={32} />
                                       ) : (
-                                        <PlusCircleIcon className="size-5" />
+                                        <CircleDashedIcon size={32} />
                                       )}
                                     </Button>
                                   </ItemActions>
