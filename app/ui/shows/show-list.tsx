@@ -35,8 +35,13 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import Link from "next/link";
+import {
+  isTmdbSeriesConcluded,
+  libraryAiringSection,
+  type LibraryAiringSection,
+} from "@/app/lib/tmdb-airing";
 
-type AiringSection = "upcoming" | "returning" | "ended";
+type AiringSection = LibraryAiringSection;
 
 function ShowItem({
   show,
@@ -144,18 +149,8 @@ function ShowItem({
   );
 }
 
-function airingSection(show: SeriesWithWatchedKeys): AiringSection {
-  if (show.status === "Ended") {
-    return "ended";
-  }
-  if (show.next_episode_to_air) {
-    return "upcoming";
-  }
-  return "returning";
-}
-
 function airedEpisodeCount(show: SeriesWithWatchedKeys) {
-  if (show.status === "Ended") {
+  if (isTmdbSeriesConcluded(show.status)) {
     return (
       show.seasons
         ?.filter((season) => season.season_number > 0)
@@ -207,7 +202,7 @@ export default function ShowList({
     () =>
       shows.reduce(
         (groups, show) => {
-          groups[airingSection(show)].push(show);
+          groups[libraryAiringSection(show)].push(show);
           return groups;
         },
         {
