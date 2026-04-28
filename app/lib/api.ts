@@ -94,3 +94,13 @@ export async function getSearchResults(
 export async function getConfiguration(): Promise<ConfigurationResponse> {
   return tmdbJson<ConfigurationResponse>(`${BASE_URL}/configuration`);
 }
+
+export async function getTvEpisode(
+  tvId: number,
+  seasonNumber: number,
+  episodeNumber: number,
+): Promise<unknown> {
+  return tmdbJson<unknown>(
+    `${BASE_URL}/tv/${tvId}/season/${seasonNumber}/episode/${episodeNumber}`,
+  );
+}
