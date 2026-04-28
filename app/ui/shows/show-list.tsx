@@ -19,7 +19,14 @@ import {
 } from "@/components/ui/item";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { TvIcon, Clock3Icon, SparklesIcon } from "lucide-react";
+import {
+  TvIcon,
+  Clock3Icon,
+  SparklesIcon,
+  PauseCircleIcon,
+  PlayCircleIcon,
+  BanIcon,
+} from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Accordion,
@@ -208,16 +215,24 @@ export default function ShowList({
           <TabsList className="h-auto w-full flex-wrap rounded-2xl bg-background/70">
             {(
               [
-                { value: "active", label: "Active", count: counts.active },
-                { value: "paused", label: "Paused", count: counts.paused },
+                {
+                  value: "active",
+                  label: <PlayCircleIcon />,
+                  count: counts.active,
+                },
+                {
+                  value: "paused",
+                  label: <PauseCircleIcon />,
+                  count: counts.paused,
+                },
                 {
                   value: "abandoned",
-                  label: "Abandoned",
+                  label: <BanIcon />,
                   count: counts.abandoned,
                 },
               ] satisfies {
                 value: ShowStatus;
-                label: string;
+                label: React.ReactNode;
                 count: number;
               }[]
             ).map(({ value, label, count }) => (
@@ -298,7 +313,7 @@ export default function ShowList({
                 ))}
             </Accordion>
           ) : (
-            <div className="flex min-h-[280px] items-center justify-center rounded-2xl border border-dashed border-border/70 bg-background/45 px-6 text-center text-sm text-muted-foreground">
+            <div className="flex min-h-70 items-center justify-center rounded-2xl border border-dashed border-border/70 bg-background/45 px-6 text-center text-sm text-muted-foreground">
               No shows match this filter.
             </div>
           )}
