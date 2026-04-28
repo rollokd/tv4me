@@ -82,6 +82,32 @@ export async function getUserShowsList(userId: string) {
   );
 }
 
+/** One DB read plus TMDB posters for command palette / lightweight clients. */
+export async function getUserLibraryPayloadForApi(userId: string) {
+  const rows = await getUserLibraryRows(userId);
+  const libraryShowIds = rows.map((r) => r.tmdbTvId);
+  const libraryShows = await mapWithConcurrency(
+    rows,
+    LIBRARY_TMDB_CONCURRENCY,
+    async (row) => {
+      let poster_path: string | null = null;
+      try {
+        const detail = await getShow(row.tmdbTvId);
+        poster_path = detail.poster_path ?? null;
+      } catch {
+        poster_path = null;
+      }
+      return {
+        tmdbTvId: row.tmdbTvId,
+        title: row.title,
+        status: (row.status ?? "active") as ShowStatus,
+        poster_path,
+      };
+    },
+  );
+  return { libraryShowIds, libraryShows };
+}
+
 export { getSeriesInfo };
 
 export {

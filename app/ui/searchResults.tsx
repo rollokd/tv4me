@@ -90,6 +90,7 @@ export default function SearchResults({
                               tmdbTvId: rid,
                               title: result.name,
                               status: "active",
+                              poster_path: result.poster_path ?? null,
                             },
                           ],
                         }));

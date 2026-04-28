@@ -48,17 +48,17 @@ function ShowItem({
   epsLeft: number;
 }) {
   const itemClassName = clsx(
-    "rounded-2xl border border-border/70 bg-background/70 px-4 py-4 transition hover:border-accent/50 hover:bg-accent/5",
+    "rounded-xl border border-border/60 bg-background/80 px-3 py-3 transition active:bg-accent/5 sm:rounded-2xl sm:px-4 sm:py-3.5 sm:hover:border-accent/40 sm:hover:bg-accent/5",
     currShow === show.id &&
-      "border-accent/60 bg-accent/8 shadow-[0_18px_40px_-28px_color-mix(in_oklab,var(--color-accent)_45%,transparent)]",
+      "border-accent/55 bg-accent/8 shadow-[0_14px_36px_-24px_color-mix(in_oklab,var(--color-accent)_40%,transparent)]",
   );
 
   const content = (
     <>
       {show.poster_path && (
-        <ItemMedia variant="image" className="h-18 w-12 rounded">
+        <ItemMedia variant="image" className="size-14 shrink-0 rounded-lg sm:h-[4.5rem] sm:w-12 sm:rounded-xl">
           <Image
-            className="rounded-2xl"
+            className="rounded-lg object-cover sm:rounded-xl"
             loader={imageLoader}
             width={120}
             height={180}
@@ -70,34 +70,46 @@ function ShowItem({
       {!show.poster_path ? (
         <ItemMedia
           variant="icon"
-          className="size-16 rounded-2xl border-border/70 bg-muted/60"
+          className="size-14 shrink-0 rounded-lg border-border/60 bg-muted/50 sm:size-[4.5rem] sm:rounded-xl"
         >
-          <TvIcon className="size-5" />
+          <TvIcon className="size-4 sm:size-5" />
         </ItemMedia>
       ) : null}
-      <ItemContent className="gap-3">
+      <ItemContent className="min-w-0 gap-1.5 sm:gap-2">
         <ItemHeader className="items-start">
-          <div className="space-y-2">
-            <ItemTitle className="text-base tracking-[-0.02em] md:text-lg">
+          <div className="min-w-0 space-y-1 sm:space-y-1.5">
+            <ItemTitle className="text-[15px] leading-snug tracking-[-0.02em] sm:text-base md:text-lg">
               {show.name}
             </ItemTitle>
-            <div className="flex flex-wrap gap-2">
-              <Badge variant="secondary" className="rounded-full px-2.5 py-1">
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground sm:hidden">
+              <span className="truncate">{show.status || "Unknown"}</span>
+              {show.next_episode_to_air ? (
+                <span className="shrink-0 text-accent">
+                  Next {prettyDate(show.next_episode_to_air.air_date)}
+                </span>
+              ) : show.last_air_date ? (
+                <span className="shrink-0">
+                  Last {prettyDate(show.last_air_date)}
+                </span>
+              ) : null}
+            </div>
+            <div className="hidden flex-wrap gap-1.5 sm:flex sm:gap-2">
+              <Badge variant="secondary" className="rounded-full px-2 py-0.5 text-xs">
                 {show.status || "Unknown"}
               </Badge>
               {show.next_episode_to_air ? (
                 <Badge
                   variant="outline"
-                  className="rounded-full border-accent/30 px-2.5 py-1"
+                  className="rounded-full border-accent/25 px-2 py-0.5 text-xs"
                 >
-                  <SparklesIcon className="size-3.5" />
+                  <SparklesIcon className="size-3" />
                   Upcoming
                 </Badge>
               ) : null}
             </div>
           </div>
         </ItemHeader>
-        <ItemDescription className="line-clamp-1 text-sm">
+        <ItemDescription className="hidden text-sm sm:line-clamp-1 sm:block">
           {show.next_episode_to_air ? (
             <>Next: {prettyDate(show.next_episode_to_air.air_date)}</>
           ) : show.last_air_date ? (
@@ -106,14 +118,18 @@ function ShowItem({
             <>Last air date unknown</>
           )}
         </ItemDescription>
-        <ItemFooter className="justify-between text-xs text-muted-foreground">
-          <div className="flex items-center gap-2">
-            <Clock3Icon className="size-3.5" />
-            <span>{epsLeft === 0 ? "Caught up" : `${epsLeft} left`}</span>
+        <ItemFooter className="mt-0.5 justify-between gap-2 text-[11px] text-muted-foreground sm:text-xs">
+          <div className="flex min-w-0 items-center gap-1.5">
+            <Clock3Icon className="size-3 shrink-0 opacity-80" />
+            <span className="truncate">
+              {epsLeft === 0 ? "Caught up" : `${epsLeft} left`}
+            </span>
           </div>
-          <span className="text-[11px] uppercase tracking-[0.22em]">
-            {currShow === show.id ? "Selected" : "Open"}
-          </span>
+          {currShow === show.id ? (
+            <span className="hidden shrink-0 uppercase tracking-wider sm:inline">
+              Selected
+            </span>
+          ) : null}
         </ItemFooter>
       </ItemContent>
     </>
@@ -205,14 +221,16 @@ export default function ShowList({
   const hasShows = shows.length > 0;
 
   return (
-    <Card className="flex h-full min-h-0 gap-0 border-border/70 bg-card/85 shadow-[0_24px_70px_-50px_color-mix(in_oklab,var(--color-accent)_25%,transparent)]">
-      <CardHeader className="gap-4 pb-4">
-        <CardTitle className="text-xl tracking-[-0.03em]">Library</CardTitle>
+    <Card className="flex h-full min-h-0 gap-0 border-border/60 bg-card/90 shadow-[0_20px_50px_-40px_color-mix(in_oklab,var(--color-accent)_22%,transparent)] sm:border-border/70 sm:shadow-[0_24px_70px_-50px_color-mix(in_oklab,var(--color-accent)_25%,transparent)]">
+      <CardHeader className="gap-3 pb-3 sm:gap-4 sm:pb-4">
+        <CardTitle className="text-lg tracking-[-0.03em] sm:text-xl">
+          Library
+        </CardTitle>
         <Tabs
           value={activeFilter}
           onValueChange={(value) => setActiveFilter(value as ShowStatus)}
         >
-          <TabsList className="h-auto w-full flex-wrap rounded-2xl bg-background/70">
+          <TabsList className="h-auto w-full flex-wrap gap-0.5 rounded-xl bg-background/80 p-1 sm:rounded-2xl sm:bg-background/70">
             {(
               [
                 {
@@ -239,7 +257,7 @@ export default function ShowList({
               <TabsTrigger
                 key={value}
                 value={value}
-                className="text-xs uppercase flex items-center gap-1"
+                className="flex flex-1 items-center justify-center gap-1 rounded-lg px-2 py-2 text-[11px] uppercase sm:flex-initial sm:px-3 sm:text-xs"
               >
                 {label}
                 <Badge
@@ -259,7 +277,7 @@ export default function ShowList({
             <Accordion
               type="multiple"
               defaultValue={["upcoming", "returning", "ended"]}
-              className="space-y-3"
+              className="space-y-2 sm:space-y-3"
             >
               {(
                 [
@@ -285,20 +303,20 @@ export default function ShowList({
                   <AccordionItem
                     key={section.value}
                     value={section.value}
-                    className="overflow-hidden rounded-lg border border-border/70 bg-background/55 px-0"
+                    className="overflow-hidden rounded-lg border border-border/60 bg-background/60 px-0 sm:border-border/70 sm:bg-background/55"
                   >
-                    <AccordionTrigger className="px-3 py-3 text-left hover:no-underline">
-                      <div className="flex w-full items-center justify-between gap-3 pr-2">
-                        <span className="text-xs font-medium uppercase text-muted-foreground">
+                    <AccordionTrigger className="px-2.5 py-2.5 text-left hover:no-underline sm:px-3 sm:py-3">
+                      <div className="flex w-full items-center justify-between gap-2 pr-1 sm:gap-3 sm:pr-2">
+                        <span className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground sm:text-xs">
                           {section.label}
                         </span>
-                        <Badge variant="secondary" className="rounded-md">
+                        <Badge variant="secondary" className="rounded-md px-1.5 py-0 text-[11px] sm:px-2 sm:text-xs">
                           {section.shows.length}
                         </Badge>
                       </div>
                     </AccordionTrigger>
-                    <AccordionContent className="pb-3">
-                      <ItemGroup className="gap-3 px-3">
+                    <AccordionContent className="pb-2 sm:pb-3">
+                      <ItemGroup className="gap-2 px-2 sm:gap-3 sm:px-3">
                         {section.shows.map((show) => (
                           <ShowItem
                             key={show.id}

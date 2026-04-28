@@ -342,63 +342,57 @@ function EpisodeList({
 
   return (
     <>
-      <Card className="flex h-full min-h-0 gap-0 border-border/70 bg-card/85 shadow-[0_24px_70px_-50px_color-mix(in_oklab,var(--color-accent)_25%,transparent)]">
-        <CardHeader className="gap-5 border-b border-border/70">
+      <Card className="flex h-full min-h-0 gap-0 border-border/60 bg-card/90 shadow-[0_20px_50px_-40px_color-mix(in_oklab,var(--color-accent)_22%,transparent)] sm:border-border/70 sm:shadow-[0_24px_70px_-50px_color-mix(in_oklab,var(--color-accent)_25%,transparent)]">
+        <CardHeader className="gap-3 border-b border-border/60 px-4 pb-4 pt-3 sm:gap-4 sm:border-border/70 sm:px-6 sm:pb-5 sm:pt-6">
           {showMobileBackButton ? (
             <div className="md:hidden">
               <Button
                 asChild
                 variant="ghost"
-                className="h-9 rounded-full px-0 text-sm text-muted-foreground hover:text-foreground"
+                className="h-8 -translate-x-2 rounded-full px-2 text-sm text-muted-foreground hover:text-foreground"
               >
                 <Link href="/shows">
                   <ArrowLeftIcon className="size-4" />
-                  Back to library
+                  Library
                 </Link>
               </Button>
             </div>
           ) : null}
-          <div className="flex items-start gap-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:gap-4">
             {selectedSeries.poster_path ? (
-              <div className="overflow-hidden min-w-20 rounded-2xl border border-border/70 bg-muted/60">
+              <div className="mx-auto shrink-0 overflow-hidden rounded-xl border border-border/60 bg-muted/50 sm:mx-0 sm:min-w-20 sm:rounded-2xl sm:border-border/70 sm:bg-muted/60">
                 <Image
                   loader={imageLoader}
                   width={96}
                   height={144}
                   src={selectedSeries.poster_path}
                   alt={selectedSeries.name}
-                  className="h-28 w-20 object-cover"
+                  className="h-36 w-24 object-cover sm:h-28 sm:w-20"
                 />
               </div>
             ) : (
-              <div className="flex h-28 w-20 items-center justify-center rounded-2xl border border-border/70 bg-muted/60">
-                <TvIcon className="size-5 text-muted-foreground" />
+              <div className="mx-auto flex h-36 w-24 shrink-0 items-center justify-center rounded-xl border border-border/60 bg-muted/50 sm:mx-0 sm:h-28 sm:w-20 sm:rounded-2xl sm:border-border/70 sm:bg-muted/60">
+                <TvIcon className="size-6 text-muted-foreground sm:size-5" />
               </div>
             )}
-            <div className="space-y-3">
-              <div className="space-y-1">
-                <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
-                  Selected show
-                </p>
-                <CardTitle className="text-2xl tracking-[-0.03em]">
-                  {selectedSeries.name}
-                </CardTitle>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <Badge variant="secondary" className="rounded-full px-3 py-1">
+            <div className="min-w-0 space-y-2 sm:space-y-3">
+              <CardTitle className="text-center text-xl leading-tight tracking-[-0.03em] sm:text-left sm:text-2xl">
+                {selectedSeries.name}
+              </CardTitle>
+              <div className="flex flex-wrap items-center justify-center gap-1.5 sm:justify-start sm:gap-2">
+                <Badge variant="secondary" className="rounded-full px-2.5 py-0.5 text-xs capitalize">
                   {selectedSeries.libraryStatus}
                 </Badge>
-                <Badge variant="outline" className="rounded-full px-3 py-1">
+                <Badge variant="outline" className="rounded-full px-2.5 py-0.5 text-xs">
                   {selectedSeries.status}
                 </Badge>
-                <Badge variant="outline" className="rounded-full px-3 py-1">
-                  {filteredEpisodes.length} episodes
-                </Badge>
-                <Badge variant="outline" className="rounded-full px-3 py-1">
-                  {watchedKeys.length} watched
-                </Badge>
               </div>
-              <div className="flex flex-wrap gap-2">
+              <p className="text-center text-xs text-muted-foreground sm:text-left">
+                {watchedKeys.length} watched
+                <span className="text-border px-1.5 sm:px-2">·</span>
+                {filteredEpisodes.length} with air dates
+              </p>
+              <div className="flex flex-wrap justify-center gap-1.5 sm:justify-start sm:gap-2">
                 {selectedSeries.libraryStatus !== "active" ? (
                   <Button
                     type="button"
@@ -439,43 +433,38 @@ function EpisodeList({
                   </Button>
                 ) : null}
               </div>
-              <p className="max-w-2xl text-sm leading-7 text-muted-foreground">
+              <p className="text-pretty text-sm leading-relaxed text-muted-foreground sm:leading-7">
                 {selectedSeries.overview || "No show summary available."}
               </p>
             </div>
           </div>
         </CardHeader>
-        <CardContent className="min-h-0 flex-1 overflow-hidden pt-6">
+        <CardContent className="min-h-0 flex-1 overflow-hidden px-4 pt-4 sm:px-6 sm:pt-6">
           {filteredEpisodes.length ? (
-            <ScrollArea className="h-full pr-3">
+            <ScrollArea className="h-full pr-2 sm:pr-3">
               <Accordion
                 type="multiple"
                 defaultValue={
                   seasonsOrdered[0] ? [`season-${seasonsOrdered[0][0]}`] : []
                 }
-                className="space-y-4"
+                className="space-y-3 sm:space-y-4"
               >
                 {seasonsOrdered.map(([seasonNum, seasonEps]) => (
                   <AccordionItem
                     key={seasonNum}
                     value={`season-${seasonNum}`}
-                    className="overflow-hidden rounded-2xl border border-border/70 bg-background/70 px-0 last:border"
+                    className="overflow-hidden rounded-xl border border-border/60 bg-background/75 px-0 last:border sm:rounded-2xl sm:border-border/70 sm:bg-background/70"
                   >
-                    <AccordionTrigger className="px-4 py-4 text-left hover:no-underline">
-                      <div className="flex w-full items-center justify-between gap-4">
-                        <div className="space-y-1">
-                          <h2 className="text-sm font-medium uppercase tracking-[0.2em] text-muted-foreground">
-                            Season {seasonNum}
-                          </h2>
-                          <p className="text-sm text-muted-foreground">
-                            Most recent episodes first
-                          </p>
-                        </div>
+                    <AccordionTrigger className="px-3 py-3 text-left hover:no-underline sm:px-4 sm:py-3.5">
+                      <div className="flex w-full items-center justify-between gap-3">
+                        <h2 className="text-xs font-medium uppercase tracking-wider text-muted-foreground sm:text-sm sm:tracking-[0.18em]">
+                          Season {seasonNum}
+                        </h2>
                         <Badge
                           variant="outline"
-                          className="rounded-full px-2.5 py-1 text-[11px]"
+                          className="shrink-0 rounded-full px-2 py-0.5 text-[10px] sm:px-2.5 sm:py-1 sm:text-[11px]"
                         >
-                          {seasonEps.length} episodes
+                          {seasonEps.length}
                         </Badge>
                       </div>
                     </AccordionTrigger>
@@ -494,7 +483,7 @@ function EpisodeList({
                               {epIndex > 0 ? <ItemSeparator /> : null}
                               <Item
                                 className={clsx(
-                                  "rounded-none border-0 bg-transparent px-4 py-4",
+                                  "rounded-none border-0 bg-transparent px-3 py-3 sm:px-4 sm:py-3.5",
                                   currEpisode === episode.id && "bg-accent/6",
                                   unaired && "text-muted-foreground",
                                 )}
@@ -503,33 +492,35 @@ function EpisodeList({
                                 <ItemMedia
                                   variant="icon"
                                   className={clsx(
-                                    "size-11 rounded-2xl border-border/70 bg-muted/60",
+                                    "size-9 rounded-xl border-border/60 bg-muted/50 sm:size-11 sm:rounded-2xl sm:border-border/70 sm:bg-muted/60",
                                     currEpisode === episode.id &&
                                       "border-accent/40 bg-accent/10",
                                   )}
                                 >
-                                  <TvIcon className="size-4" />
+                                  <TvIcon className="size-3.5 sm:size-4" />
                                 </ItemMedia>
-                                <ItemContent className="gap-2">
+                                <ItemContent className="min-w-0 gap-1 sm:gap-2">
                                   <ItemHeader className="items-start">
-                                    <div className="space-y-2">
-                                      <ItemTitle className="text-sm tracking-[-0.01em] md:text-base">
-                                        E{episode.episode_number}.{" "}
+                                    <div className="min-w-0 space-y-1 sm:space-y-1.5">
+                                      <ItemTitle className="text-[13px] leading-snug tracking-[-0.01em] sm:text-sm md:text-base">
+                                        <span className="text-muted-foreground">
+                                          E{episode.episode_number}
+                                        </span>{" "}
                                         {episode.name}
                                       </ItemTitle>
-                                      <div className="flex flex-wrap gap-2">
-                                        <Badge
-                                          variant={
-                                            isWatched ? "secondary" : "outline"
-                                          }
-                                          className="rounded-full px-2.5 py-1 text-[11px]"
-                                        >
-                                          {isWatched ? "Watched" : "Unwatched"}
-                                        </Badge>
+                                      <div className="flex flex-wrap gap-1.5">
+                                        {isWatched ? (
+                                          <Badge
+                                            variant="secondary"
+                                            className="rounded-full px-2 py-0.5 text-[10px] sm:text-[11px]"
+                                          >
+                                            Watched
+                                          </Badge>
+                                        ) : null}
                                         {unaired ? (
                                           <Badge
                                             variant="outline"
-                                            className="rounded-full px-2.5 py-1 text-[11px]"
+                                            className="rounded-full px-2 py-0.5 text-[10px] sm:text-[11px]"
                                           >
                                             Unaired
                                           </Badge>
@@ -574,12 +565,13 @@ function EpisodeList({
                                       </Button>
                                     </ItemActions>
                                   </ItemHeader>
-                                  <ItemDescription className="line-clamp-2 text-sm leading-6">
-                                    {episode.overview ||
-                                      "No episode summary available."}
-                                  </ItemDescription>
-                                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                                    <CalendarDaysIcon className="size-3.5" />
+                                  {episode.overview ? (
+                                    <ItemDescription className="line-clamp-2 text-xs leading-snug text-muted-foreground sm:text-sm sm:leading-6">
+                                      {episode.overview}
+                                    </ItemDescription>
+                                  ) : null}
+                                  <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground sm:text-xs">
+                                    <CalendarDaysIcon className="size-3 shrink-0 opacity-80" />
                                     <span>
                                       {episode.air_date
                                         ? prettyDate(episode.air_date)

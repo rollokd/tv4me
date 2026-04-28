@@ -7,6 +7,7 @@ export const libraryShowSchema = z.object({
   tmdbTvId: z.number(),
   title: z.string(),
   status: showStatusSchema,
+  poster_path: z.string().nullable().optional(),
 });
 
 export const userLibraryPayloadSchema = z.object({
