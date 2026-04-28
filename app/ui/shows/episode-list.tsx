@@ -297,7 +297,7 @@ function EpisodeList({
   if (!currShow || !selectedSeries) {
     return (
       <Card className="h-full border-border/70 bg-card/85">
-        <CardContent className="flex h-full min-h-[420px] flex-col items-center justify-center gap-2 p-8 text-center text-muted-foreground">
+        <CardContent className="flex h-full min-h-105 flex-col items-center justify-center gap-2 p-8 text-center text-muted-foreground">
           <p className="text-xl font-medium tracking-[-0.03em]">
             Select a show
           </p>
@@ -313,7 +313,7 @@ function EpisodeList({
   if (episodeQuery.isLoading || episodeQuery.isFetching) {
     return (
       <Card className="h-full border-border/70 bg-card/85">
-        <CardContent className="flex h-full min-h-[420px] flex-col items-center justify-center gap-3 p-8 text-center text-muted-foreground">
+        <CardContent className="flex h-full min-h-105 flex-col items-center justify-center gap-3 p-8 text-center text-muted-foreground">
           <AnimatedLoaderCircleIcon className="animate-spin" size={24} />
           <p className="text-sm uppercase tracking-[0.22em]">
             Loading episodes
@@ -326,7 +326,7 @@ function EpisodeList({
   if (episodeQuery.error) {
     return (
       <Card className="h-full border-border/70 bg-card/85">
-        <CardContent className="flex h-full min-h-[420px] flex-col items-center justify-center gap-2 p-8 text-center text-destructive">
+        <CardContent className="flex h-full min-h-105 flex-col items-center justify-center gap-2 p-8 text-center text-destructive">
           <p className="text-xl font-medium tracking-[-0.03em]">
             Couldn&apos;t load episodes
           </p>
@@ -392,7 +392,7 @@ function EpisodeList({
                   {selectedSeries.status}
                 </Badge>
                 <Badge variant="outline" className="rounded-full px-3 py-1">
-                  {filteredEpisodes.length} aired episodes
+                  {filteredEpisodes.length} episodes
                 </Badge>
                 <Badge variant="outline" className="rounded-full px-3 py-1">
                   {watchedKeys.length} watched
