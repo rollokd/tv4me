@@ -1,6 +1,5 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { passkey } from "@better-auth/passkey";
 import { db } from "@/app/db";
 import {
   user,
@@ -27,8 +26,15 @@ export const auth = betterAuth({
       enabled: true,
     },
   },
-  plugins: [passkey()],
   // Add user serialization and other configurations as necessary
   secret: process.env.BETTER_AUTH_SECRET,
-  baseURL: process.env.BETTER_AUTH_URL,
+  baseURL: {
+    allowedHosts: [
+			"localhost:3000",
+			"localhost:5173",
+			"tv4me.app",
+			"*.vercel.app",
+		],
+		protocol: process.env.NODE_ENV === "development" ? "http" : "https",
+  }
 });

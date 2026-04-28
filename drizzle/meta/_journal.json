@@ -15,6 +15,20 @@
       "when": 1741564324265,
       "tag": "0001_unique_vance_astro",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1776988085413,
+      "tag": "0002_shows_composite_episode_watches",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1776991280117,
+      "tag": "0003_panoramic_zaladane",
+      "breakpoints": true
     }
   ]
 }

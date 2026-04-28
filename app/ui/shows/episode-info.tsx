@@ -12,7 +12,7 @@ function EpisodeItem({ episode }: { episode: Episode | undefined }) {
           <h2 className="text-2xl p-2">{episode?.name}</h2>
           {episode.still_path && (
             <Image
-              className="w-full h-auto"
+              className="w-full min-w-24 h-auto"
               loader={imageLoader}
               width={300}
               height={150}

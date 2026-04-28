@@ -1,67 +1,129 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { addShow, getUser, updateWatchedOne, removeShow } from "./users";
-import { getEpisodes, getShowsList, getUsersShowsAndEpisodes } from "./api";
+import { getUser } from "./users";
+import {
+  deleteUserShow,
+  getUserLibraryWithProgress,
+  getUserShowsList,
+  insertUserShow,
+  markEpisodesWatched,
+  toggleEpisodeWatched,
+  updateUserShowStatus,
+} from "./library-service";
+import type { EpisodeWatchTarget } from "./shows";
+import type { ShowStatus } from "./shows";
+import { getShow } from "./api";
 
 export async function updateWatchedEp(
   userId: string,
   showId: number,
-  episodeNo: number,
+  seasonNumber: number,
+  episodeNumber: number,
+  watchthrough = 0,
 ) {
   try {
-    await updateWatchedOne(userId, showId, episodeNo);
+    await toggleEpisodeWatched(
+      userId,
+      showId,
+      seasonNumber,
+      episodeNumber,
+      watchthrough,
+    );
     revalidatePath("/shows");
-    return "successful";
+    return "successful" as const;
   } catch (err) {
-    console.log(err);
-    return "failed";
+    console.error(err);
+    return "failed" as const;
+  }
+}
+
+export async function markWatchedEpisodes(
+  userId: string,
+  showId: number,
+  episodes: EpisodeWatchTarget[],
+  watchthrough = 0,
+) {
+  try {
+    await markEpisodesWatched(userId, showId, episodes, watchthrough);
+    revalidatePath("/shows");
+    revalidatePath(`/shows/${showId}`);
+    return "successful" as const;
+  } catch (err) {
+    console.error(err);
+    return "failed" as const;
   }
 }
 
 export async function addUserShow(userId: string, showId: number) {
   try {
-    const episodes = await getEpisodes(showId);
-    console.log("episodeNo", episodes);
-    await addShow(userId, showId, episodes);
+    const detail = await getShow(showId);
+    if (!detail?.id) {
+      return "failed" as const;
+    }
+    await insertUserShow(userId, showId, detail.name ?? "Unknown show");
     revalidatePath("/shows");
-    return "successful";
+    revalidatePath("/search");
+    return "successful" as const;
   } catch (err) {
-    console.log(err);
-    return "failed";
+    console.error(err);
+    return "failed" as const;
   }
 }
 
 export async function removeUserShow(userId: string, showId: number) {
   try {
-    await removeShow(userId, showId);
+    await deleteUserShow(userId, showId);
     revalidatePath("/shows");
-    return "successful";
+    revalidatePath("/search");
+    return "successful" as const;
   } catch (err) {
-    console.log(err);
-    return "failed";
+    console.error(err);
+    return "failed" as const;
+  }
+}
+
+export async function setUserShowStatus(
+  userId: string,
+  showId: number,
+  status: ShowStatus,
+) {
+  try {
+    await updateUserShowStatus(userId, showId, status);
+    revalidatePath("/shows");
+    revalidatePath(`/shows/${showId}`);
+    revalidatePath("/search");
+    return "successful" as const;
+  } catch (err) {
+    console.error(err);
+    return "failed" as const;
   }
 }
 
 export async function getShowsAndEpsFromId(id: string) {
   try {
     const user = await getUser(id);
-    const showWEps = await getUsersShowsAndEpisodes(id);
-    console.log("series", showWEps);
-    return JSON.stringify({ user, series: showWEps });
+    if (!user) {
+      return { ok: false as const, error: "User not found" };
+    }
+    const series = await getUserLibraryWithProgress(id);
+    return { ok: true as const, user, series };
   } catch (err) {
-    console.log(err);
-    return "failed";
+    console.error(err);
+    return { ok: false as const, error: "Failed to load shows" };
   }
 }
+
 export async function getShowsFromId(id: string) {
   try {
     const user = await getUser(id);
-    const series = await getShowsList(id);
-    console.log("series", series);
-    return JSON.stringify({ user, series });
+    if (!user) {
+      return { ok: false as const, error: "User not found" };
+    }
+    const series = await getUserShowsList(id);
+    return { ok: true as const, user, series };
   } catch (err) {
-    console.log(err);
-    return "failed";
+    console.error(err);
+    return { ok: false as const, error: "Failed to load shows" };
   }
 }

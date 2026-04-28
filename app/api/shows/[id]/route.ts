@@ -1,4 +1,4 @@
-import { getUsersShowsAndEpisodes } from "@/app/lib/api";
+import { getUserLibraryWithProgress } from "@/app/lib/library-service";
 import { getUser } from "@/app/lib/users";
 
 export async function GET(
@@ -6,13 +6,11 @@ export async function GET(
   props: { params: Promise<{ id: string }> },
 ) {
   const params = await props.params;
-  console.log("got request", params.id);
   const id = params.id;
   const user = await getUser(id);
   if (!user) {
     return Response.json({ error: "User not found" }, { status: 404 });
   }
-  const showWEps = await getUsersShowsAndEpisodes(user.id);
-  console.log("got show response");
+  const showWEps = await getUserLibraryWithProgress(user.id);
   return Response.json({ user, showWEps });
 }

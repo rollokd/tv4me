@@ -1,4 +1,8 @@
 import { getUser } from "@/app/lib/users";
+import {
+  getUserLibraryRows,
+  getUserLibraryTmdbIds,
+} from "@/app/lib/library-service";
 
 export async function GET(
   request: Request,
@@ -11,6 +15,18 @@ export async function GET(
     return Response.json({ error: "User not found" }, { status: 404 });
   }
 
-  // console.log(user);
-  return Response.json({ user });
+  const [libraryShowIds, libraryRows] = await Promise.all([
+    getUserLibraryTmdbIds(id),
+    getUserLibraryRows(id),
+  ]);
+
+  return Response.json({
+    user,
+    libraryShowIds,
+    libraryShows: libraryRows.map((show) => ({
+      tmdbTvId: show.tmdbTvId,
+      title: show.title,
+      status: show.status ?? "active",
+    })),
+  });
 }
