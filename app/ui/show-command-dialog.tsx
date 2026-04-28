@@ -32,6 +32,7 @@ import {
   PlusIcon,
   RotateCcwIcon,
   SearchIcon,
+  TvIcon,
 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -144,6 +145,7 @@ export default function ShowCommandDialog({
             tmdbTvId: show.id,
             title: show.name,
             status: "active",
+            poster_path: show.poster_path ?? null,
           },
         ]);
         router.refresh();
@@ -176,11 +178,22 @@ export default function ShowCommandDialog({
                 key={show.tmdbTvId}
                 value={`${show.title} ${show.status} ${show.tmdbTvId}`}
                 onSelect={() => closeAndGo(show.tmdbTvId)}
-                className="items-start gap-3 rounded-md"
+                className="items-start gap-2.5 rounded-md py-2.5 sm:gap-3 sm:py-3"
               >
-                <div className="flex size-10 shrink-0 items-center justify-center rounded-md bg-muted">
-                  <SearchIcon className="size-4" />
-                </div>
+                {show.poster_path ? (
+                  <Image
+                    loader={imageLoader}
+                    src={show.poster_path}
+                    alt={show.title}
+                    width={44}
+                    height={66}
+                    className="h-14 w-9 shrink-0 rounded-md object-cover sm:h-16 sm:w-11"
+                  />
+                ) : (
+                  <div className="flex h-14 w-9 shrink-0 items-center justify-center rounded-md bg-muted sm:h-16 sm:w-11">
+                    <TvIcon className="size-4 text-muted-foreground" />
+                  </div>
+                )}
                 <div className="min-w-0 flex-1 space-y-2">
                   <div className="flex min-w-0 items-center gap-2">
                     <span className="truncate font-medium">{show.title}</span>
