@@ -177,8 +177,8 @@ function EpisodeList({
 
   if (!currShow || !selectedSeries) {
     return (
-      <Card className="border-border/70 bg-card/85">
-        <CardContent className="flex min-h-[420px] flex-col items-center justify-center gap-2 p-8 text-center text-muted-foreground">
+      <Card className="h-full border-border/70 bg-card/85">
+        <CardContent className="flex h-full min-h-[420px] flex-col items-center justify-center gap-2 p-8 text-center text-muted-foreground">
           <p className="text-xl font-medium tracking-[-0.03em]">
             Select a show
           </p>
@@ -193,8 +193,8 @@ function EpisodeList({
 
   if (episodeQuery.isLoading || episodeQuery.isFetching) {
     return (
-      <Card className="border-border/70 bg-card/85">
-        <CardContent className="flex min-h-[420px] flex-col items-center justify-center gap-3 p-8 text-center text-muted-foreground">
+      <Card className="h-full border-border/70 bg-card/85">
+        <CardContent className="flex h-full min-h-[420px] flex-col items-center justify-center gap-3 p-8 text-center text-muted-foreground">
           <AnimatedLoaderCircleIcon className="animate-spin" size={24} />
           <p className="text-sm uppercase tracking-[0.22em]">
             Loading episodes
@@ -206,8 +206,8 @@ function EpisodeList({
 
   if (episodeQuery.error) {
     return (
-      <Card className="border-border/70 bg-card/85">
-        <CardContent className="flex min-h-[420px] flex-col items-center justify-center gap-2 p-8 text-center text-destructive">
+      <Card className="h-full border-border/70 bg-card/85">
+        <CardContent className="flex h-full min-h-[420px] flex-col items-center justify-center gap-2 p-8 text-center text-destructive">
           <p className="text-xl font-medium tracking-[-0.03em]">
             Couldn&apos;t load episodes
           </p>
@@ -222,7 +222,7 @@ function EpisodeList({
   }
 
   return (
-    <Card className="min-h-0 gap-0 border-border/70 bg-card/85 shadow-[0_24px_70px_-50px_color-mix(in_oklab,var(--color-accent)_25%,transparent)]">
+    <Card className="flex h-full min-h-0 gap-0 border-border/70 bg-card/85 shadow-[0_24px_70px_-50px_color-mix(in_oklab,var(--color-accent)_25%,transparent)]">
       <CardHeader className="gap-5 border-b border-border/70">
         {showMobileBackButton ? (
           <div className="md:hidden">
@@ -325,9 +325,9 @@ function EpisodeList({
           </div>
         </div>
       </CardHeader>
-      <CardContent className="min-h-0 pt-6">
+      <CardContent className="min-h-0 flex-1 overflow-hidden pt-6">
         {filteredEpisodes.length ? (
-          <ScrollArea className="h-[min(72vh,820px)] pr-3">
+          <ScrollArea className="h-full pr-3">
             <Accordion
               type="multiple"
               defaultValue={

@@ -198,7 +198,7 @@ export default function ShowList({
   const hasShows = shows.length > 0;
 
   return (
-    <Card className="min-h-0 border-border/70 bg-card/85 shadow-[0_24px_70px_-50px_color-mix(in_oklab,var(--color-accent)_25%,transparent)]">
+    <Card className="flex h-full min-h-0 gap-0 border-border/70 bg-card/85 shadow-[0_24px_70px_-50px_color-mix(in_oklab,var(--color-accent)_25%,transparent)]">
       <CardHeader className="gap-4 pb-4">
         <CardTitle className="text-xl tracking-[-0.03em]">Library</CardTitle>
         <Tabs
@@ -238,8 +238,8 @@ export default function ShowList({
           </TabsList>
         </Tabs>
       </CardHeader>
-      <CardContent className="min-h-0">
-        <ScrollArea className="h-[min(72vh,820px)] pr-3">
+      <CardContent className="min-h-0 flex-1 overflow-hidden">
+        <ScrollArea className="h-full pr-3">
           {hasShows ? (
             <Accordion
               type="multiple"

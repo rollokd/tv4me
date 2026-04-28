@@ -14,8 +14,8 @@ export default function ShowDetailsPane({ showId }: { showId: number }) {
 
   if (!selectedSeries) {
     return (
-      <Card className="border-border/70 bg-card/85">
-        <CardContent className="flex min-h-[420px] flex-col items-center justify-center gap-2 p-8 text-center text-muted-foreground">
+      <Card className="h-full border-border/70 bg-card/85">
+        <CardContent className="flex h-full min-h-[420px] flex-col items-center justify-center gap-2 p-8 text-center text-muted-foreground">
           <p className="text-xl font-medium tracking-[-0.03em]">
             Show not found
           </p>

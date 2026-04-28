@@ -81,10 +81,10 @@ export default function ShowsShell({
 
   return (
     <ShowsShellContext.Provider value={{ userId, series }}>
-      <div className="min-h-full overflow-auto bg-[radial-gradient(circle_at_top_right,color-mix(in_oklab,var(--color-accent)_16%,transparent)_0%,transparent_28%),linear-gradient(180deg,color-mix(in_oklab,var(--color-accent)_5%,var(--color-background))_0%,var(--color-background)_52%)]">
-        <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 p-2 md:p-4">
-          <div className="grid min-h-[70vh] gap-6 md:grid-cols-[360px_1fr]">
-            <div className={cn(isDetailRoute && "hidden md:block")}>
+      <div className="h-full min-h-0 overflow-hidden bg-[radial-gradient(circle_at_top_right,color-mix(in_oklab,var(--color-accent)_16%,transparent)_0%,transparent_28%),linear-gradient(180deg,color-mix(in_oklab,var(--color-accent)_5%,var(--color-background))_0%,var(--color-background)_52%)]">
+        <div className="mx-auto flex h-full min-h-0 w-full max-w-7xl flex-col gap-6 p-2 md:p-4">
+          <div className="grid min-h-0 flex-1 gap-6 md:grid-cols-[360px_1fr]">
+            <div className={cn("min-h-0", isDetailRoute && "hidden md:block")}>
               <ShowList
                 shows={filteredShows}
                 currShow={selectedShowId}
@@ -94,7 +94,7 @@ export default function ShowsShell({
               />
             </div>
 
-            <div className={cn(!isDetailRoute && "hidden sm:block")}>
+            <div className={cn("min-h-0", !isDetailRoute && "hidden sm:block")}>
               {children}
             </div>
           </div>
