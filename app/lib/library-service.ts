@@ -6,6 +6,7 @@ import {
   getUserLibraryTmdbIds,
   getUserWatchedEpisodesByShow,
   insertUserShow,
+  markEpisodesWatched,
   type ShowStatus,
   toggleEpisodeWatched,
   updateUserShowStatus,
@@ -89,6 +90,7 @@ export {
   getUserLibraryTmdbIds,
   getUserWatchedEpisodesByShow,
   insertUserShow,
+  markEpisodesWatched,
   toggleEpisodeWatched,
   updateUserShowStatus,
 };

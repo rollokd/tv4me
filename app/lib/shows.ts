@@ -5,6 +5,10 @@ import { episodeWatches, shows } from "./schema/shows-schema";
 export type LibraryShowRow = typeof shows.$inferSelect;
 export type EpisodeWatchRow = typeof episodeWatches.$inferSelect;
 export type ShowStatus = NonNullable<LibraryShowRow["status"]>;
+export type EpisodeWatchTarget = {
+  seasonNumber: number;
+  episodeNumber: number;
+};
 
 export async function getUserLibraryRows(userId: string) {
   return db.select().from(shows).where(eq(shows.userId, userId));
@@ -130,4 +134,49 @@ export async function toggleEpisodeWatched(
     batched: false,
   });
   return true;
+}
+
+export async function markEpisodesWatched(
+  userId: string,
+  tmdbTvId: number,
+  episodes: EpisodeWatchTarget[],
+  watchthrough = 0,
+) {
+  const uniqueEpisodes = new Map<string, EpisodeWatchTarget>();
+  for (const episode of episodes) {
+    uniqueEpisodes.set(
+      watchedKey(episode.seasonNumber, episode.episodeNumber),
+      episode,
+    );
+  }
+
+  const watchedAt = new Date();
+  const values = [...uniqueEpisodes.values()].map((episode) => ({
+    userId,
+    tmdbTvId,
+    watchthrough,
+    seasonNumber: episode.seasonNumber,
+    episodeNumber: episode.episodeNumber,
+    watchedAt,
+    batched: uniqueEpisodes.size > 1,
+  }));
+
+  if (!values.length) {
+    return 0;
+  }
+
+  await db
+    .insert(episodeWatches)
+    .values(values)
+    .onConflictDoNothing({
+      target: [
+        episodeWatches.userId,
+        episodeWatches.tmdbTvId,
+        episodeWatches.watchthrough,
+        episodeWatches.seasonNumber,
+        episodeWatches.episodeNumber,
+      ],
+    });
+
+  return values.length;
 }

@@ -7,9 +7,11 @@ import {
   getUserLibraryWithProgress,
   getUserShowsList,
   insertUserShow,
+  markEpisodesWatched,
   toggleEpisodeWatched,
   updateUserShowStatus,
 } from "./library-service";
+import type { EpisodeWatchTarget } from "./shows";
 import type { ShowStatus } from "./shows";
 import { getShow } from "./api";
 
@@ -29,6 +31,23 @@ export async function updateWatchedEp(
       watchthrough,
     );
     revalidatePath("/shows");
+    return "successful" as const;
+  } catch (err) {
+    console.error(err);
+    return "failed" as const;
+  }
+}
+
+export async function markWatchedEpisodes(
+  userId: string,
+  showId: number,
+  episodes: EpisodeWatchTarget[],
+  watchthrough = 0,
+) {
+  try {
+    await markEpisodesWatched(userId, showId, episodes, watchthrough);
+    revalidatePath("/shows");
+    revalidatePath(`/shows/${showId}`);
     return "successful" as const;
   } catch (err) {
     console.error(err);
